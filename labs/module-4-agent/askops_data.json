@@ -1,0 +1,126 @@
+{
+ "runbooks": [
+  {
+   "id": "RB-101",
+   "title": "Payments API returns 502 after deploy",
+   "service": "payments",
+   "tags": [
+    "deploy",
+    "rollback",
+    "502",
+    "gateway"
+   ],
+   "steps": [
+    "Check the deploy pipeline for the last release",
+    "Compare error rate before and after the release",
+    "Roll back with the release tool if the error rate doubled",
+    "Open an incident if rollback does not clear it"
+   ]
+  },
+  {
+   "id": "RB-102",
+   "title": "Database connection pool exhausted",
+   "service": "payments",
+   "tags": [
+    "database",
+    "pool",
+    "timeout",
+    "connections"
+   ],
+   "steps": [
+    "Confirm the pool metric is at its maximum",
+    "Find long-running queries and their owners",
+    "Raise the pool size only as a temporary measure",
+    "File a ticket for the query that held connections"
+   ]
+  },
+  {
+   "id": "RB-201",
+   "title": "Login latency above 2 seconds",
+   "service": "auth",
+   "tags": [
+    "latency",
+    "login",
+    "cache",
+    "slow"
+   ],
+   "steps": [
+    "Check the token cache hit rate",
+    "Warm the cache if a node restarted",
+    "Scale the auth service if CPU is above 80 percent"
+   ]
+  },
+  {
+   "id": "RB-202",
+   "title": "Certificate expiring within 7 days",
+   "service": "auth",
+   "tags": [
+    "tls",
+    "certificate",
+    "expiry"
+   ],
+   "steps": [
+    "List certificates expiring this week",
+    "Request renewal from the PKI portal",
+    "Deploy the renewed certificate and verify the chain"
+   ]
+  },
+  {
+   "id": "RB-301",
+   "title": "Nightly batch job did not finish",
+   "service": "reporting",
+   "tags": [
+    "batch",
+    "job",
+    "timeout",
+    "retry"
+   ],
+   "steps": [
+    "Read the job log for the last completed step",
+    "Re-run from the failed step, not from the start",
+    "Tell report consumers the expected delay"
+   ]
+  },
+  {
+   "id": "RB-302",
+   "title": "Disk usage above 90 percent on report nodes",
+   "service": "reporting",
+   "tags": [
+    "disk",
+    "storage",
+    "cleanup"
+   ],
+   "steps": [
+    "Find the largest directories",
+    "Delete report archives older than 30 days",
+    "Add a retention rule so it does not recur"
+   ]
+  }
+ ],
+ "incidents": [
+  {
+   "id": "INC-9001",
+   "title": "Payments 502s after 14:00 release",
+   "severity": "high",
+   "service": "payments",
+   "opened_at": "2026-09-14T14:07:00",
+   "runbook_id": "RB-101"
+  },
+  {
+   "id": "INC-9002",
+   "title": "Slow logins in the morning peak",
+   "severity": "medium",
+   "service": "auth",
+   "opened_at": "2026-09-15T09:12:00",
+   "runbook_id": "RB-201"
+  },
+  {
+   "id": "INC-9003",
+   "title": "Batch report late for finance",
+   "severity": "low",
+   "service": "reporting",
+   "opened_at": "2026-09-16T06:30:00",
+   "runbook_id": null
+  }
+ ]
+}

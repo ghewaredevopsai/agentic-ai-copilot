@@ -16,7 +16,7 @@
 </defs></svg>
 
 <div id="viewport"><div id="stage"><!-- 1 -->
-<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module turns AskOps, the app you built in Module 3, into an agent. Today AskOps answers a question by running the same two searches every time. After this module, a model decides what to look up next, reads the result and decides again. You will learn what makes a program an agent, and when a plain workflow is the better choice. You will see how tool calling works on the wire: what your code sends, what the model sends back, and who runs the tool. You will read a complete ReAct loop in plain Python, with no framework. Finally, you will learn the four ways a loop must stop, and how to keep the cost of one run under control. On Day 2 you rebuild this loop with LangChain and LangGraph. On Day 3 you share tools between agents through MCP." data-tier="R">
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module turns AskOps, the app you built in Module 3, into an agent. Today AskOps answers a question by running the same two searches every time. After this module, a model decides what to look up next, reads the result and decides again. You will learn what makes a program an agent, and when a plain workflow is the better choice. You will see how tool calling works on the wire: what your code sends, what the model sends back, and who runs the tool. You will read a complete ReAct loop in plain Python, with no framework. You will learn the four ways a loop must stop, and how to keep the cost of one run under control. Finally, you will give the same tools to the GitHub Copilot SDK, which runs the loop for you, and compare the two. On Day 2 you rebuild this loop with LangChain and LangGraph. On Day 3 you share tools between agents through MCP." data-tier="R">
   <div class="wrap">
     <span class="tier">Day 1 &middot; Module 4 of 4</span>
     <h1>Agent Foundations &amp; Tool Use</h1>
@@ -33,6 +33,7 @@
     <span class="chip">A ReAct loop in plain Python</span>
     <span class="chip">Stop conditions</span>
     <span class="chip">Cost per run</span>
+    <span class="chip">The Copilot SDK</span>
     </div>
   </div>
 </section>
@@ -502,7 +503,7 @@ parameters: {"runbook_id": string}
 </section>
 
 <!-- 14 -->
-<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The loop, in plain Python" data-notes="This is the heart of the agent. The whole file is about 80 lines, and most of it is the three tools and their descriptions. It uses only the Python standard library, so there is nothing to install and nothing hidden. chat is one HTTP POST to the chat completions endpoint, about six lines with urllib. Read the loop from the top. Ask the model. Add its reply to the messages. If the reply has no tool calls, it is the answer, so return it. Otherwise run each tool and add each result with its id. Then go round again. The for loop is the step budget: after MAX_STEPS it stops. Look at the line marked no checks yet. It trusts the tool name and the arguments completely. That is on purpose. It is the first thing you will break." data-tier="K">
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The loop, in plain Python" data-notes="This is the heart of the agent. The whole file, labs/module-4-agent/agent.py, is about 100 lines, and most of it is the four tools and their descriptions. It uses only the Python standard library, so there is nothing to install and nothing hidden. chat is one HTTP POST to the chat completions endpoint, about six lines with urllib. Read the loop from the top. Ask the model. Add its reply to the messages. If the reply has no tool calls, it is the answer, so return it. Otherwise run each tool and add each result with its id. Then go round again. The for loop is the step budget: after MAX_STEPS it stops. Look at the line marked no checks yet. It trusts the tool name and the arguments completely. That is on purpose. It is the first thing you will break, in Lab 4.2. In Lab 4.3 the Copilot SDK runs this same loop for you, and you compare the two." data-tier="K">
   <h2>The loop, in <em>plain Python</em><span class="tag k">3</span></h2>
   <div class="body g64">
     <div>
@@ -531,15 +532,15 @@ parameters: {"runbook_id": string}
         <li><code>chat()</code> is one HTTP POST. No framework.</li>
         <li><b>No tool calls</b> in the reply means: the answer.</li>
         <li>The <code>for</code> loop is the <b>step budget</b>.</li>
-        <li>Whole file: about <b>80 lines</b>, mostly tools.</li>
+        <li>Whole file: about <b>100 lines</b>, mostly tools.</li>
       </ul>
-      <div class="take"><b>Day 2:</b> LangChain&rsquo;s <code>create_agent</code> runs this same loop for you.</div>
+      <div class="take"><b>Lab 4.3:</b> the Copilot SDK runs this loop for you. <b>Day 2:</b> LangChain does.</div>
     </div>
   </div>
 </section>
 
 <!-- 15 -->
-<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The message list is the memory" data-notes="The model remembers nothing between calls. The only memory the agent has is the messages list in your code. So every call sends the whole list again: the system prompt, all the tool descriptions, the question, every earlier reply and every tool result. Look at the bars. Each step sends everything the step before it sent, plus the new messages. So tokens per call go up at every step, and the total for one run grows faster than the number of steps. This is the hidden cost of history and tool schemas from Module 2, now in your own code. It also explains two practical rules. Keep tool results small: return the top three runbooks, not all of them. And keep runs short: every extra step pays again for everything before it." data-tier="K">
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The message list is the memory" data-notes="The model remembers nothing between calls. The only memory the agent has is the messages list in your code. So every call sends the whole list again: the system prompt, all the tool descriptions, the question, every earlier reply and every tool result. Look at the bars. Each step sends everything the step before it sent, plus the new messages. So tokens per call go up at every step, and the total for one run grows faster than the number of steps. This is the hidden cost of history and tool schemas from Module 2, now in your own code. It also explains two practical rules. Keep tool results small: return the top three runbooks, not all of them. And keep runs short: every extra step pays again for everything before it. In Lab 4.3 the Copilot SDK keeps this list for you, out of sight. It still reports the tokens of every call, so you can still count the cost of a run." data-tier="K">
   <h2>The message list <em>is</em> the memory<span class="tag k">3</span></h2>
   <div class="body g64">
     <div>
@@ -577,6 +578,7 @@ parameters: {"runbook_id": string}
       <ul>
         <li>Keep <b>tool results small</b>: the top 3 runbooks, not all of them.</li>
         <li>Keep <b>runs short</b>: each extra step pays again for all earlier ones.</li>
+        <li>The <b>Copilot SDK</b> hides this list, but still reports the tokens.</li>
       </ul>
       <div class="take"><b>From Module 2:</b> history and tool descriptions are the hidden cost.</div>
     </div>
@@ -609,6 +611,43 @@ Action Input: 502 after deploy
     "arguments": "{\"query\": \"502\"}"}}]
 </div>
       <div class="take"><b>Still check the arguments.</b> And choose a model that supports tool calling.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16b -->
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The same agent on the Copilot SDK" data-notes="The GitHub Copilot SDK lets a Python program use your Copilot subscription as the agent&rsquo;s model. You give it the same four tool functions. Copilot runs the loop: it asks the model, runs the tools and keeps the message list. You call send_and_wait once, and you get the answer back. This saves you writing the loop, but you can no longer see or change each step of it. Look at what stays in your code. You choose which tools exist. You switch off Copilot&rsquo;s own shell and file tools, so the agent can only use yours. And your approve function decides whether open_incident may run. That is the same rule as slide 8, now in a different place. The code on the slide is shortened. The full file is labs/module-4-agent/agent_sdk.py, and Lab 4.3 runs it. Every run uses your Copilot allowance." data-tier="K">
+  <h2>The same agent on the <em>Copilot SDK</em><span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">agent_sdk.py &mdash; SHORTENED</span>def approve(request, invocation):        <span class="c"># your code decides</span>
+    if request.tool_name == "open_incident" and person_says_yes():
+        return PermissionDecisionApproveOnce()
+    return PermissionDecisionReject(feedback="Refused.")
+
+session = await client.create_session(
+    model="gpt-5-mini",
+    tools=[search_runbooks, get_runbook,  <span class="c"># the same tools</span>
+           list_incidents, open_incident],
+    <span class="s">available_tools=ToolSet().add_custom("*")</span>,  <span class="c"># only yours</span>
+    on_permission_request=approve)
+
+<span class="c"># Copilot runs the whole loop</span>
+reply = await session.send_and_wait(question)
+</div>
+    </div>
+    <div class="pts">
+      <h3>Copilot runs</h3>
+      <ul>
+        <li>The loop, and the message list.</li>
+      </ul>
+      <h3>Your code still decides</h3>
+      <ul>
+        <li>Which <b>tools</b> exist. Its shell and file tools are off.</li>
+        <li>Which tools need <b>approval</b>.</li>
+        <li>How many <b>tokens</b> a run may use.</li>
+      </ul>
+      <div class="take"><b>An SDK runs the loop.</b> It does not decide what the agent may do.</div>
     </div>
   </div>
 </section>
@@ -680,7 +719,7 @@ Action Input: 502 after deploy
 </section>
 
 <!-- 19 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Control the cost of one run" data-notes="A single model call has a cost you can predict. An agent run does not, because the number of steps changes. So set limits on the run, not on the call. The step budget caps the number of round trips. The token budget adds up the usage figure that comes back with every reply, and stops the run when the total passes your limit. max_tokens caps the length of each reply. Small tool results keep every later call cheaper, as the last section showed. Finally, the model itself: the tool-choosing step often works well on a smaller, cheaper model. Module 2 showed how to compare models on the same task. Always report tokens per run. A number per call hides the growth you saw on the message-list slide. Your capstone on Day 3 needs a cost ceiling, and this is where it starts." data-tier="K">
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Control the cost of one run" data-notes="A single model call has a cost you can predict. An agent run does not, because the number of steps changes. So set limits on the run, not on the call. The step budget caps the number of round trips. The token budget adds up the usage figure that comes back with every reply, and stops the run when the total passes your limit. max_tokens caps the length of each reply. Small tool results keep every later call cheaper, as the last section showed. Finally, the model itself: the tool-choosing step often works well on a smaller, cheaper model. Module 2 showed how to compare models on the same task. Always report tokens per run. A number per call hides the growth you saw on the message-list slide. The Copilot SDK in Lab 4.3 sends the same figure as a usage event, so the same budget works there. Your capstone on Day 3 needs a cost ceiling, and this is where it starts." data-tier="K">
   <h2>Control the cost of <em>one run</em><span class="tag k">4</span></h2>
   <div class="body g46">
     <div class="pts">
@@ -705,13 +744,13 @@ for step in range(MAX_STEPS):
 
 print(f"{step + 1} steps, {used} tokens")
 </div>
-      <div class="callout">Every reply reports its own token count. <b>You only have to add it up.</b></div>
+      <div class="callout">Every reply reports its token count. <b>Add it up.</b> The Copilot SDK reports it too.</div>
     </div>
   </div>
 </section>
 
 <!-- 20 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Five ways a loop fails" data-notes="These five failures cover most of what goes wrong with a first agent. The wrong tool comes from weak descriptions. An invented tool or argument crashes the plain loop from the last section, because it trusts every call. A loop that never ends needs loop detection and a step budget. The fourth is the most dangerous, because nothing looks broken. A tool hides an error behind an empty list, and the agent tells the engineer there is no runbook. The fifth is a slow leak. Long results and long runs push the token count up, and nobody notices until the bill arrives. The best way to learn these is to cause each one on purpose. Then fix it, run again, and compare the tokens the run used before and after the fix." data-tier="K">
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Five ways a loop fails" data-notes="These five failures cover most of what goes wrong with a first agent. The wrong tool comes from weak descriptions. An invented tool or argument crashes the plain loop from the last section, because it trusts every call. A loop that never ends needs loop detection and a step budget. The fourth is the most dangerous, because nothing looks broken. A tool hides an error behind an empty list, and the agent tells the engineer there is no runbook. The fifth is a slow leak. Long results and long runs push the token count up, and nobody notices until the bill arrives. The best way to learn these is to cause each one on purpose. In Lab 4.2 a fake model causes the first three on demand. You fix each one, run again, and compare the tokens the run used before and after the fix." data-tier="K">
   <h2>Five ways a loop <em>fails</em><span class="tag k">4</span></h2>
   <div class="body g1">
     <div>
@@ -740,7 +779,43 @@ print(f"{step + 1} steps, {used} tokens")
         <text class="tt" x="24" y="324">Silent cost growth</text>
         <text class="ss" x="330" y="324">tokens per run creep up</text>
         <text class="ss" x="780" y="324" style="fill:#5fbf8f">token budget, small results</text>
-        <text class="ss" x="4" y="384" style="font-weight:600">Learn them by causing each one on purpose, then fixing it.</text>
+        <text class="ss" x="4" y="384" style="font-weight:600">In Lab 4.2 you cause each one on purpose, then fix it.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 20b -->
+<section class="slide" data-sec="Labs" data-title="Labs 4.1 to 4.3" data-notes="The three labs build on each other. In Lab 4.1 you read the loop with Copilot in Ask mode, then run it. First you use the fake model, a small server that replays a script, so it works with no network. Watch its terminal: the tokens go up on every call. In Lab 4.2 the fake model makes the agent fail in the ways from the last slide. You fix each failure with Copilot in agent mode and fill in a table of steps and tokens, before and after. In Lab 4.3 you give the same tools to the Copilot SDK and compare the two versions. Your machine has no model endpoint today, so the real-model runs wait for Day 2. Lab 4.4 opens Day 2 by running your fixed agent on a real model in the sandbox. The guide is labs/module-4-labs.md, and the code is in labs/module-4-agent." data-tier="K">
+  <h2>Labs 4.1 to 4.3 &mdash; <em>build it, break it, compare</em><span class="tag">LAB</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 320" role="img" aria-label="The three Module 4 labs: read and run the loop, break and fix it, and rebuild it on the Copilot SDK">
+        <rect class="bx grow" x="4" y="4" width="380" height="220" rx="8"/>
+        <text class="lb" x="24" y="32">LAB 4.1</text>
+        <text class="tt" x="24" y="64">Read the loop, then run it</text>
+        <text class="ss" x="24" y="104">Ask Copilot to explain run().</text>
+        <text class="ss" x="24" y="132">Run it on the fake model.</text>
+        <text class="ss" x="24" y="160">Watch tokens grow per call.</text>
+        <text class="ss" x="24" y="188" style="fill:#6ea8fe">Real model: Day 2, Lab 4.4.</text>
+        <rect class="bx a grow w2" x="400" y="4" width="380" height="220" rx="8"/>
+        <text class="lb a" x="420" y="32">LAB 4.2</text>
+        <text class="tt" x="420" y="64">Make it fail, fix it</text>
+        <text class="ss" x="420" y="104">Invented tool, wrong argument.</text>
+        <text class="ss" x="420" y="132">A loop. A write nobody approved.</text>
+        <text class="ss" x="420" y="160">A token budget. A hidden error.</text>
+        <text class="ss" x="420" y="188">Record tokens before and after.</text>
+        <rect class="bx p grow w3" x="796" y="4" width="380" height="220" rx="8"/>
+        <text class="lb" x="816" y="32">LAB 4.3</text>
+        <text class="tt" x="816" y="64">The same agent, Copilot SDK</text>
+        <text class="ss" x="816" y="104">Same tools; Copilot runs the loop.</text>
+        <text class="ss" x="816" y="132">Approve or refuse a write.</text>
+        <text class="ss" x="816" y="160">Compare the two versions.</text>
+        <text class="ss" x="816" y="188">Uses your Copilot allowance.</text>
+
+        <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
+        <text class="lb w" x="24" y="268">WHERE</text>
+        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-4-labs.md</tspan> &middot; code: labs/module-4-agent/ &middot; nothing to install for 4.1 and 4.2</text>
       </svg>
     </div>
   </div>

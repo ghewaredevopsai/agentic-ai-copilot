@@ -5,11 +5,14 @@
 | 1 | [Module 1 — Prompt & context engineering](module-1-labs.md) | 1 · 2 · 3 · 4 |
 | 1 | [Module 2 — Token optimisation & model selection](module-2-tokens/README.md) | 0 · 1 · 2 · 3 · 4 |
 | 1 | [Module 3 — Python Accelerated with Copilot](module-3-python/README.md) | 0 · 1 · 2 · 3 · 4 · 5 |
+| 1 | [Module 4 — Agent foundations and tool use](module-4-labs.md) | 4.1 · 4.2 · 4.3 |
+| 2 | [Module 4, continued — the same agent on a real model](module-4-labs.md#lab-44--on-day-2-the-same-agent-on-a-real-model) | 4.4 |
 
 Module 2 uses the same `global-bank-account` clone at `m3-start`, plus a small setup of its own: see
 [`module-2-tokens/README.md`](module-2-tokens/README.md). Module 3 has its own practice app, AskOps,
-and its own setup: see [`module-3-python/README.md`](module-3-python/README.md). The rest of this
-page is for Module 1.
+and its own setup: see [`module-3-python/README.md`](module-3-python/README.md). Module 4 works in
+`module-4-agent/` in this course folder, and its setup is at the top of
+[`module-4-labs.md`](module-4-labs.md). The rest of this page is for Module 1.
 
 Every lab in Module 1 works in one repository, `global-bank-account`. It is a Spring Boot service
 that records double-entry postings for client money. You clone it once, and each lab starts on its

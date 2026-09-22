@@ -53,5 +53,8 @@ Thumbs.db
 __pycache__/
 *.pyc
 
+# Virtual environments participants create in the lab folders (Module 4's SDK lab)
+.venv/
+
 # Participants write their lab notes here. Theirs, not ours.
 labs/my-work/

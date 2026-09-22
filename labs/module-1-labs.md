@@ -18,7 +18,7 @@ afterwards.
 - **Skill file:** a file of steps for one kind of task. Copilot loads it by itself when your task
   matches the skill's description. It lives at `.github/skills/<name>/SKILL.md`.
 - **Prompt file:** a saved prompt that you run by typing `/` and its name. It lives in
-  `.github/prompts/`. It can take inputs, such as a ticket key.
+  `.github/prompts/`. It can take inputs, such as a ticket number.
 - **Stop condition:** a named situation where the agent must stop and ask you, instead of guessing.
 - **Eval set:** short for evaluation set. A small, fixed set of tickets you use to test a prompt.
 

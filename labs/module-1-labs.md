@@ -490,19 +490,19 @@ the output, you will favour the prompt you wrote yourself.
 
 ### Step 2 — Set up the two branches (5 min)
 
-Column B gets the team's skill file and prompt file, from the `m4-start` checkpoint:
+Column B gets the team's skill file and prompt file, from the `m4-start-gh` checkpoint:
 
 ```bash
 cd ~/gb-labs/global-bank-account
 git switch -c eval-B m3-start
-git checkout m4-start -- .github/skills .github/prompts
+git checkout m4-start-gh -- .github/skills .github/prompts
 ls .github/skills/account-change/SKILL.md
 # must list the file
 ```
 
-The prompt file you just copied reads its ticket from Jira. You are reading tickets as Markdown, so
-change that. Open `.github/prompts/gb-change.prompt.md` and replace the whole paragraph that starts
-`Read course/labs/lab-keys.md` with this one line:
+The prompt file you just copied reads its ticket from a GitHub issue. You are reading tickets as
+Markdown, so change that. Open `.github/prompts/gb-change.prompt.md` and replace the whole paragraph
+that starts `Find the GitHub issue` with this one line:
 
 ```text
 Read the ticket file labs/tickets/${input:ticket}.md in the course folder of this workspace.
@@ -511,7 +511,7 @@ Read the ticket file labs/tickets/${input:ticket}.md in the course folder of thi
 Leave the rest of the file alone. Then check and commit:
 
 ```bash
-grep -n "lab-keys\|atlassian" .github/prompts/gb-change.prompt.md
+grep -n "GitHub issue\|MCP tools" .github/prompts/gb-change.prompt.md
 # must print nothing
 git add .github
 git commit -m "Add the team's skill file and prompt file"

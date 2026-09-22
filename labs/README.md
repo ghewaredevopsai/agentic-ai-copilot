@@ -65,8 +65,8 @@ Always add `--force`. Without it, git keeps any older copy of a tag that your cl
 Check that the tags arrived:
 
 ```bash
-git tag --list 'm[134]-start'
-# must list: m1-start, m3-start, m4-start
+git tag --list 'm[134]-start*'
+# must list: m1-start, m3-start, m4-start, m4-start-gh
 ```
 
 **Nothing is pushed.** You work on local branches in your own clone, all day.
@@ -95,6 +95,7 @@ The repository has **checkpoint tags**. Each one holds the code as a lab expects
 | `m1-start` | The posting service and its tests. Nothing the team knows is written down |
 | `m3-start` | Adds the written knowledge: `.github/copilot-instructions.md`, `docs/architecture.md`, `docs/conventions.md`, `docs/glossary.md` and `docs/adr/` |
 | `m4-start` | Adds the team's `account-change` skill file and `gb-change` prompt file |
+| `m4-start-gh` | The same, with the `gb-change` prompt file reading its ticket from a GitHub issue. Lab 4 uses this one |
 
 Each lab tells you which tag to branch from:
 
@@ -117,10 +118,11 @@ ticket.
 Seven tickets are here. The labs use GB-151, GB-204, GB-205 and GB-206. GB-201, GB-202 and GB-203
 are spares for the stretch lab.
 
-**If you would rather use Jira,** copy a ticket's text into an issue in your own project and read it
-with the Atlassian MCP server instead. Nothing in the labs depends on this. One warning if you do:
-the team's `gb-change.prompt.md` (Lab 4) already reads Jira, and Lab 4 tells you to replace that line
-with the Markdown file. Keep the Jira line instead, and point it at your own key.
+**If you would rather use GitHub issues,** copy a ticket's text into an issue in your own repository
+and read it with the GitHub MCP server instead. Nothing in the labs depends on this. One warning if
+you do: the team's `gb-change.prompt.md` (Lab 4) already reads a GitHub issue, and Lab 4 tells you to
+replace that line with the Markdown file. Keep the GitHub issue line instead, and point it at your own
+issue.
 
 ## Your notes
 

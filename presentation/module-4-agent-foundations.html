@@ -16,11 +16,11 @@
 </defs></svg>
 
 <div id="viewport"><div id="stage"><!-- 1 -->
-<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module turns AskOps, the app you built in Module 3, into an agent. Today AskOps answers a question by running the same two searches every time. After this module, a model decides what to look up next, reads the result and decides again. You will learn what makes a program an agent, and when a plain workflow is the better choice. You will see how tool calling works on the wire: what your code sends, what the model sends back, and who runs the tool. You will read a complete ReAct loop in plain Python, with no framework. You will learn the four ways a loop must stop, and how to keep the cost of one run under control. Finally, you will give the same tools to the GitHub Copilot SDK, which runs the loop for you, and compare the two. On Day 2 you rebuild this loop with LangChain and LangGraph. On Day 3 you share tools between agents through MCP." data-tier="R">
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module turns AskOps, the app you built in Module 3, into an agent. Today AskOps answers a question by running the same two searches every time. After this module, a model decides what to look up next, reads the result and decides again. You will learn what makes a program an agent, and when a plain workflow is the better choice. You will see how tool calling works: what your code and the model send each other, and who runs the tool. You will read a complete ReAct loop in plain Python, with no framework. You will learn the four ways a loop must stop, and how to keep the cost of one run under control. Finally, you will give the same tools to the GitHub Copilot SDK, which runs the loop for you, and compare the two. On Day 2 you rebuild this loop with LangChain and LangGraph. On Day 3 you share tools between agents through MCP." data-tier="R">
   <div class="wrap">
     <span class="tier">Day 1 &middot; Module 4 of 4</span>
     <h1>Agent Foundations &amp; Tool Use</h1>
-    <p class="sub">Give AskOps a brain: a model that chooses the next step, and code that keeps it safe.</p>
+    <p class="sub">AskOps learns to choose its next step, and your code keeps it safe.</p>
     <p class="meta">
       <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
       <span>Intermediate</span>
@@ -76,13 +76,10 @@
       </svg>
     </div>
     <div class="pts">
-      <h3>What you will learn</h3>
+      <h3>The one change</h3>
       <ul>
-        <li>What makes a program an <b>agent</b>.</li>
-        <li>When a plain <b>workflow</b> is better.</li>
-        <li>How <b>tool calling</b> works on the wire.</li>
-        <li>A full <b>ReAct loop</b> in plain Python.</li>
-        <li>How to <b>stop</b> it and <b>cap its cost</b>.</li>
+        <li>Module 3: <b>your code</b> picks the steps.</li>
+        <li>Module 4: <b>the model</b> picks the steps.</li>
       </ul>
       <div class="take"><b>Keep in mind:</b> the model chooses. Your code sets the limits.</div>
     </div>
@@ -90,26 +87,28 @@
 </section>
 
 <!-- 3 -->
-<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open during the lab. In Module 1, agent meant Copilot in agent mode. Here it means any program built the same way, including the one you write. A tool is an ordinary Python function, such as search_runbooks. The model never sees the function. It sees only the tool description: a name, a sentence about when to use it, and the parameters it takes. A tool call is the model's request to run one tool with some arguments. Your code runs it, and the result you send back is the observation. The right column holds the words for the loop itself. A step is one round trip to the model. The step budget and the token budget are the two limits you set for one run. ReAct is the name of the pattern you will build: reason, then act, then reason again." data-tier="K">
+<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open during the lab. In Module 1, agent meant Copilot in agent mode. Here it means any program built the same way, including the one you write. A workflow is the opposite: your code calls the model at fixed steps. Autonomy is how much the agent may do without asking a person. A tool is an ordinary Python function, such as search_runbooks. The model never sees the function. It sees only the tool description: a name, a sentence about when to use it, and the parameters it takes. A tool call is the model's request to run one tool with some arguments. Your code runs it, and the result you send back is the observation. The right column holds the words for the loop itself. A step is one round trip to the model. The step budget and the token budget are the two limits you set for one run. ReAct is the name of the pattern you will build: reason, then act, then reason again." data-tier="K">
   <h2>Words used in this module<span class="tag">M4</span></h2>
   <div class="body g55">
     <div class="pts">
       <h3>Agent and tool words</h3>
       <ul>
-        <li><b>Agent</b> &mdash; a program where the model&rsquo;s reply decides the next step.</li>
+        <li><b>Agent</b> &mdash; the model&rsquo;s reply decides the next step.</li>
+        <li><b>Workflow</b> &mdash; code calls the model at fixed steps.</li>
+        <li><b>Autonomy</b> &mdash; what the agent may do without asking.</li>
         <li><b>Tool</b> &mdash; a function the agent may ask to run.</li>
-        <li><b>Tool description</b> &mdash; the name, purpose and parameters the model reads.</li>
-        <li><b>Tool call</b> &mdash; the model&rsquo;s request: this tool, these arguments.</li>
-        <li><b>Observation</b> &mdash; the tool&rsquo;s result, sent back to the model.</li>
+        <li><b>Tool description</b> &mdash; what the model reads.</li>
+        <li><b>Tool call</b> &mdash; the model&rsquo;s request: tool and arguments.</li>
       </ul>
     </div>
     <div class="pts">
       <h3>Loop words</h3>
       <ul>
+        <li><b>Observation</b> &mdash; the tool&rsquo;s result, sent back.</li>
         <li><b>Step</b> &mdash; one round trip to the model.</li>
         <li><b>Stop condition</b> &mdash; a rule that ends the loop.</li>
-        <li><b>Step budget</b> &mdash; the most steps one run may take.</li>
-        <li><b>Token budget</b> &mdash; the most tokens one run may use.</li>
+        <li><b>Step budget</b> &mdash; the most steps per run.</li>
+        <li><b>Token budget</b> &mdash; the most tokens per run.</li>
         <li><b>ReAct</b> &mdash; reason, act, observe, repeat.</li>
       </ul>
     </div>
@@ -155,7 +154,6 @@
         <li><b>Tools</b> &mdash; to act, and to read fresh facts.</li>
         <li><b>The loop</b> &mdash; it sees each result and can correct itself.</li>
       </ul>
-      <div class="take"><b>Use it as a filter:</b> a new part must close a gap, or you do not need it.</div>
     </div>
   </div>
 </section>
@@ -195,16 +193,15 @@
         <text class="ss" x="630" y="232" style="fill:#d98a3d">Cost and time change from run to run.</text>
 
         <rect class="bx d" x="4" y="304" width="1172" height="92" rx="8"/>
-        <text class="lb w" x="24" y="332">THE ONE-LINE DEFINITION</text>
-        <text class="ss w" x="24" y="364" style="font-size:16px">An agent is a model whose reply <tspan font-weight="700" fill="#e0b34d">decides what happens next.</tspan></text>
-        <text class="ss w" x="24" y="386" style="font-size:14px;fill:#6ea8fe">Copilot agent mode is this loop. Its tools are your files and your terminal.</text>
+        <text class="lb w" x="24" y="336">THE ONE-LINE DEFINITION</text>
+        <text class="ss w" x="24" y="372" style="font-size:16px">An agent is a model whose reply <tspan font-weight="700" fill="#e0b34d">decides what happens next.</tspan></text>
       </svg>
     </div>
   </div>
 </section>
 
 <!-- 6 -->
-<section class="slide" data-sec="1 &middot; What makes an agent" data-title="Perceive, reason, act, observe" data-notes="Here is one turn of the loop, using AskOps. Perceive: the agent reads the engineer's question and everything it has learned so far. Reason: the model decides the next step. Perhaps it should search for runbooks about 502 errors. Act: your code runs search_runbooks. The model only asked; your code did the work. Observe: the result, a list with RB-101 in it, goes back into the messages. Then the loop starts again, and the model now knows about RB-101. The loop ends in one of three ways. The model answers, the step budget runs out, or your code finds a loop, such as the same search run twice. Section 4 covers all the stop conditions. Notice where the model sits: only in the reason step. Everything else is your code." data-tier="K">
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="Perceive, reason, act, observe" data-notes="Here is one turn of the loop, using AskOps. Perceive: the agent reads the engineer's question and everything it has learned so far. Reason: the model decides the next step. Perhaps it should search for runbooks about 502 errors. Act: your code runs search_runbooks. The model only asked; your code did the work. Observe: the result, a list with RB-101 in it, goes back into the messages. Then the loop starts again, and the model now knows about RB-101. The loop ends in one of four ways. The model answers, the step budget runs out, your code finds a loop, such as the same search run twice, or no path is left, such as no runbook at all. Section 4 covers all four. Notice where the model sits: only in the reason step. Everything else is your code. So most of an agent is ordinary code you can test." data-tier="K">
   <h2>Perceive &rarr; reason &rarr; act &rarr; <em>observe</em><span class="tag k">1</span></h2>
   <div class="body g64">
     <div>
@@ -233,7 +230,7 @@
 
         <rect class="bx d" x="4" y="314" width="692" height="72" rx="8"/>
         <text class="lb w" x="24" y="340">IT ENDS WHEN</text>
-        <text class="ss w" x="24" y="368" style="font-size:14px">the model answers &middot; the budget is spent &middot; a loop is found</text>
+        <text class="ss w" x="24" y="368" style="font-size:14px">the model answers &middot; the budget is spent &middot; a loop is found &middot; no path is left</text>
       </svg>
     </div>
     <div class="pts">
@@ -243,7 +240,6 @@
         <li>Your code <b>runs every tool</b> and keeps the messages.</li>
         <li>Each result <b>changes the next choice</b>.</li>
       </ul>
-      <div class="take"><b>So:</b> most of an agent is ordinary code you can test.</div>
     </div>
   </div>
 </section>
@@ -267,7 +263,6 @@
         <text class="ss" x="482" y="120" text-anchor="middle">send email</text>
         <text class="tt" x="24" y="200" style="fill:#5fbf8f">Build a workflow.</text>
         <text class="ss" x="24" y="228">Cheap, fast, and easy to test.</text>
-        <text class="ss" x="24" y="254">The model is one step in your code.</text>
 
         <rect class="bx a grow w2" x="606" y="4" width="570" height="290" rx="8"/>
         <text class="lb a" x="626" y="30">THE STEPS DEPEND ON WHAT YOU FIND</text>
@@ -331,7 +326,7 @@
 </section>
 
 <!-- 9 -->
-<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="A tool is a function, plus a description the model reads" data-notes="On the left is everything the model knows about search_runbooks. It never sees your Python function. It sees only this description, sent with every request. The name should say what the tool does. The description should say when to use it and, just as important, when not to. Most people skip the second half. The parameters are written in JSON Schema. The enum limits service to three values, so the model cannot invent a fourth. The required list says query must always be present. This is the same idea as an output contract in Module 1: a shape your code can check. Every description costs tokens on every call, because it is sent every time. Module 2 called this the hidden cost of tool schemas. Keep descriptions short and exact." data-tier="K">
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="A tool is a function, plus a description the model reads" data-notes="On the left is everything the model knows about search_runbooks. It never sees your Python function. It sees only this description, sent with every request. The name should say what the tool does. The description should say when to use it and, just as important, when not to. Most people skip the second half. The parameters are written in JSON Schema. The enum limits service to three values, so the model cannot invent a fourth. The required list says query must always be present. This is the same idea as an output contract in Module 1: a shape your code can check. Every description costs tokens on every call, because it is sent every time. Module 2 showed that every tool you enable is sent on every turn. Keep descriptions short and exact." data-tier="K">
   <h2>A tool is a function, plus a <em>description</em> the model reads<span class="tag k">2</span></h2>
   <div class="body g55">
     <div>
@@ -365,8 +360,8 @@
 </section>
 
 <!-- 10 -->
-<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="What travels on the wire" data-notes="This is one tool call, message by message. First, your code sends the messages and the tool descriptions. The model does not answer in text. It replies with a tool call: a tool name, the arguments as a JSON string, and an id. Your code runs the function. Then it sends the result back as a message with the role tool, and the same id. The id pairs each result with its request, which matters when the model asks for two tools at once. Finally the model has what it needs and replies with text. Nothing is hidden here. Every agent framework, including the ones on Day 2, sends exactly these messages. When a framework misbehaves, this is the level you debug at. The endpoint is the common chat completions format, which most model servers accept." data-tier="K">
-  <h2>What travels <em>on the wire</em><span class="tag k">2</span></h2>
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="The messages of one tool call" data-notes="This is one tool call, message by message. First, your code sends the messages and the tool descriptions. The model does not answer in text. It replies with a tool call: a tool name, the arguments as a JSON string, and an id. Your code runs the function. Then it sends the result back as a message with the role tool, and the same id. The id pairs each result with its request, which matters when the model asks for two tools at once. Finally the model has what it needs and replies with text. Nothing is hidden here. Every agent framework, including the ones on Day 2, sends exactly these messages. When a framework misbehaves, this is the level you debug at. The endpoint is the common chat completions format, which most model servers accept." data-tier="K">
+  <h2>The messages of <em>one tool call</em><span class="tag k">2</span></h2>
   <div class="body g1">
     <div>
       <svg viewBox="0 0 1180 400" role="img" aria-label="The five messages of one tool call between your code, the model and the tool">
@@ -456,14 +451,12 @@ parameters: {"runbook_id": string}
         <text class="lb" x="20" y="30">LET THE MODEL DECIDE</text>
         <text class="ss" x="20" y="62">Which tool fits this question</text>
         <text class="ss" x="20" y="88">Which runbook matches the symptom</text>
-        <text class="ss" x="20" y="114">How to explain the steps to a person</text>
-        <text class="ss" x="20" y="140" style="fill:#a78bfa">Judgement, where many answers are fine.</text>
+        <text class="ss" x="20" y="126" style="fill:#a78bfa">Judgement, where many answers are fine.</text>
         <rect class="bx g grow w2" x="4" y="168" width="692" height="150" rx="8"/>
         <text class="lb g" x="20" y="194">ENFORCE IN CODE</text>
         <text class="ss" x="20" y="226">The tool name exists</text>
         <text class="ss" x="20" y="252">open_incident has a person&rsquo;s approval</text>
-        <text class="ss" x="20" y="278">The run stops after 6 steps</text>
-        <text class="ss" x="20" y="304" style="fill:#5fbf8f">Rules with one right answer.</text>
+        <text class="ss" x="20" y="290" style="fill:#5fbf8f">Rules with one right answer.</text>
       </svg>
     </div>
   </div>
@@ -495,7 +488,6 @@ parameters: {"runbook_id": string}
       <ul>
         <li>Each <b>observation</b> changes the next thought.</li>
         <li>One step can call <b>two tools</b>.</li>
-        <li>It found INC-9001 only <b>by looking</b>.</li>
       </ul>
       <div class="take"><b>Thought lines are optional.</b> Actions and observations are not.</div>
     </div>
@@ -503,27 +495,31 @@ parameters: {"runbook_id": string}
 </section>
 
 <!-- 14 -->
-<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The loop, in plain Python" data-notes="This is the heart of the agent. The whole file, labs/module-4-agent/agent.py, is about 100 lines, and most of it is the four tools and their descriptions. It uses only the Python standard library, so there is nothing to install and nothing hidden. chat is one HTTP POST to the chat completions endpoint, about six lines with urllib. Read the loop from the top. Ask the model. Add its reply to the messages. If the reply has no tool calls, it is the answer, so return it. Otherwise run each tool and add each result with its id. Then go round again. The for loop is the step budget: after MAX_STEPS it stops. Look at the line marked no checks yet. It trusts the tool name and the arguments completely. That is on purpose. It is the first thing you will break, in Lab 4.2. In Lab 4.3 the Copilot SDK runs this same loop for you, and you compare the two." data-tier="K">
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The loop, in plain Python" data-notes="This is the main part of the agent. The whole file, labs/module-4-agent/agent.py, is about 100 lines, and most of it is the four tools and their descriptions. It uses only the Python standard library, so there is nothing to install and nothing hidden. chat is one HTTP POST to the chat completions endpoint, about six lines with urllib. Read the loop from the top. Ask the model. Add its reply to the messages. If the reply has no tool calls, it is the answer, so return it. Otherwise print an ACTION line, run each tool and add each result with its id. Then go round again. The used counter adds up the tokens every reply reports. The for loop is the step budget: after MAX_STEPS it stops. Look at the line marked no checks yet. It trusts the tool name and the arguments completely. That is on purpose. It is the first thing you will break, in Lab 4.2. In Lab 4.3 the Copilot SDK runs this same loop for you, and you compare the two." data-tier="K">
   <h2>The loop, in <em>plain Python</em><span class="tag k">3</span></h2>
   <div class="body g64">
     <div>
-<div class="file"><span class="fn">agent.py &mdash; THE LOOP</span>def run(question):
+<div class="file"><span class="fn">agent.py &mdash; THE LOOP, IN FULL</span>def run(question):
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": question}]
-    for step in range(MAX_STEPS):
+    used = 0
+    for step in range(1, MAX_STEPS + 1):
         reply = chat(messages)                    <span class="c"># reason</span>
+        used += reply["usage"]["total_tokens"]
         msg = reply["choices"][0]["message"]
         messages.append(msg)
         if not msg.get("tool_calls"):             <span class="c"># no action:</span>
-            return msg["content"]                 <span class="c"># the answer</span>
+            return msg["content"], step, used     <span class="c"># the answer</span>
         for call in msg["tool_calls"]:            <span class="c"># act</span>
             name = call["function"]["name"]
-            args = json.loads(call["function"]["arguments"])
+            args = json.loads(
+                call["function"]["arguments"] or "{}")
+            print(f"  step {step}  ACTION {name}({args})")
             result = TOOLS[name](**args)          <span class="s"># no checks yet</span>
             messages.append({"role": "tool",      <span class="c"># observe</span>
                              "tool_call_id": call["id"],
                              "content": result})
-    return "Stopped: step budget spent."
+    return "Stopped: step budget spent.", step, used
 </div>
     </div>
     <div class="pts">
@@ -540,7 +536,7 @@ parameters: {"runbook_id": string}
 </section>
 
 <!-- 15 -->
-<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The message list is the memory" data-notes="The model remembers nothing between calls. The only memory the agent has is the messages list in your code. So every call sends the whole list again: the system prompt, all the tool descriptions, the question, every earlier reply and every tool result. Look at the bars. Each step sends everything the step before it sent, plus the new messages. So tokens per call go up at every step, and the total for one run grows faster than the number of steps. This is the hidden cost of history and tool schemas from Module 2, now in your own code. It also explains two practical rules. Keep tool results small: return the top three runbooks, not all of them. And keep runs short: every extra step pays again for everything before it. In Lab 4.3 the Copilot SDK keeps this list for you, out of sight. It still reports the tokens of every call, so you can still count the cost of a run." data-tier="K">
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The message list is the memory" data-notes="The model remembers nothing between calls. The only memory the agent has is the messages list in your code. So every call sends the whole list again: the system prompt, all the tool descriptions, the question, every earlier reply and every tool result. Look at the bars. Each step sends everything the step before it sent, plus the new messages. So tokens per call go up at every step, and the total for one run grows faster than the number of steps. Module 2 showed that chat history and tool definitions are sent on every turn. Here you see it in your own code. It also explains two practical rules. Keep tool results small: return the top three runbooks, not all of them. And keep runs short: every extra step pays again for everything before it. In Lab 4.3 the Copilot SDK keeps this list for you, out of sight. It still reports the tokens of every call, so you can still count the cost of a run." data-tier="K">
   <h2>The message list <em>is</em> the memory<span class="tag k">3</span></h2>
   <div class="body g64">
     <div>
@@ -580,12 +576,34 @@ parameters: {"runbook_id": string}
         <li>Keep <b>runs short</b>: each extra step pays again for all earlier ones.</li>
         <li>The <b>Copilot SDK</b> hides this list, but still reports the tokens.</li>
       </ul>
-      <div class="take"><b>From Module 2:</b> history and tool descriptions are the hidden cost.</div>
+      <div class="take"><b>From Module 2:</b> chat history and tool definitions are sent on every turn.</div>
     </div>
   </div>
 </section>
 
 <!-- 16 -->
+<section class="slide" data-sec="Labs" data-title="Lab 4.1 &mdash; Read the loop, then run it" data-notes="In Lab 4.1 you read the loop from the last few slides with Copilot in Ask mode, then run it. You use the fake model, a small server that replays a script. It is not an AI, and it works with no network. Watch its terminal: it prints one line per call, and the tokens go up on every call, as the message-list slide showed. Your machine has no model endpoint today, so the real-model run waits for Day 2. Lab 4.4 opens Day 2 by running your fixed agent on a real model in the sandbox. The guide is labs/module-4-labs.md, and the code is in labs/module-4-agent." data-tier="K">
+  <h2>Lab 4.1 &mdash; <em>read the loop, then run it</em><span class="tag">LAB</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 320" role="img" aria-label="Lab 4.1: read the agent loop with Copilot, then run it on the fake model">
+        <rect class="bx grow" x="4" y="4" width="1172" height="220" rx="8"/>
+        <text class="lb" x="24" y="32">LAB 4.1</text>
+        <text class="tt" x="24" y="64">Read the loop, then run it</text>
+        <text class="ss" x="24" y="104" style="font-size:16px">Ask Copilot, in Ask mode, to explain run() line by line.</text>
+        <text class="ss" x="24" y="136" style="font-size:16px">Run the agent on the fake model, in two terminals.</text>
+        <text class="ss" x="24" y="168" style="font-size:16px">Watch the tokens grow on every call, and write them down.</text>
+        <text class="ss" x="24" y="200" style="font-size:16px"><tspan style="fill:#6ea8fe">The real-model run waits for Day 2, Lab 4.4.</tspan></text>
+
+        <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
+        <text class="lb w" x="24" y="268">WHERE</text>
+        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-4-labs.md</tspan> &middot; code: labs/module-4-agent/ &middot; nothing to install</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 17 -->
 <section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="Native tool calls, not parsed text" data-notes="The first ReAct agents asked the model to write its action as text, such as Action: search_runbooks. The code then parsed that text. This breaks as soon as the format drifts. The model writes the word Action in bold, puts two actions on one line, or writes a thought with no action at all. Each drift is a parse failure, or worse, the wrong tool running. Native tool calling removes the parsing. The model returns a structured tool call with a name, arguments and an id. You still validate the arguments, because a well-formed call can carry a wrong value. Not every model supports native tool calling well. Check this before you choose a model for an agent. The model selection matrix in Module 2 has a column for it." data-tier="R">
   <h2>Native tool calls, <em>not parsed text</em><span class="tag">R</span></h2>
   <div class="body g55">
@@ -615,45 +633,8 @@ Action Input: 502 after deploy
   </div>
 </section>
 
-<!-- 16b -->
-<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The same agent on the Copilot SDK" data-notes="The GitHub Copilot SDK lets a Python program use your Copilot subscription as the agent&rsquo;s model. You give it the same four tool functions. Copilot runs the loop: it asks the model, runs the tools and keeps the message list. You call send_and_wait once, and you get the answer back. This saves you writing the loop, but you can no longer see or change each step of it. Look at what stays in your code. You choose which tools exist. You switch off Copilot&rsquo;s own shell and file tools, so the agent can only use yours. And your approve function decides whether open_incident may run. That is the same rule as slide 8, now in a different place. The code on the slide is shortened. The full file is labs/module-4-agent/agent_sdk.py, and Lab 4.3 runs it. Every run uses your Copilot allowance." data-tier="K">
-  <h2>The same agent on the <em>Copilot SDK</em><span class="tag k">3</span></h2>
-  <div class="body g64">
-    <div>
-<div class="file"><span class="fn">agent_sdk.py &mdash; SHORTENED</span>def approve(request, invocation):        <span class="c"># your code decides</span>
-    if request.tool_name == "open_incident" and person_says_yes():
-        return PermissionDecisionApproveOnce()
-    return PermissionDecisionReject(feedback="Refused.")
-
-session = await client.create_session(
-    model="gpt-5-mini",
-    tools=[search_runbooks, get_runbook,  <span class="c"># the same tools</span>
-           list_incidents, open_incident],
-    <span class="s">available_tools=ToolSet().add_custom("*")</span>,  <span class="c"># only yours</span>
-    on_permission_request=approve)
-
-<span class="c"># Copilot runs the whole loop</span>
-reply = await session.send_and_wait(question)
-</div>
-    </div>
-    <div class="pts">
-      <h3>Copilot runs</h3>
-      <ul>
-        <li>The loop, and the message list.</li>
-      </ul>
-      <h3>Your code still decides</h3>
-      <ul>
-        <li>Which <b>tools</b> exist. Its shell and file tools are off.</li>
-        <li>Which tools need <b>approval</b>.</li>
-        <li>How many <b>tokens</b> a run may use.</li>
-      </ul>
-      <div class="take"><b>An SDK runs the loop.</b> It does not decide what the agent may do.</div>
-    </div>
-  </div>
-</section>
-
-<!-- 17 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Four stop conditions, all required" data-notes="A loop with no stop condition runs until something outside stops it, such as a timeout or your budget. Every agent needs all four of these. The goal is met when the model replies with no tool call. The step budget is a hard number in your code. Six is plenty for AskOps. Loop detection catches the model repeating itself: the same tool with the same arguments means it has learned nothing new. No path forward means a tool said the answer does not exist, or the action is not allowed. The agent must say so and hand over to a person. It must not make something up. Notice that three of the four are plain code. Only the first one depends on the model. That is why a broken model cannot run up an unlimited bill." data-tier="K">
+<!-- 18 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Four stop conditions, all required" data-notes="A loop with no stop condition runs until something outside stops it, such as a timeout or your budget. Every agent needs all four of these. The goal is met when the model replies with no tool call. The step budget is a hard number in your code. Six is plenty for AskOps. Loop detection catches the model repeating itself: the same tool with the same arguments means it has learned nothing new. No path forward means a tool said the answer does not exist, or the action is not allowed. The agent must say so and hand over to a person. It must not make something up. Two of the four are plain code: the step budget and the loop check. A confused model cannot get past them, so it cannot spend without limit. The other two depend on the model. It must reply with an answer, or read your error text and hand over. So write that error text clearly." data-tier="K">
   <h2>Four stop conditions, <em>all required</em><span class="tag k">4</span></h2>
   <div class="body g1">
     <div>
@@ -680,15 +661,15 @@ reply = await session.send_and_wait(question)
         <text class="ss" x="760" y="269">no runbook: say so, hand to a person</text>
 
         <rect class="bx d" x="4" y="310" width="1172" height="86" rx="8"/>
-        <text class="lb w" x="24" y="338">WHY THREE ARE PLAIN CODE</text>
-        <text class="ss w" x="24" y="370" style="font-size:16px">A confused model cannot stop itself. <tspan font-weight="700" fill="#e0b34d">Your code must stop it.</tspan></text>
+        <text class="lb w" x="24" y="338">TWO ARE PLAIN CODE &mdash; STEP BUDGET AND LOOP CHECK</text>
+        <text class="ss w" x="24" y="370" style="font-size:16px">The other two depend on the model reading your error text. <tspan font-weight="700" fill="#e0b34d">So write that text clearly.</tspan></text>
       </svg>
     </div>
   </div>
 </section>
 
-<!-- 18 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Retry, or send the error back?" data-notes="When a tool fails, first ask why. A timeout, a 429 or a 503 means the service was busy for a moment. The plan was fine, so retry the same step. Wait a little longer each time, and stop after two or three tries. A 404, not found, or a validation error means the step cannot work as written. Retrying buys the same failure again. Send the error back to the model as the observation, and let it choose another route. You met this in Module 3, Lab 5. /api/ask returns 503 when a search source is down, so an empty list only ever means nothing matched. Your tools need the same rule. A tool that returns an empty list when the source is down tells the agent there is no runbook. The agent then gives a confident, wrong answer." data-tier="R">
+<!-- 19 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Retry, or send the error back?" data-notes="When a tool fails, first ask why. A timeout, a 429 or a 503 means the service was busy for a moment. The plan was fine, so retry the same step. Wait a little longer each time, and stop after two or three tries. Put the retry inside the tool. If it still fails after two or three tries, return the error as the observation. A 404, not found, or a validation error means the step cannot work as written. A retry fails the same way again. Send the error back to the model as the observation, and let it choose another route. You met this in Module 3, Lab 5. /api/ask returns 503 when a search source is down, so an empty list only ever means nothing matched. Your tools need the same rule. A tool that returns an empty list when the source is down tells the agent there is no runbook. The agent then gives a wrong answer and sounds sure of it." data-tier="R">
   <h2>Retry, or <em>send the error back</em>?<span class="tag">R</span></h2>
   <div class="body g1">
     <div>
@@ -700,6 +681,7 @@ reply = await session.send_and_wait(question)
         <text class="tt" x="24" y="150" style="fill:#d98a3d">Retry the same step.</text>
         <text class="ss" x="24" y="184">Wait longer each time.</text>
         <text class="ss" x="24" y="210">Stop after 2 or 3 tries.</text>
+        <text class="ss" x="24" y="236">Still failing? Send the error back.</text>
 
         <rect class="bx p grow w2" x="606" y="4" width="570" height="270" rx="8"/>
         <text class="lb" x="626" y="30">THE STEP CANNOT WORK</text>
@@ -712,14 +694,14 @@ reply = await session.send_and_wait(question)
         <rect class="bx d" x="4" y="292" width="1172" height="104" rx="8"/>
         <text class="lb w" x="24" y="320">FROM MODULE 3, LAB 5</text>
         <text class="ss w" x="24" y="352" style="font-size:15px">/api/ask returns 503 when a source is down. <tspan font-weight="700" fill="#e0b34d">Empty must mean &ldquo;nothing matched&rdquo;.</tspan></text>
-        <text class="ss w" x="24" y="380" style="font-size:14px;fill:#6ea8fe">A tool that hides an error behind an empty list makes the agent confidently wrong.</text>
+        <text class="ss w" x="24" y="380" style="font-size:14px;fill:#6ea8fe">Hide an error behind an empty list, and the agent gives a wrong answer that sounds sure.</text>
       </svg>
     </div>
   </div>
 </section>
 
-<!-- 19 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Control the cost of one run" data-notes="A single model call has a cost you can predict. An agent run does not, because the number of steps changes. So set limits on the run, not on the call. The step budget caps the number of round trips. The token budget adds up the usage figure that comes back with every reply, and stops the run when the total passes your limit. max_tokens caps the length of each reply. Small tool results keep every later call cheaper, as the last section showed. Finally, the model itself: the tool-choosing step often works well on a smaller, cheaper model. Module 2 showed how to compare models on the same task. Always report tokens per run. A number per call hides the growth you saw on the message-list slide. The Copilot SDK in Lab 4.3 sends the same figure as a usage event, so the same budget works there. Your capstone on Day 3 needs a cost ceiling, and this is where it starts." data-tier="K">
+<!-- 20 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Control the cost of one run" data-notes="A single model call has a cost you can predict. An agent run does not, because the number of steps changes. So set limits on the run, not on the call. The step budget caps the number of round trips. The token budget adds up the usage figure that comes back with every reply, and stops the run when the total passes your limit. max_tokens caps the length of each reply. Small tool results keep every later call cheaper, as the last section showed. Finally, the model itself: the tool-choosing step often works well on a smaller, cheaper model. Module 2 showed how to compare models on the same task. Always report tokens per run. A number per call hides the growth you saw on the message-list slide. The Copilot SDK in Lab 4.3 sends the same figure as a usage event, so you can still count the cost of a run. Your capstone on Day 3 needs a cost ceiling, and this is where it starts." data-tier="K">
   <h2>Control the cost of <em>one run</em><span class="tag k">4</span></h2>
   <div class="body g46">
     <div class="pts">
@@ -735,22 +717,20 @@ reply = await session.send_and_wait(question)
     </div>
     <div>
 <div class="file"><span class="fn">agent.py &mdash; A TOKEN BUDGET</span>used = 0
-for step in range(MAX_STEPS):
+for step in range(1, MAX_STEPS + 1):
     reply = chat(messages)
     <span class="s">used += reply["usage"]["total_tokens"]</span>
     ...
     if used &gt; MAX_TOKENS:
-        return "Stopped: token budget spent."
-
-print(f"{step + 1} steps, {used} tokens")
+        return "Stopped: token budget spent.", step, used
 </div>
       <div class="callout">Every reply reports its token count. <b>Add it up.</b> The Copilot SDK reports it too.</div>
     </div>
   </div>
 </section>
 
-<!-- 20 -->
-<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Five ways a loop fails" data-notes="These five failures cover most of what goes wrong with a first agent. The wrong tool comes from weak descriptions. An invented tool or argument crashes the plain loop from the last section, because it trusts every call. A loop that never ends needs loop detection and a step budget. The fourth is the most dangerous, because nothing looks broken. A tool hides an error behind an empty list, and the agent tells the engineer there is no runbook. The fifth is a slow leak. Long results and long runs push the token count up, and nobody notices until the bill arrives. The best way to learn these is to cause each one on purpose. In Lab 4.2 a fake model causes the first three on demand. You fix each one, run again, and compare the tokens the run used before and after the fix." data-tier="K">
+<!-- 21 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Five ways a loop fails" data-notes="These five failures cover most of what goes wrong with a first agent. An invented tool, or a wrong argument name, crashes the plain loop from section 3, because it trusts every call. A loop that never ends needs a loop check and a step budget. A write nobody approved is quiet: the agent opens an incident, and no person was asked. The fifth is the most dangerous, because nothing looks broken. A tool hides an error behind an empty list, and the agent tells the engineer there is no runbook. Two more are worth knowing. The wrong tool comes from weak descriptions, so rewrite them first. You try that in Lab 4.4, Step 4. Silent cost growth is a slow rise in tokens per run, and a token budget catches it. You add one in Lab 4.2, Step 4. The best way to learn these is to cause each one on purpose. In Lab 4.2 the fake model causes the first four on demand. You cause the fifth by hand. You fix each one, run again, and compare the tokens before and after." data-tier="K">
   <h2>Five ways a loop <em>fails</em><span class="tag k">4</span></h2>
   <div class="body g1">
     <div>
@@ -760,68 +740,113 @@ print(f"{step + 1} steps, {used} tokens")
         <text class="lb w" x="330" y="24">WHAT YOU SEE</text>
         <text class="lb w" x="780" y="24">THE FIX</text>
         <rect class="bx grow" x="4" y="42" width="1172" height="56" rx="6"/>
-        <text class="tt" x="24" y="76">Wrong tool</text>
-        <text class="ss" x="330" y="76">searches when it should list incidents</text>
-        <text class="ss" x="780" y="76" style="fill:#5fbf8f">rewrite the descriptions</text>
+        <text class="tt" x="24" y="76">Invented tool</text>
+        <text class="ss" x="330" y="76">KeyError: the run crashes</text>
+        <text class="ss" x="780" y="76" style="fill:#5fbf8f">check the name, return the error</text>
         <rect class="bx grow w2" x="4" y="104" width="1172" height="56" rx="6"/>
-        <text class="tt" x="24" y="138">Invented tool or argument</text>
-        <text class="ss" x="330" y="138">KeyError or TypeError: the run crashes</text>
-        <text class="ss" x="780" y="138" style="fill:#5fbf8f">check it, return the error</text>
+        <text class="tt" x="24" y="138">Wrong argument</text>
+        <text class="ss" x="330" y="138">TypeError: the run crashes</text>
+        <text class="ss" x="780" y="138" style="fill:#5fbf8f">check the arguments, return the error</text>
         <rect class="bx grow w3" x="4" y="166" width="1172" height="56" rx="6"/>
         <text class="tt" x="24" y="200">Endless loop</text>
         <text class="ss" x="330" y="200">the same call, again and again</text>
         <text class="ss" x="780" y="200" style="fill:#5fbf8f">loop check and step budget</text>
-        <rect class="bx r grow w4" x="4" y="228" width="1172" height="56" rx="6"/>
-        <text class="tt" x="24" y="262">Error read as empty</text>
-        <text class="ss" x="330" y="262">&ldquo;There is no runbook&rdquo; &mdash; source was down</text>
-        <text class="ss" x="780" y="262" style="fill:#5fbf8f">tools report errors, not []</text>
-        <rect class="bx grow w5" x="4" y="290" width="1172" height="56" rx="6"/>
-        <text class="tt" x="24" y="324">Silent cost growth</text>
-        <text class="ss" x="330" y="324">tokens per run creep up</text>
-        <text class="ss" x="780" y="324" style="fill:#5fbf8f">token budget, small results</text>
+        <rect class="bx grow w4" x="4" y="228" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="262">A write nobody approved</text>
+        <text class="ss" x="330" y="262">an incident opened, and no person asked</text>
+        <text class="ss" x="780" y="262" style="fill:#5fbf8f">a person approves, in code</text>
+        <rect class="bx r grow w5" x="4" y="290" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="324">Error read as empty</text>
+        <text class="ss" x="330" y="324">&ldquo;There is no runbook&rdquo; &mdash; source was down</text>
+        <text class="ss" x="780" y="324" style="fill:#5fbf8f">tools report errors, not []</text>
         <text class="ss" x="4" y="384" style="font-weight:600">In Lab 4.2 you cause each one on purpose, then fix it.</text>
       </svg>
     </div>
   </div>
 </section>
 
-<!-- 20b -->
-<section class="slide" data-sec="Labs" data-title="Labs 4.1 to 4.3" data-notes="The three labs build on each other. In Lab 4.1 you read the loop with Copilot in Ask mode, then run it. First you use the fake model, a small server that replays a script, so it works with no network. Watch its terminal: the tokens go up on every call. In Lab 4.2 the fake model makes the agent fail in the ways from the last slide. You fix each failure with Copilot in agent mode and fill in a table of steps and tokens, before and after. In Lab 4.3 you give the same tools to the Copilot SDK and compare the two versions. Your machine has no model endpoint today, so the real-model runs wait for Day 2. Lab 4.4 opens Day 2 by running your fixed agent on a real model in the sandbox. The guide is labs/module-4-labs.md, and the code is in labs/module-4-agent." data-tier="K">
-  <h2>Labs 4.1 to 4.3 &mdash; <em>build it, break it, compare</em><span class="tag">LAB</span></h2>
+<!-- 22 -->
+<section class="slide" data-sec="Labs" data-title="Lab 4.2 &mdash; Make it fail, fix it, count the tokens" data-notes="In Lab 4.2 the fake model makes the agent fail in the ways from the last slide. You fix each failure with Copilot in agent mode, run the same scenario again, and fill in a table of steps and tokens, before and after. You also add a token budget, and fix the error hidden as empty by hand. Open the solutions folder only at the end. Yours can differ from it. What matters is that every scenario ends with an answer or a clear stop, never a crash." data-tier="K">
+  <h2>Lab 4.2 &mdash; <em>make it fail, fix it</em><span class="tag">LAB</span></h2>
   <div class="body g1">
     <div>
-      <svg viewBox="0 0 1180 320" role="img" aria-label="The three Module 4 labs: read and run the loop, break and fix it, and rebuild it on the Copilot SDK">
-        <rect class="bx grow" x="4" y="4" width="380" height="220" rx="8"/>
-        <text class="lb" x="24" y="32">LAB 4.1</text>
-        <text class="tt" x="24" y="64">Read the loop, then run it</text>
-        <text class="ss" x="24" y="104">Ask Copilot to explain run().</text>
-        <text class="ss" x="24" y="132">Run it on the fake model.</text>
-        <text class="ss" x="24" y="160">Watch tokens grow per call.</text>
-        <text class="ss" x="24" y="188" style="fill:#6ea8fe">Real model: Day 2, Lab 4.4.</text>
-        <rect class="bx a grow w2" x="400" y="4" width="380" height="220" rx="8"/>
-        <text class="lb a" x="420" y="32">LAB 4.2</text>
-        <text class="tt" x="420" y="64">Make it fail, fix it</text>
-        <text class="ss" x="420" y="104">Invented tool, wrong argument.</text>
-        <text class="ss" x="420" y="132">A loop. A write nobody approved.</text>
-        <text class="ss" x="420" y="160">A token budget. A hidden error.</text>
-        <text class="ss" x="420" y="188">Record tokens before and after.</text>
-        <rect class="bx p grow w3" x="796" y="4" width="380" height="220" rx="8"/>
-        <text class="lb" x="816" y="32">LAB 4.3</text>
-        <text class="tt" x="816" y="64">The same agent, Copilot SDK</text>
-        <text class="ss" x="816" y="104">Same tools; Copilot runs the loop.</text>
-        <text class="ss" x="816" y="132">Approve or refuse a write.</text>
-        <text class="ss" x="816" y="160">Compare the two versions.</text>
-        <text class="ss" x="816" y="188">Uses your Copilot allowance.</text>
+      <svg viewBox="0 0 1180 320" role="img" aria-label="Lab 4.2: cause five agent failures on the fake model, fix each one and compare the tokens">
+        <rect class="bx a grow" x="4" y="4" width="1172" height="220" rx="8"/>
+        <text class="lb a" x="24" y="32">LAB 4.2</text>
+        <text class="tt" x="24" y="64">Make it fail, fix it, count the tokens</text>
+        <text class="ss" x="24" y="104" style="font-size:16px">Invented tool and wrong argument. A loop.</text>
+        <text class="ss" x="24" y="136" style="font-size:16px">A write nobody approved. An error hidden as empty.</text>
+        <text class="ss" x="24" y="168" style="font-size:16px">Add a token budget.</text>
+        <text class="ss" x="24" y="200" style="font-size:16px">Record the steps and tokens, before and after each fix.</text>
 
         <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
         <text class="lb w" x="24" y="268">WHERE</text>
-        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-4-labs.md</tspan> &middot; code: labs/module-4-agent/ &middot; nothing to install for 4.1 and 4.2</text>
+        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-4-labs.md</tspan> &middot; code: labs/module-4-agent/ &middot; open solutions/ only at the end</text>
       </svg>
     </div>
   </div>
 </section>
 
-<!-- 21 -->
+<!-- 23 -->
+<section class="slide" data-sec="5 &middot; The Copilot SDK" data-title="The same agent on the Copilot SDK" data-notes="The GitHub Copilot SDK lets a Python program use your Copilot subscription as the agent&rsquo;s model. You give it the same four tool functions. Copilot runs the loop: it asks the model, runs the tools and keeps the message list. You call send_and_wait once, and you get the answer back. This saves you writing the loop, but you can no longer see or change each step of it. Look at what stays in your code. You choose which tools exist. You switch off Copilot&rsquo;s own shell and file tools, so the agent can only use yours. Your approve function decides whether open_incident may run. And your code counts the tokens each run used, from the usage events the SDK sends. That is the same rule as the autonomy slide, now in a different place. The code on the slide is shortened. The full file is labs/module-4-agent/agent_sdk.py, and Lab 4.3 runs it. Every run uses your Copilot allowance." data-tier="K">
+  <h2>The same agent on the <em>Copilot SDK</em><span class="tag k">5</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">agent_sdk.py &mdash; SHORTENED</span>def approve(request, invocation):        <span class="c"># your code decides</span>
+    if request.tool_name == "open_incident" and person_says_yes():
+        return PermissionDecisionApproveOnce()
+    return PermissionDecisionReject(feedback="Refused.")
+
+session = await client.create_session(
+    model="gpt-5-mini",
+    tools=[search_runbooks, get_runbook,  <span class="c"># the same tools</span>
+           list_incidents, open_incident],
+    <span class="s">available_tools=ToolSet().add_custom("*")</span>,  <span class="c"># only yours</span>
+    on_permission_request=approve)
+
+<span class="c"># Copilot runs the whole loop</span>
+reply = await session.send_and_wait(question)
+</div>
+    </div>
+    <div class="pts">
+      <h3>Copilot runs</h3>
+      <ul>
+        <li>The loop, and the message list.</li>
+      </ul>
+      <h3>Still in your code</h3>
+      <ul>
+        <li>Which <b>tools</b> exist. Its shell and file tools are off.</li>
+        <li>Which tools need <b>approval</b>.</li>
+        <li>Counting the <b>tokens</b> each run used.</li>
+      </ul>
+      <div class="take"><b>An SDK runs the loop.</b> It does not decide what the agent may do.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 24 -->
+<section class="slide" data-sec="Labs" data-title="Lab 4.3 &mdash; The same agent on the Copilot SDK" data-notes="In Lab 4.3 you give the same four tools to the Copilot SDK and compare the two versions. You install the Copilot CLI and the SDK, run the agent, approve and refuse a write, and ask for something outside its tools. Then you fill in a table: where the loop is, where the step budget is, where approval lives, and how you count tokens. Every run uses your Copilot allowance, like a chat in VS Code." data-tier="K">
+  <h2>Lab 4.3 &mdash; <em>the same agent, Copilot SDK</em><span class="tag">LAB</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 320" role="img" aria-label="Lab 4.3: run the same agent on the Copilot SDK and compare it with the plain loop">
+        <rect class="bx p grow" x="4" y="4" width="1172" height="220" rx="8"/>
+        <text class="lb" x="24" y="32">LAB 4.3</text>
+        <text class="tt" x="24" y="64">The same agent on the Copilot SDK</text>
+        <text class="ss" x="24" y="104" style="font-size:16px">Install the Copilot CLI and the SDK.</text>
+        <text class="ss" x="24" y="136" style="font-size:16px">Run the same tools. Copilot runs the loop.</text>
+        <text class="ss" x="24" y="168" style="font-size:16px">Approve or refuse a write.</text>
+        <text class="ss" x="24" y="200" style="font-size:16px">Compare the two versions in a table.</text>
+
+        <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
+        <text class="lb w" x="24" y="268">WHERE</text>
+        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-4-labs.md</tspan> &middot; code: labs/module-4-agent/ &middot; every run uses your Copilot allowance</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 25 -->
 <section class="slide" data-sec="Close" data-title="What to take into Day 2" data-notes="Here is what to keep from this module. An agent is a loop where the model's reply decides the next step. Use one only when you cannot draw the flowchart in advance. The model only asks for a tool. Your code checks the call, runs it and decides what is allowed. Descriptions are instructions, so fix them before you change the model. Every loop needs all four stop conditions, and you measure cost per run. On Day 2 you rebuild this same agent with LangChain and LangGraph, and compare the two versions line by line. The framework saves typing. It does not change the loop, so everything on these slides still applies. LangGraph adds what the plain loop lacks: saved state, resume after a crash and a wait for approval. On Day 3 you share tools between agents through MCP servers." data-tier="K">
   <h2>What to take into <em>Day 2</em><span class="tag">M4</span></h2>
   <div class="body g46">
@@ -856,7 +881,7 @@ print(f"{step + 1} steps, {used} tokens")
   </div>
 </section>
 
-<!-- 22 -->
+<!-- 26 -->
 <section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - C: the loop, where the reply picks the next step, makes it an agent. A and D give the model more to read, but it is still one call. Q2 - A: the steps never change, so a workflow is enough. B is tempting, but an agent adds cost and surprises for nothing. Q3 - D: the model chooses using only the descriptions. A is the expensive fix, and often not needed. Q4 - B: the model only asks. Your code checks the call and runs it. A is a common belief, but the provider never runs your functions. Q5 - A: 503 means busy, so retry with a cap. B throws away a plan that was fine. Q6 - C: every call resends the whole list. A is partly true, but the resent history is the main cost. Q7 - D: the same call with the same arguments has learned nothing new. A is the tempting one, but checking twice adds no information. Q8 - B: open_incident is the only tool that writes, so it needs approval. The other three only read." data-tier="K">
   <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
   <div class="body qgrid">

@@ -64,7 +64,7 @@ class Handler(BaseHTTPRequestHandler):
         message = SCENARIOS[SCENARIO](turn, last)
         prompt_tokens = len(json.dumps(body)) // 4           # a rough estimate: 4 characters a token
         completion_tokens = len(json.dumps(message)) // 4
-        print(f"call {turn + 1}: {len(messages)} messages, about {prompt_tokens} tokens in")
+        print(f"call {turn + 1}: {len(messages)} messages, about {prompt_tokens} tokens in", flush=True)
         out = {"choices": [{"message": message, "finish_reason": "stop"}],
                "usage": {"prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
                          "total_tokens": prompt_tokens + completion_tokens}}
@@ -82,5 +82,5 @@ if __name__ == "__main__":
     SCENARIO = sys.argv[1] if len(sys.argv) > 1 else "happy"
     if SCENARIO not in SCENARIOS:
         sys.exit(f"Unknown scenario. Choose one of: {' '.join(SCENARIOS)}")
-    print(f"Fake model on http://127.0.0.1:4000/v1, scenario '{SCENARIO}'. Ctrl+C to stop.")
+    print(f"Fake model on http://127.0.0.1:4000/v1, scenario '{SCENARIO}'. Ctrl+C to stop.", flush=True)
     HTTPServer(("127.0.0.1", 4000), Handler).serve_forever()

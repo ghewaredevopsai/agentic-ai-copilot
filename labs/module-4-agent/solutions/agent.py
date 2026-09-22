@@ -84,7 +84,9 @@ def chat(messages):
     body = json.dumps({"model": MODEL, "messages": messages, "tools": TOOL_SPECS}).encode()
     req = urllib.request.Request(f"{BASE_URL}/chat/completions", body,
                                  {"Content-Type": "application/json", "Authorization": f"Bearer {API_KEY}"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
+    local = "127.0.0.1" in BASE_URL or "localhost" in BASE_URL   # the fake model: skip any proxy
+    opener = urllib.request.build_opener(*([urllib.request.ProxyHandler({})] if local else []))
+    with opener.open(req, timeout=60) as resp:
         return json.load(resp)
 
 def run(question):

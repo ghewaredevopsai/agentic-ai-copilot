@@ -18,19 +18,25 @@ uses your Copilot seat. The real-model runs wait for the Day 2 sandbox.
 
 ## Words used in these labs
 
-Slide 3 of the Module 4 deck has the full list. The ones you need most:
+The deck's *Words used in this module* slide has the words from the deck. The ones you need most:
 
 - **Tool call:** the model's request to run one tool with some arguments. Your code decides whether
   to run it.
 - **Observation:** the tool's result, sent back to the model as a message.
 - **Step:** one round trip to the model. **Step budget:** the most steps one run may take.
+
+Two more for the labs:
+
 - **Fake model:** `fake_llm.py`, a small server that replays a script. It is not an AI. It lets you
   cause each failure on demand, and it works with no network.
+- **Copilot SDK:** a Python library that lets your program use your Copilot seat as the agent's model.
+  Copilot runs the loop for you. You use it in Lab 4.3.
 
 ## Before you start
 
 You need **Python 3.14** (3.11 or newer works), a bash terminal and VS Code with Copilot. Labs 4.1 and
-4.2 use only the Python standard library, so there is **nothing to install**.
+4.2 use only the Python standard library, so there is **nothing to install**. Lab 4.3 also needs
+**Node.js 22 or newer** (`node --version`), and `pip` must be able to reach PyPI.
 
 Open **two terminals**, both in the lab folder:
 
@@ -54,7 +60,7 @@ answers and a token count in `labs/my-work/lab-4-agent.md`
 
 ### Step 1 — Read `run()` before you run it (7 min)
 
-Open `agent.py`. Find `run()` near the bottom. It is the same loop as slide 14.
+Open `agent.py`. Find `run()` near the bottom. It is the same loop as the deck's *The loop, in plain Python* slide.
 
 **Prompt 4-A** · Ask mode · base model · **new chat**
 
@@ -88,7 +94,7 @@ python agent.py
 INC-9001 is already open. The last line reads `[3 steps, ... tokens]`.
 
 Now look at Terminal 1. It printed one line per call. **The number of messages and the tokens go up
-on every call**, because the agent sends the whole list again each time (slide 15). Write the three
+on every call**, because the agent sends the whole list again each time (*The message list is the memory*). Write the three
 token numbers in your notes.
 
 ### If you are behind
@@ -112,7 +118,13 @@ Copy this table into your notes first:
 | badargs  |                               |       |        |                              |       |        |
 | loop     |                               |       |        |                              |       |        |
 | write    |                               |       |        |                              |       |        |
+| budget   |                               |       |        |                              |       |        |
+| hidden   |                               |       |        |                              |       |        |
 ```
+
+The last two rows come from Step 4. **budget** is the token budget, tested on the `happy` scenario
+with `MAX_TOKENS = 500`. **hidden** is the error hidden as empty, tested with `SEARCH_DOWN`. It needs
+no steps or tokens: write what `search_runbooks()` returns before and after.
 
 **How every scenario works:** start the fake model with the scenario name in Terminal 1, run
 `python agent.py` in Terminal 2, and record the result. Then fix `agent.py` with Copilot, and run
@@ -121,7 +133,7 @@ name, between scenarios.
 
 A crash also counts as a result. Write down the error, then mark the steps and tokens as "crashed".
 
-### Step 1 — The invented tool and the wrong argument (10 min)
+### Step 1 — The invented tool and the wrong argument (Fix 1, 10 min)
 
 Run `python fake_llm.py invented`, then `python agent.py`. Then do the same with `badargs`.
 
@@ -133,7 +145,9 @@ tool with an argument name the tool does not have. The line marked `# no checks 
 
 ```text
 In labs/module-4-agent/agent.py, the line marked "# no checks yet" runs any tool call the model sends.
-Add a function run_tool(name, raw_args) and call it from that line. It must:
+Add a function run_tool(name, raw_args). Replace the lines that parse the arguments and run the tool
+(from args = json.loads(...) to "# no checks yet") with a call to it. Print the raw arguments in the
+ACTION line. run_tool must:
 - return "ERROR: no tool called <name>." if the tool does not exist
 - return "ERROR: bad arguments for <name>: <reason>" if the arguments are not valid JSON,
   or do not match the function (TypeError)
@@ -146,10 +160,10 @@ Review the diff before you keep it. Then run both scenarios again.
 
 **What you should see now:** no crash. In `invented`, the model reads the error and answers without
 the missing tool. In `badargs`, it reads the error, calls `get_runbook` again with `runbook_id`, and
-answers. This is slide 12: return the error as the observation, and the model usually corrects
-itself.
+answers. The deck's *The model asks. Your code decides.* slide says the same: return the error as the
+observation, and the model usually corrects itself.
 
-### Step 2 — The loop (8 min)
+### Step 2 — The loop (Fix 2, 8 min)
 
 Run `python fake_llm.py loop`, then `python agent.py`.
 
@@ -168,12 +182,12 @@ step number and the tokens used, like the other return lines. Change only agent.
 Run the `loop` scenario again. Compare the tokens with your first run. You should see the run stop
 at step 2, with a small part of the tokens.
 
-### Step 3 — The write that nobody approved (7 min)
+### Step 3 — The write that nobody approved (Fix 3, 7 min)
 
 Run `python fake_llm.py write`, then `python agent.py`.
 
 **What you should see:** the agent opens a new incident, INC-9004, for a problem INC-9001 already
-covers. Nobody was asked. This is slide 8: a tool that writes needs a person's approval, enforced in
+covers. Nobody was asked. This is the *Autonomy is set per tool* slide: a tool that writes needs a person's approval, enforced in
 code.
 
 **Prompt 4-D** · Agent mode · base model · **same chat**
@@ -187,9 +201,9 @@ In run_tool(), before open_incident runs, show the arguments and ask the person 
 Run the scenario twice: type `n` once and `y` once. With `n`, the agent reports that it did not open
 an incident.
 
-### Step 4 — The token budget, and the error hidden as empty (8 min)
+### Step 4 — The token budget, and the error hidden as empty (Fix 4 and Fix 5, 8 min)
 
-These two need no fake scenario.
+These two need no new scenario.
 
 **Token budget.** The step budget limits steps, not cost.
 
@@ -215,7 +229,8 @@ python -c "import os; os.environ['SEARCH_DOWN']='1'; import agent; print(agent.s
 To the model, `[]` means "no runbook matches". It will tell the engineer there is no runbook, while
 the real problem is that the source is down. Module 3 had the same bug in `/api/ask`, and its fix was
 a 503. Change the line so it returns `"ERROR: runbook search is unavailable. Try again later."`
-instead. You can do this one by hand.
+instead. You can do this one by hand. A real tool would retry first (the *Retry, or send the error back?*
+slide). This one sends the error once the retries are spent.
 
 ### Step 5 — Compare with the solution (2 min)
 
@@ -271,6 +286,8 @@ the trainer's screen, and still fill in the table.
    ```
 
    Without this, the SDK downloads its own copy of the runtime from GitHub on the first run.
+   **On Windows, skip this step** and let the SDK download its own copy: Git Bash gives a path like
+   `/c/Users/...` that Windows Python cannot use.
 
 ### Step 2 — Run it (5 min)
 
@@ -280,7 +297,8 @@ python agent_sdk.py
 
 **What you should see:** ACTION lines for the tools Copilot chose, an answer that cites RB-101, and
 `[... model calls, ... tokens]`. The model is `gpt-5-mini` unless your trainer names another. To
-change it, run `export ASKOPS_MODEL=<name>`.
+change it, run `export ASKOPS_MODEL=<name>`. If you have time at the end, run the first command again
+with another model and compare the ACTION lines: tool calling differs between models.
 
 Now ask for a write:
 
@@ -298,8 +316,8 @@ python agent_sdk.py "Run the shell command ls and tell me what it prints."
 ```
 
 It refuses. Copilot normally has shell and file tools. `available_tools=ToolSet().add_custom("*")`
-switched them all off, so it can use only your four tools. This is slide 8 again: you decide what
-the agent may do.
+switched them all off, so it can use only your four tools. This is the *Autonomy is set per tool* slide again: you
+decide what the agent may do.
 
 ### Step 3 — Compare the two (10 min)
 
@@ -345,12 +363,15 @@ echo "$LAB_LLM_MODEL"
 # must print a model name. If it prints nothing, tell your trainer
 ```
 
+**On Day 1, before you leave,** copy your fixed `agent.py` into a private gist or your notes file.
+The sandbox cannot see your laptop.
+
 The `agent.py` here is the untouched starter. Save your fixed Day 1 version next to it as
 **`my_agent.py`**: open a new file with that name and paste your code in. It is the one with
 `run_tool()` and the loop check. If you do not have it, copy `solutions/agent.py` to `my_agent.py`
 and change `.parent.parent` to `.parent` in its `DATA =` line, so it finds the data file.
 
-### Step 2 — Run it twice, on the same question (5 min)
+### Step 2 — Run it twice on one question, once on another (5 min)
 
 ```bash
 python my_agent.py
@@ -362,17 +383,22 @@ Do **not** start `fake_llm.py`. Write down the ACTION lines, steps and tokens of
 
 **What you should see:** the two runs of the same question may choose different tools, or a
 different order. The fake model always followed its script, but a real model chooses its path at
-run time (slide 5). Compare the tokens with your Lab 4.1 numbers.
+run time (*One call, or a loop*). Compare the tokens with your Lab 4.1 numbers.
+
+If your loop check stops a run that looked reasonable, write that down. A real model may list the
+incidents again after it opened one, and that repeat is fine. Real loop checks also look at whether
+anything changed in between.
 
 ### Step 3 — The error hidden as empty, for real (4 min)
 
 Run the starter and your fixed agent with the search source "down":
 
 ```bash
-SEARCH_DOWN=1 python agent.py "Payments returns 502s after the release. What do I do?"
-SEARCH_DOWN=1 python my_agent.py "Payments returns 502s after the release. What do I do?"
+SEARCH_DOWN=1 python agent.py "Disk on the report nodes is at 95 percent. What do I do?"
+SEARCH_DOWN=1 python my_agent.py "Disk on the report nodes is at 95 percent. What do I do?"
 ```
 
+No open incident links to a runbook for this problem, so search is the only way to find one.
 With `[]`, the starter's model usually says no runbook exists. With the error text, it should
 say that search is unavailable. That difference is the whole point of Fix 5.
 
@@ -391,8 +417,8 @@ compare the two.
 - An agent is a loop. The model chooses the next step. Your code runs every tool.
 - Every call resends the whole message list, so tokens per call go up at every step.
 - Check every tool call before you run it, and send errors back as observations. Never crash.
-- A loop needs all four stop conditions: an answer, a step budget, a loop check and a way to hand
-  over. Add a token budget too.
+- A loop needs all four stop conditions: an answer, a step budget, a loop check, and a clear error
+  the model can hand over with. Add a token budget too.
 - A tool that writes needs a person's approval, enforced in code.
 - A framework or an SDK can run the loop for you. It does not decide what your agent may do. You do.
 

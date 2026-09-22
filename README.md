@@ -26,9 +26,10 @@ Open the decks in a browser. No install, and they work offline.
 
 - Module 1: `presentation/module-1-prompt-context-engineering.html`
 - Module 2: `presentation/module-2-token-optimization.html`
-- Module 3: `presentation/module-3-python/index.html`, the module home. It links the six short decks
+- Module 3: `presentation/module-3-python-accelerated.html`
+- Module 4: `presentation/module-4-agent-foundations.html`
 
-Keys: arrow keys or space to move · `O` for the slide index (`T` in the Module 3 decks) · `N` for the notes on the current
+Keys: arrow keys or space to move · `O` for the slide index · `N` for the notes on the current
 slide · `F` for full screen. The notes are written for you, not for the trainer, so read them after
 the session too.
 

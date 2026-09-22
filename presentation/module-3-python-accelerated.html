@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 3 &mdash; Python Accelerated with Copilot | Agentic AI &amp; AI-Assisted Development with GitHub Copilot</title>
+<link rel="stylesheet" href="../assets/adlc-deck.css">
+</head>
+<body data-deck="Module 3">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#71809a"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6ea8fe"/></marker>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2726e"/></marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5fbf8f"/></marker>
+</defs></svg>
+
+<div id="viewport"><div id="stage">
+
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module is where you stop reading Python and start writing it. You build AskOps, a small internal service that answers an on-call engineer&#39;s question by searching runbooks and past incidents. You build it from failing tests, one mission at a time, with Copilot as a tutor rather than an autocomplete. The six parts below go from the Python you already half-know, through data and structure, to a FastAPI service, a web page and a review. You do not need to know Python before today. You do need to read code carefully, because most of the work is deciding whether what Copilot wrote is right. Everything you build here becomes the agent you give a brain to in Module 4." data-tier="R">
+  <div class="wrap">
+    <span class="tier">Day 1 &middot; Module 3 of 4</span>
+    <h1>Python Accelerated with Copilot</h1>
+    <p class="sub">Build the AskOps API from failing tests, with Copilot as your tutor.</p>
+    <p class="meta">
+      <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
+      <span>Intermediate</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+    <div class="chips">
+      <span class="chip">You already know this</span>
+      <span class="chip">Data</span>
+      <span class="chip">Structure</span>
+      <span class="chip">Service</span>
+      <span class="chip">Web app</span>
+      <span class="chip">Review and ship</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 0 ===== -->
+<section class="slide" data-sec="0 &middot; You already know this" data-title="Five missions, one app, and the tests decide" data-notes="This module builds one app, AskOps, across five missions. AskOps is a small operations help desk: runbooks, incidents, and a way to ask about them. Every mission ships with failing tests, so a command decides when you are done, not an opinion. Running python score.py 3 tells you whether mission 3 is finished. That is exactly the habit you need with an agent: give it a check it can run. You will not type implementations by hand. Copilot writes the code and you decide whether to keep it. In missions 1 and 2 Copilot works as a tutor, explaining each Python idea against the language you already know. In missions 3 and 4 it works as a builder, from a spec you write. If you fall behind, every mission has a checkpoint tag. Switch to it and you start the next mission with a green scoreboard." data-tier="K">
+  <h2>Five missions, one app &mdash; the <em>tests</em> decide<span class="tag k">0</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 404" role="img" aria-label="Five missions build the AskOps app, with Copilot as a tutor first and a builder later">
+        <text class="lb" x="4" y="16">FIVE MISSIONS &middot; ONE APP</text>
+
+        <rect class="bx grow" x="4" y="28" width="692" height="56" rx="7"/>
+        <text class="tt" x="24" y="62">1 &middot; Drills</text>
+        <text class="ss" x="210" y="62">collections, errors, dataclasses</text>
+        <text class="lb" x="676" y="62" text-anchor="end">TUTOR</text>
+
+        <rect class="bx grow w2" x="4" y="92" width="692" height="56" rx="7"/>
+        <text class="tt" x="24" y="126">2 &middot; Core</text>
+        <text class="ss" x="210" y="126">package, logging, search</text>
+        <text class="lb" x="676" y="126" text-anchor="end">TUTOR</text>
+
+        <rect class="bx a grow w3" x="4" y="156" width="692" height="56" rx="7"/>
+        <text class="tt" x="24" y="190">3 &middot; API</text>
+        <text class="ss" x="210" y="190">FastAPI, pydantic, async I/O</text>
+        <text class="lb a" x="676" y="190" text-anchor="end">BUILDER</text>
+
+        <rect class="bx a grow w4" x="4" y="220" width="692" height="56" rx="7"/>
+        <text class="tt" x="24" y="254">4 &middot; Web page</text>
+        <text class="ss" x="210" y="254">Jinja2 + htmx, no JS build</text>
+        <text class="lb a" x="676" y="254" text-anchor="end">BUILDER</text>
+
+        <rect class="bx g grow w5" x="4" y="284" width="692" height="56" rx="7"/>
+        <text class="tt" x="24" y="318">5 &middot; Review &amp; ship</text>
+        <text class="ss" x="210" y="318">reject a bad PR, open a good one</text>
+        <text class="lb g" x="676" y="318" text-anchor="end">YOU JUDGE</text>
+
+        <rect class="bx d" x="4" y="348" width="692" height="54" rx="7"/>
+        <text class="ss w" x="24" y="372" style="font-size:14px">AskOps &mdash; runbooks, incidents, and a way to ask.</text>
+        <text class="ss w" x="24" y="394" style="font-size:14px">The tutor explains and checks you. The builder works from a <tspan font-weight="700" fill="#e0b34d">spec</tspan>.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Tests are the spec</h3>
+      <ul>
+        <li>Every mission ships failing tests. <code>python score.py 3</code> is your definition of done.</li>
+        <li>That is exactly how you will direct an agent.</li>
+      </ul>
+      <h3>Copilot types, you decide</h3>
+      <ul>
+        <li>No code by hand. Every tier ends with a diff hiding one Python trap: <b>merge or block?</b></li>
+      </ul>
+      <h3>Nobody falls behind</h3>
+      <ul>
+        <li>Stuck? Every mission has a checkpoint tag. Switch to it and carry on green.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="0 &middot; You already know this" data-title="The same record, in the language you know" data-notes="The ideas map one to one across these four languages. A record is a dataclass. A stream that filters and maps is a comprehension. What changes is how much you type: the Python version is about a third of the size. Read the four points on the right slowly, because each one is a habit you need. Indentation is the block, so a wrong indent changes the logic, not the style. A decorator such as @dataclass writes __init__, __eq__ and __repr__ for you. A comprehension does filter, map and collect in one line. The last point surprises most Java and C-sharp engineers: type hints are read by tools, and Python itself ignores them while the program runs. A field written as id: str will happily hold a number. That gap is why pydantic exists, and you meet pydantic in Tier 3." data-tier="K">
+  <h2>The same record, in the <em>language you know</em><span class="tag k">0</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">JAVA 21 &middot; C# 12 &middot; TYPESCRIPT</span><span class="c">// Java</span>
+public record Incident(String id, Severity severity) {}
+var high = incidents.stream()
+    .filter(i -&gt; i.severity() == Severity.HIGH)
+    .map(Incident::id).toList();
+
+<span class="c">// C#</span>
+public record Incident(string Id, Severity Severity);
+var high = incidents
+    .Where(i =&gt; i.Severity == Severity.High)
+    .Select(i =&gt; i.Id).ToList();
+
+<span class="c">// TypeScript</span>
+type Incident = { id: string; severity: Severity };
+const high = incidents
+    .filter(i =&gt; i.severity === Severity.High)
+    .map(i =&gt; i.id);
+</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">PYTHON 3.12+</span><span class="k">from dataclasses import dataclass</span>
+
+<span class="k">@dataclass(frozen=True)</span>
+class Incident:
+    id: str
+    severity: Severity
+
+high = [<span class="s">i.id</span> <span class="k">for</span> i <span class="k">in</span> incidents
+        <span class="k">if</span> i.severity == Severity.HIGH]
+</div>
+      <div class="pts" style="margin-top:12px">
+        <ul>
+          <li><b>Indentation is the block.</b> No braces, no semicolons.</li>
+          <li><b>A decorator</b> writes <code>__init__</code>, <code>__eq__</code> and <code>__repr__</code> for you.</li>
+          <li><b>A comprehension</b> replaces filter plus map plus collect.</li>
+          <li><b>Type hints</b> read like TypeScript &mdash; and Python does <em>not</em> check them when it runs.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="0 &middot; You already know this" data-title="Eight differences that surprise experienced engineers" data-notes="Use the red side as your review checklist for Python. These four are bugs you will write once, and then recognise for the rest of your career. The mutable default is the classic one: the list in def f(tags=[]) is created once, when the function is defined, so every call adds to the same list. Truthiness is the quiet one: if not count: treats a real zero the same as a missing value, which matters when the number is money or a retry count. The green side is different. Those four are not traps. They are how experienced Python is written, and code that ignores them reads like translated Java. A decorator, for example, is only a function that takes a function and returns a new one. Tier 1 and Tier 2 cover each of these in depth, and Lab 1 has a drill for most of them." data-tier="K">
+  <h2>Eight differences that <em>surprise</em> experienced engineers<span class="tag k">0</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 452" role="img" aria-label="Four Python traps to catch in review, and four Python idioms worth copying">
+        <text class="lb r" x="4" y="18">BUGS YOU WILL WRITE ONCE</text>
+        <text class="lb g" x="596" y="18">THE NORMAL WAY TO WRITE PYTHON</text>
+
+        <rect class="bx r grow" x="4" y="26" width="580" height="84" rx="7"/>
+        <text class="tt" x="24" y="56">Mutable defaults</text>
+        <text class="ss" x="24" y="80">def f(tags=[]) creates the list once.</text>
+        <text class="ss" x="24" y="102">Every call adds to the same list.</text>
+
+        <rect class="bx r grow w2" x="4" y="118" width="580" height="84" rx="7"/>
+        <text class="tt" x="24" y="148">is against ==</text>
+        <text class="ss" x="24" y="172">is compares identity, like Java&rsquo;s ==.</text>
+        <text class="ss" x="24" y="194">Use it only for None.</text>
+
+        <rect class="bx r grow w3" x="4" y="210" width="580" height="84" rx="7"/>
+        <text class="tt" x="24" y="240">Truthiness</text>
+        <text class="ss" x="24" y="264">An empty string, 0, [] and None are all false.</text>
+        <text class="ss" x="24" y="286">if not count: hides a real zero.</text>
+
+        <rect class="bx r grow w4" x="4" y="302" width="580" height="84" rx="7"/>
+        <text class="tt" x="24" y="332">Hints do not check</text>
+        <text class="ss" x="24" y="356">Money(amount=&ldquo;ten&rdquo;) runs happily.</text>
+        <text class="ss" x="24" y="378">Validation is your job, or pydantic&rsquo;s.</text>
+
+        <rect class="bx g grow" x="596" y="26" width="580" height="84" rx="7"/>
+        <text class="tt" x="616" y="56">EAFP</text>
+        <text class="ss" x="616" y="80">Try it and catch the error, rather than checking first.</text>
+        <text class="ss" x="616" y="102">Exceptions in Python are cheap and normal.</text>
+
+        <rect class="bx g grow w2" x="596" y="118" width="580" height="84" rx="7"/>
+        <text class="tt" x="616" y="148">Duck typing</text>
+        <text class="ss" x="616" y="172">No implements. If it has the method, it fits.</text>
+        <text class="ss" x="616" y="194">Protocol names the shape.</text>
+
+        <rect class="bx g grow w3" x="596" y="210" width="580" height="84" rx="7"/>
+        <text class="tt" x="616" y="240">with blocks</text>
+        <text class="ss" x="616" y="264">Like try-with-resources, or using in C#.</text>
+        <text class="ss" x="616" y="286">For files, locks, connections, clients.</text>
+
+        <rect class="bx g grow w4" x="596" y="302" width="580" height="84" rx="7"/>
+        <text class="tt" x="616" y="332">Everything is an object</text>
+        <text class="ss" x="616" y="356">Functions and classes are values you can pass.</text>
+        <text class="ss" x="616" y="378">Wrap one, and you have a decorator.</text>
+
+        <rect class="bx d" x="4" y="394" width="1172" height="52" rx="8"/>
+        <text class="ss w" x="24" y="418" style="font-size:14px"><tspan font-weight="700" fill="#e2726e">Red</tspan> &mdash; bugs you will write once, and must catch in review.</text>
+        <text class="ss w" x="24" y="440" style="font-size:14px"><tspan font-weight="700" fill="#5fbf8f">Green</tspan> &mdash; the normal way to write Python. Lab 1 drills most of them.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="0 &middot; You already know this" data-title="Every tool you use has a Python twin" data-notes="Read this table as a translation, not a list to memorise. Every job in the left column is one you already do today, so you only need the name of the Python tool. The first row costs people an hour on Day 1. A venv is an isolated set of packages for one project. You create it once with python -m venv .venv, and you activate it in every terminal you open. If you forget, pip install puts the package in the system Python, and import fastapi then fails in the terminal next door. Check which interpreter you are on with which python. On Windows, activate it with .venv\Scripts\activate. The full setup steps are in the AskOps repository README. The last row matters too. mypy and pyright are optional, and nothing in Python stops a wrongly typed program from running, so your tests carry weight a compiler would carry elsewhere." data-tier="K">
+  <h2>Every tool you use has a Python <em>twin</em><span class="tag k">0</span></h2>
+  <div class="body g1">
+    <div>
+      <svg class="dense" viewBox="0 0 1180 452" role="img" aria-label="The Java, C-sharp, TypeScript and Python tool for each job, and the virtual environment trap">
+        <rect class="bx d" x="4" y="4" width="1172" height="26" rx="6"/>
+        <text class="lb w" x="20" y="22">JOB</text>
+        <text class="lb w" x="280" y="22">JAVA / C#</text>
+        <text class="lb w" x="644" y="22">TYPESCRIPT</text>
+        <text class="lb w" x="794" y="22">PYTHON &mdash; THIS MODULE</text>
+
+        <rect class="bx grow" x="4" y="36" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="61" style="font-size:13.5px">Isolated dependencies</text>
+        <text class="ss" x="280" y="61">per-project classpath / NuGet restore</text>
+        <text class="ss" x="644" y="61">node_modules</text>
+        <text class="ss" x="794" y="61"><tspan font-weight="700" fill="#e0b34d">python -m venv .venv</tspan> &mdash; activate it, every terminal</text>
+
+        <rect class="bx grow w2" x="4" y="78" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="103" style="font-size:13.5px">Project + dependencies</text>
+        <text class="ss" x="280" y="103">pom.xml / .csproj</text>
+        <text class="ss" x="644" y="103">package.json</text>
+        <text class="ss" x="794" y="103"><tspan font-weight="700" fill="#e0b34d">pyproject.toml</tspan> &mdash; then pip install -e &ldquo;.[dev]&rdquo;</text>
+
+        <rect class="bx grow w3" x="4" y="120" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="145" style="font-size:13.5px">Unit tests</text>
+        <text class="ss" x="280" y="145">JUnit / xUnit</text>
+        <text class="ss" x="644" y="145">Jest / Vitest</text>
+        <text class="ss" x="794" y="145"><tspan font-weight="700" fill="#e0b34d">pytest</tspan> &mdash; plain assert, fixtures by argument name</text>
+
+        <rect class="bx grow w4" x="4" y="162" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="187" style="font-size:13.5px">Web framework</text>
+        <text class="ss" x="280" y="187">Spring MVC / ASP.NET minimal APIs</text>
+        <text class="ss" x="644" y="187">Express / NestJS</text>
+        <text class="ss" x="794" y="187"><tspan font-weight="700" fill="#e0b34d">FastAPI</tspan></text>
+
+        <rect class="bx grow w5" x="4" y="204" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="229" style="font-size:13.5px">Validation + DTOs</text>
+        <text class="ss" x="280" y="229">Bean Validation / DataAnnotations</text>
+        <text class="ss" x="644" y="229">zod</text>
+        <text class="ss" x="794" y="229"><tspan font-weight="700" fill="#e0b34d">pydantic v2</tspan></text>
+
+        <rect class="bx grow w6" x="4" y="246" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="271" style="font-size:13.5px">Server</text>
+        <text class="ss" x="280" y="271">Tomcat / Kestrel</text>
+        <text class="ss" x="644" y="271">node</text>
+        <text class="ss" x="794" y="271"><tspan font-weight="700" fill="#e0b34d">uvicorn</tspan> (ASGI)</text>
+
+        <rect class="bx grow" x="4" y="288" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="313" style="font-size:13.5px">Templates</text>
+        <text class="ss" x="280" y="313">Thymeleaf / Razor</text>
+        <text class="ss" x="644" y="313">JSX</text>
+        <text class="ss" x="794" y="313"><tspan font-weight="700" fill="#e0b34d">Jinja2</tspan> + htmx</text>
+
+        <rect class="bx grow w2" x="4" y="330" width="1172" height="38" rx="6"/>
+        <text class="tt" x="20" y="355" style="font-size:13.5px">Static checks</text>
+        <text class="ss" x="280" y="355">the compiler</text>
+        <text class="ss" x="644" y="355">tsc</text>
+        <text class="ss" x="794" y="355">mypy / pyright &mdash; optional. Python never checks.</text>
+
+        <rect class="bx r" x="4" y="380" width="1172" height="68" rx="8"/>
+        <text class="lb r" x="24" y="402">THE ONE THAT COSTS AN HOUR</text>
+        <text class="ss" x="24" y="424" style="font-size:14px">Forgetting to activate the venv. pip install lands in the system Python,</text>
+        <text class="ss" x="24" y="444" style="font-size:14px">and import fastapi fails in the terminal next door. Check with <tspan font-weight="700" fill="#e0b34d">which python</tspan>.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="0 &middot; You already know this" data-title="Merge or block - read the PR in 60 seconds" data-notes="Decide first, then read on. There are two bugs. The default recipients=[] is built once, when the function is defined, so every call shares one list and the second call still holds the first call&#39;s recipients. Default to None and build a new list inside. The other is incident.severity is &quot;high&quot;. The word is asks whether two names refer to the same object, not whether the text matches. It looks fine on your laptop, because Python reuses short literals, then fails on a severity read from a file or a queue. Use ==. One more thing is worth a comment: the function appends to a list the caller passed in, so it changes the caller&#39;s data as a side effect. Copilot writes Python faster than you can type it. Deciding whether the result is right for your system is the part it cannot do." data-tier="D">
+  <h2>Merge or block? Read the PR in <em>60 seconds</em><span class="tag k">0</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">notify.py &middot; +7 &minus;0</span>def notify(incident, recipients=[]):
+    if incident.owner is not None:
+        recipients.append(incident.owner)
+    if incident.severity is "high":
+        recipients.append("oncall@example.com")
+    send(recipients, incident.title)
+    return recipients
+</div>
+      <div class="callout">&ldquo;Always include the owner and page on-call for high severity.&rdquo;</div>
+    </div>
+    <div class="pts">
+      <h3>Decide before you discuss</h3>
+      <ul>
+        <li>How many bugs?</li>
+        <li>Which one only shows up on the <b>second</b> call?</li>
+        <li>Which one works on your laptop and fails in production?</li>
+      </ul>
+      <div class="take"><b>Lab 0 now:</b> clone AskOps, see 55 red checks, and run <code>/tutor word_counts</code>. It explains, writes and tests &mdash; then asks <em>you</em> a question.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 1 ===== -->
+<section class="slide" data-sec="1 &middot; Data" data-title="Four collections and when each is the answer" data-notes="Python gives you four built-in collections, and picking the right one removes most of the helper code you would write elsewhere. A list is an ordered container you keep changing. A dict maps a key to a value. A set answers &ldquo;is this in here?&rdquo; in one step. A tuple is a fixed group of values, so it can safely be a dict key. Unpacking, enumerate and zip are the lines engineers from other languages misread most often when reading at speed, so read each one slowly the first time you meet it. owners.get with a default returns that default instead of raising KeyError, and it replaces many of the try blocks you see in ported code. Counter and defaultdict ship with Python, so check the collections module before you hand-write a counting or grouping helper. Lab 1 opens with five drills on exactly these moves." data-tier="K">
+  <h2>list, dict, set, tuple &mdash; and when <em>each</em> is the answer<span class="tag k">1</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">LITERALS AND THE EVERYDAY MOVES</span>steps  = ["check", "rollback"]  <span class="c"># list  ~ ArrayList</span>
+owners = {"payments": "asha"}   <span class="c"># dict  ~ HashMap</span>
+tags   = {"deploy", "502"}      <span class="c"># set   ~ HashSet</span>
+point  = ("RB-101", 5)          <span class="c"># tuple ~ immutable</span>
+
+owners.get("auth", "none")      <span class="c"># no KeyError</span>
+<span class="k">rb_id, score = point</span>            <span class="c"># unpacking</span>
+first, *rest = steps
+for i, step in <span class="k">enumerate</span>(steps, 1): ...
+for rb, hit in <span class="k">zip</span>(runbooks, hits): ...
+tags <span class="k">&amp;</span> {"deploy", "db"}         <span class="c"># set algebra</span>
+steps[<span class="k">-1</span>], steps[<span class="k">1:</span>]            <span class="c"># last item, slice</span>
+</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">FROM THE STANDARD LIBRARY, NOT A FRAMEWORK</span>from collections import Counter, defaultdict
+
+Counter(<span class="s">"deploy deploy rollback"</span>.split())
+<span class="c"># Counter({'deploy': 2, 'rollback': 1})</span>
+
+by_service = <span class="k">defaultdict(list)</span>
+for inc in incidents:
+    by_service[inc.service].append(inc.id)
+</div>
+      <div class="pts" style="margin-top:14px">
+        <h3>What to remember</h3>
+        <ul>
+          <li><b>Tuples are values</b>, lists are containers. A tuple can be a dict key.</li>
+          <li><b>Sets make membership O(1)</b> &mdash; one step, whatever the size.</li>
+          <li>Reach for <code>collections</code> before you write a helper.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1 &middot; Data" data-title="Comprehensions in one readable line" data-notes="A comprehension does three jobs in one line: it walks a sequence, keeps the items you want, and builds a new collection. Read it in that order &mdash; the expression first, then for, then if. The four shapes differ only in the brackets. Square brackets build a list. Curly braces with a colon build a dict. Curly braces alone build a set, which gives you distinct values. Plain parentheses inside a call give you a generator. The generator row matters later in this module: next(iter(x), default), any() and all() all take generators, and one of the Lab 1 drills depends on that. A generator builds nothing in memory, so summing a million rows costs one row at a time. The common mistake is nesting. Two nested for clauses plus a condition is harder to read than the loop it replaced." data-tier="K">
+  <h2>Comprehensions &mdash; filter, map and collect in <em>one</em> line<span class="tag k">1</span></h2>
+  <div class="body g46">
+    <div>
+      <div class="callout bad" style="margin-top:0"><b>Written like Java</b></div>
+<div class="file"><span class="fn">A LOOP THAT BUILDS A LIST</span>titles = []
+for i in incidents:
+    if i.severity == "high":
+        titles.append(i.title)
+</div>
+      <div class="callout good"><b>Written like Python</b></div>
+<div class="file"><span class="fn">THE SAME THING, ONE EXPRESSION</span>titles = [<span class="s">i.title</span> for i in incidents
+          if i.severity == "high"]
+</div>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 316" role="img" aria-label="The four comprehension shapes and what each one gives you">
+        <rect class="bx d" x="4" y="4" width="692" height="30" rx="6"/>
+        <text class="lb w" x="20" y="24">SHAPE</text>
+        <text class="lb w" x="110" y="24">WHAT YOU WRITE &mdash; AND WHAT YOU GET</text>
+
+        <rect class="bx grow" x="4" y="42" width="692" height="60" rx="6"/>
+        <text class="tt" x="20" y="68">list</text>
+        <text class="ss" x="110" y="68" style="font-family:var(--mono);font-size:13px;fill:#e0b34d">[x.id for x in items if x.open]</text>
+        <text class="ss" x="110" y="90">a new list</text>
+
+        <rect class="bx grow w2" x="4" y="110" width="692" height="60" rx="6"/>
+        <text class="tt" x="20" y="136">dict</text>
+        <text class="ss" x="110" y="136" style="font-family:var(--mono);font-size:13px;fill:#e0b34d">{x.id: x for x in items}</text>
+        <text class="ss" x="110" y="158">an index by id</text>
+
+        <rect class="bx grow w3" x="4" y="178" width="692" height="60" rx="6"/>
+        <text class="tt" x="20" y="204">set</text>
+        <text class="ss" x="110" y="204" style="font-family:var(--mono);font-size:13px;fill:#e0b34d">{x.service for x in items}</text>
+        <text class="ss" x="110" y="226">distinct values</text>
+
+        <rect class="bx g grow w4" x="4" y="246" width="692" height="60" rx="6"/>
+        <text class="tt" x="20" y="272">generator</text>
+        <text class="ss" x="110" y="272" style="font-family:var(--mono);font-size:13px;fill:#e0b34d">sum(x.minutes for x in items)</text>
+        <text class="ss" x="110" y="294" style="fill:#5fbf8f">lazy &mdash; nothing is built in memory</text>
+      </svg>
+      <div class="callout bad"><b>Review rule:</b> one <code>for</code> and one <code>if</code> reads well. Two nested <code>for</code>s and a condition is harder to read than the loop it replaced &mdash; ask for the loop back.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1 &middot; Data" data-title="What counts as false and what type hints do not do" data-notes="Python treats several values as false: None, False, 0, 0.0, an empty string, an empty list, an empty dict and an empty set. That is convenient until 0 is a real value. If retries is 0 and you write if not retries, you take the missing branch, and the bug looks like a configuration problem for a week. Write is None when you mean missing, because None is a single object. The pattern x or default is safe for a string you never expect to be empty, and risky for a number. Type hints are the other half of this slide. Your editor, Copilot, mypy, FastAPI and pydantic all read them. The interpreter ignores them, so search(store, 42) runs until something breaks further in. That gap is why tier 3 validates data at the edge of the service instead of trusting the hints." data-tier="K">
+  <h2>What counts as <em>false</em>, and what type hints do not do<span class="tag k">1</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">TRUTHINESS</span><span class="c"># falsy: None  False  0  0.0  ""  []  {}  set()</span>
+name = user.get(<span class="s">"name"</span>) <span class="k">or</span> <span class="s">"anonymous"</span>   <span class="c"># idiomatic</span>
+
+if <span class="k">not</span> retries:        <span class="c"># BUG when 0 is a real value</span>
+if retries <span class="k">is None</span>:    <span class="c"># say what you mean</span>
+</div>
+      <div class="pts" style="margin-top:14px">
+        <h3>None</h3>
+        <ul>
+          <li><code>None</code> is one object &mdash; compare it with <code>is</code>.</li>
+          <li><code>x or default</code> is fine for strings, risky for numbers.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+<div class="file"><span class="fn">TYPE HINTS</span>def search(store: Store, query: str,
+           limit: int = 5) -&gt; list[Hit]: ...
+
+owner: str <span class="k">| None</span> = None      <span class="c"># not Optional[str]</span>
+counts: dict[str, int] = {}
+</div>
+      <div class="pts" style="margin-top:14px">
+        <h3>Who reads them</h3>
+        <ul>
+          <li><b>Read by</b> your editor, Copilot, mypy, FastAPI and pydantic.</li>
+          <li><b>Ignored by</b> the interpreter &mdash; <code>search(store, 42)</code> runs until it breaks.</li>
+          <li>That gap is why tier 3 validates at the edge.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1 &middot; Data" data-title="Dataclasses and the one trap" data-notes="A dataclass writes __init__, __repr__ and __eq__ for you, and that equality compares values rather than object identity. frozen=True makes the object read-only after it is built, so it is hashable and safe to pass around; assigning to a field raises. __post_init__ runs straight after the generated __init__, and it is where rules such as priority must be 1 to 4 belong. A dataclass does not check types, so Money(&quot;10&quot;, 5) is constructed happily and fails somewhere else later. The trap is the mutable default. A list written straight into the declaration is created once, when the class is defined, and then shared by every instance, so one ticket&rsquo;s watchers turn up on another. dataclasses refuses the bare list literal, but = None slips past it. Use field(default_factory=list). This is the pattern in askops/models.py, which you read in Lab 2, and in the Money and Ticket drills in Lab 1." data-tier="K">
+  <h2>Dataclasses &mdash; records without the boilerplate, and one <em>trap</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">VALUE OBJECT AND MUTABLE RECORD</span>from dataclasses import dataclass, <span class="k">field</span>
+
+@dataclass(<span class="k">frozen=True</span>, slots=True)
+class Money:
+    amount: Decimal
+    currency: str
+    def add(self, other: "Money") -&gt; "Money":
+        return Money(self.amount + other.amount, self.currency)
+
+@dataclass
+class Ticket:
+    title: str
+    priority: int = 3
+    watchers: list[str] = <span class="k">field(default_factory=list)</span>
+    def <span class="k">__post_init__</span>(self):
+        if not 1 &lt;= self.priority &lt;= 4:
+            raise ValueError("priority must be 1..4")
+</div>
+    </div>
+    <div class="pts">
+      <h3>What you get, what you don&rsquo;t</h3>
+      <ul>
+        <li><b>Generated:</b> <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code> &mdash; equality compares values.</li>
+        <li><b><code>frozen=True</code></b> &mdash; assignment raises. Hashable, safe to share.</li>
+        <li><b><code>__post_init__</code></b> is where your rules live.</li>
+        <li><b>No type checking.</b> <code>Money("10", 5)</code> still constructs.</li>
+        <li><code>self</code> is explicit, always the first parameter.</li>
+      </ul>
+      <div class="callout bad"><b>The trap:</b> <code>watchers: list = []</code> would share one list between every Ticket. dataclasses refuses that literal; <code>= None</code> slips through. Use <code>default_factory</code>.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1 &middot; Data" data-title="Read the PR - merge or block" data-notes="Decide first, then read on. Strict mode does not work. The line sla = sla_minutes or 60 uses truthiness, and 0 is falsy, so passing sla_minutes=0 quietly gives you 60 &mdash; the opposite of what the description promises. Write sla = 60 if sla_minutes is None else sla_minutes. The max line is correct, and it is the one people misread: looping over a dict walks its keys, so max(breaches, key=breaches.get) returns the incident id whose value is largest, not a number of minutes. That does match the description. The comprehension is a matter of taste, and a reviewer who would rather read a plain loop is allowed to say so. One small thing you could raise: i.open_minutes - sla is worked out twice for every incident." data-tier="D">
+  <h2>Read the PR &mdash; <em>merge</em> or block?<span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">sla.py &middot; +9 &minus;0</span>def breach_minutes(incidents, sla_minutes=None):
+    """Minutes past SLA, per incident id."""
+    sla = sla_minutes or 60
+    return {i.id: i.open_minutes - sla
+            for i in incidents
+            if i.open_minutes - sla &gt; 0}
+
+def worst(incidents):
+    breaches = breach_minutes(incidents)
+    return max(breaches, key=breaches.get) if breaches else None
+</div>
+      <div class="callout"><b>PR description:</b> &ldquo;Returns the incident furthest past SLA. Pass sla_minutes=0 for strict mode.&rdquo;</div>
+    </div>
+    <div class="pts">
+      <h3>Decide before you discuss</h3>
+      <ul>
+        <li>Does strict mode work?</li>
+        <li>What does <code>max(breaches, key=breaches.get)</code> return: a number, or an id?</li>
+        <li>Would you ask for the comprehension to become a loop?</li>
+      </ul>
+      <div class="take"><b>Lab 1 now:</b> fifteen drills. Predict, <code>/tutor</code> generates, you explain it back. Ask why, not what.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 2 ===== -->
+<section class="slide" data-sec="2 &middot; Structure" data-title="A file is a module, a folder is a package" data-tier="K" data-notes="Importing a module runs it. Any code at the top level of the file runs once, the first time something imports it, so keep the top level to imports, constants and definitions. AskOps stacks its layers in one direction: models, then store, then search, then api. Read that chain when you review a diff. If store.py imports askops.api to reuse a small helper, the layers now point both ways. Nothing warns you when you write it. You find out when the import fails at start-up, or when a change in api.py breaks the store for no visible reason. Move the shared helper down into the lower layer instead. Lab 2 builds these files, so the layout on this slide is the layout you will work in all afternoon.">
+  <h2>A file is a module, a folder is a <em>package</em><span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">THE ASKOPS LAYOUT</span>askops/                <span class="c"># repo root</span>
+  pyproject.toml
+  <span class="k">askops/</span>              <span class="c"># the package</span>
+    __init__.py
+    models.py          <span class="c"># dataclasses</span>
+    errors.py          <span class="c"># exceptions</span>
+    store.py           <span class="c"># imports models</span>
+    search.py          <span class="c"># imports store</span>
+    api.py  web.py     <span class="c"># HTTP edges</span>
+    app.py             <span class="c"># wires it up</span>
+  tests/
+    conftest.py        <span class="c"># shared fixtures</span>
+    test_m2_core.py
+</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">READING THE IMPORTS</span><span class="c"># stdlib first, then third party, then yours</span>
+import logging
+<span class="c"># absolute imports - prefer them</span>
+from askops.models import Incident, Severity
+<span class="c"># or the module itself</span>
+from askops import sources
+</div>
+      <div class="pts" style="margin-top:14px">
+        <h3>What to know when you read them</h3>
+        <ul>
+          <li><b>Importing runs the file.</b> Top-level code runs once, on first import.</li>
+          <li><b>Nothing is private.</b> <code>_name</code> is a convention only.</li>
+          <li><b>Circular imports fail at once.</b> Layers point one way: models &larr; store &larr; search &larr; api.</li>
+          <li><code>if __name__ == "__main__":</code> guards code that runs only as a script.</li>
+          <li><code>pip install -e .</code> puts your package on the path.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="2 &middot; Structure" data-title="One base class, raise specific, catch narrow" data-tier="K" data-notes="Python has no checked exceptions. Nothing forces a caller to handle what you raise, so the class hierarchy is the contract. Give every deliberate failure one base class, here AskOpsError, and raise a specific subclass under it. A caller can then catch AskOpsError for the failures you planned, and let a TypeError crash, because a TypeError is a bug you want to see. Ask an agent to make the code resilient and it usually writes except Exception. That one line turns a missing file into an empty list, and the service looks healthy while it answers with nothing. Catch the narrowest exception you can name, and translate it at the edge: the store raises RunbookNotFound, and only the API layer turns that into a 404. Lab 5 comes back to this.">
+  <h2>One base class, raise specific, catch <em>narrow</em><span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">A DOMAIN HIERARCHY</span>class AskOpsError(Exception):
+    """Everything AskOps raises on purpose."""
+
+class RunbookNotFound(AskOpsError):
+    def __init__(self, runbook_id: str):
+        super().__init__(f"runbook {runbook_id} not found")
+        self.runbook_id = runbook_id
+
+def get_runbook(self, runbook_id):
+    <span class="k">try</span>:
+        return self._runbooks[runbook_id]
+    <span class="k">except KeyError</span>:
+        raise RunbookNotFound(runbook_id) <span class="k">from None</span>
+</div>
+    </div>
+    <div class="pts">
+      <h3>Rules that survive review</h3>
+      <ul>
+        <li><b>EAFP:</b> try the lookup and catch <code>KeyError</code>. Do not check first.</li>
+        <li><b>No checked exceptions.</b> The hierarchy is the contract.</li>
+        <li><code>raise X from exc</code> keeps the cause; <code>from None</code> hides it.</li>
+        <li><b>Translate at the edge.</b> The store raises <code>RunbookNotFound</code>; only the API makes it a 404.</li>
+        <li><b>Let <code>TypeError</code> crash.</b> That one is a bug.</li>
+      </ul>
+      <div class="callout bad"><b>Block on sight:</b> <code>except:</code>, <code>except Exception: pass</code>, and <code>except Exception</code> that returns a normal-looking result.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="2 &middot; Structure" data-title="Three constructs you will read on every page" data-tier="K" data-notes="Three shapes you meet on nearly every page of Python. A with block gives you cleanup you cannot forget: the file closes when the block ends, even if an exception is raised inside it. It is the same idea as try-with-resources. Any object with an __enter__ and an __exit__ method works, so locks and HTTP clients use it too. For logging, take one logger per module with logging.getLogger(__name__), and pass the values as arguments rather than building an f-string, because the message is then formatted only if the line is really written out. A decorator is a function that takes your function and returns a wrapped one. Once you see that, @router.get, @pytest.fixture and @dataclass stop looking like magic. In *args, **kwargs, the first means any positional arguments and the second any keyword arguments. Lab 2 has a stretch goal that wraps a function this way.">
+  <h2>Three constructs you will read on every <em>page</em><span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">with &mdash; cleanup, guaranteed</span><span class="k">with</span> open(path, encoding="utf-8") <span class="k">as</span> fh:
+    data = json.load(fh)
+<span class="c"># closed here, even on exception</span>
+
+<span class="k">with</span> httpx.Client() as c: ...
+<span class="k">with</span> lock: ...
+</div>
+      <div class="callout">Like try-with-resources. Any object with <code>__enter__</code> and <code>__exit__</code> works.</div>
+<div class="file" style="margin-top:12px"><span class="fn">logging &mdash; not print</span>logger = logging.getLogger(<span class="k">__name__</span>)
+
+logger.warning(<span class="s">"skipping %s: %s"</span>, rid, exc)
+logger.exception(<span class="s">"ask failed"</span>)
+<span class="c"># ERROR + the traceback</span>
+</div>
+      <div class="callout">One logger per module. Pass <code>%</code> arguments, not f-strings. The text is built only if the line is written.</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">decorators &mdash; functions that wrap</span>def timed(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        t = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            took = time.perf_counter() - t
+            logger.debug("%s %.3fs", fn.__name__, took)
+    return wrapper
+
+<span class="k">@timed</span>
+def search(...): ...
+</div>
+      <div class="callout"><code>@router.get</code>, <code>@pytest.fixture</code> and <code>@dataclass</code> are all this pattern. Each one takes your function and returns a better one.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="2 &middot; Structure" data-title="Plain assert, fixtures by name, parametrize" data-tier="K" data-notes="Fixture injection looks like magic if you are used to annotations. It is a plain lookup. pytest reads the parameter names in your test and calls the fixture with that name, so a test that asks for store gets the store fixture from conftest.py with no import at all. tmp_path, caplog and monkeypatch come with pytest, so a temporary directory, the captured log lines and a safe way to patch are all free. A plain assert is enough: pytest rewrites it so a failure shows both sides of the comparison. Two flags save you time all day. pytest -x stops at the first failure, and pytest -k name runs the one test you care about. The tests are the specification for every mission in this module, so read them before you ask the agent for code.">
+  <h2>Plain assert, fixtures by name, <em>parametrize</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">PYTEST IN ONE SCREEN</span>import pytest
+
+<span class="c"># conftest.py - available to every test, no import</span>
+<span class="k">@pytest.fixture</span>
+def store():
+    return Store.from_dir(DATA_DIR)
+
+def test_missing_runbook_raises(<span class="k">store</span>):          <span class="c"># injected by name</span>
+    with <span class="k">pytest.raises</span>(RunbookNotFound, match="RB-999"):
+        store.get_runbook("RB-999")
+
+<span class="k">@pytest.mark.parametrize</span>("value", ["0", "65536", "http"])
+def test_invalid_port(value):
+    with pytest.raises(ValueError):
+        parse_port(value)
+
+def test_bad_record_logged(<span class="k">tmp_path</span>, <span class="k">caplog</span>):      <span class="c"># built-in fixtures</span>
+    (tmp_path / "incidents.json").write_text("[...]")
+    ...
+    assert "INC-2" in caplog.text
+</div>
+    </div>
+    <div class="pts">
+      <h3>Why it matters today</h3>
+      <ul>
+        <li><b>The tests are your spec</b> for every mission.</li>
+        <li>Plain <code>assert</code>: pytest shows both sides on failure.</li>
+        <li><code>tmp_path</code>, <code>caplog</code> and <code>monkeypatch</code> come free.</li>
+        <li><code>pytest -x</code> stops at the first failure; <code>-k name</code> runs one.</li>
+      </ul>
+      <div class="callout"><b>The rule for agents:</b> a test is changed by a human, on purpose. An agent that edits a test to go green gets its diff rejected.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="2 &middot; Structure" data-title="Read the PR - merge or block" data-tier="D" data-notes="Decide first, then read on. All four answers are problems. The loop sits inside the try, so one bad record out of 500 raises, jumps to the except, and returns only the records read before it. The rest are dropped, and nobody is told. A missing file is caught by the same except Exception and also returns an empty list, so the caller cannot tell a missing file from a file with no incidents in it. print writes to standard output with no level, no timestamp and no stack trace, so under a log collector the message is unstructured or lost; use logger.exception. And f.close() only runs on the success path, so any exception leaks the handle &mdash; with open(path) as f closes it either way. The brief is met in the narrowest sense, which is what makes it easy to approve by accident.">
+  <h2>Read the PR &mdash; merge or <em>block</em>?<span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">loader.py &middot; +12 &minus;3</span>def load_incidents(path):
+    incidents = []
+    try:
+        f = open(path)
+        for raw in json.load(f):
+            incidents.append(Incident.from_dict(raw))
+        f.close()
+    except Exception as e:
+        print(f"could not load {path}: {e}")
+    return incidents
+</div>
+      <div class="callout">The brief: &ldquo;Don&rsquo;t crash the service on a bad incidents file.&rdquo;</div>
+    </div>
+    <div class="pts">
+      <h3>Decide before you discuss</h3>
+      <ul>
+        <li>One bad record out of 500: how many incidents load?</li>
+        <li>Missing file: what does the caller see?</li>
+        <li>Where does the error message go in production?</li>
+        <li>When is the file not closed?</li>
+      </ul>
+      <div class="take"><b>Lab 2 now:</b> direct agent mode to build the AskOps core. Make it get all four of these right, and prove it with the tests.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 3 ===== -->
+<section class="slide" data-sec="3 &middot; Service" data-title="FastAPI routing, validation and docs from type hints" data-notes="FastAPI reads your type hints and turns them into three things at once: where a parameter comes from, what gets checked, and what the /docs page shows. A wrong hint is a wrong API, not just a wrong comment. Keep one rule from this slide. Raise HTTPException only at the edge, in api.py. If you raise it inside store.py, your domain code now depends on a web framework, and you cannot test or reuse it without FastAPI. The AskOps store raises RunbookNotFound instead, and api.py turns that into a 404. Watch for an agent that puts HTTPException in the store because it is shorter. You get the 422 reply on bad input and the OpenAPI page for free. You do not write either one." data-tier="K">
+  <h2>The type hints are the routing, the validation and the <em>docs</em><span class="tag k">3</span></h2>
+  <div class="body g55">
+<div class="file"><span class="fn">api.py &middot; read one runbook</span>from fastapi import APIRouter, Depends
+
+router = APIRouter()
+
+@router.get(<span class="s">"/runbooks/{runbook_id}"</span>,
+            <span class="k">response_model=RunbookOut</span>)
+def get_runbook(<span class="k">runbook_id: str</span>,
+                <span class="k">store: Store = Depends(get_store)</span>):
+    try:
+        return RunbookOut.of(
+            store.get_runbook(runbook_id))
+    except RunbookNotFound as exc:
+        raise <span class="k">HTTPException(404, str(exc))</span> from exc
+</div>
+<div class="file"><span class="fn">api.py &middot; create one, and search</span>@router.post(<span class="s">"/incidents"</span>, <span class="k">status_code=201</span>,
+             response_model=IncidentOut)
+def create_incident(<span class="k">body: IncidentIn</span>,
+                    store: Store = Depends(get_store)):
+    return store.add_incident(
+        body.title, body.severity, body.service)
+
+@router.get(<span class="s">"/ask"</span>)
+async def ask(<span class="k">q: str = Query(min_length=3)</span>,
+              limit: int = Query(5, ge=1, le=20)):
+    ...
+</div>
+    <div class="pts" style="grid-column:1/-1">
+      <ul style="columns:2;column-gap:36px">
+        <li><code>@router.get</code> is like <code>@GetMapping</code> or <code>MapGet</code>.</li>
+        <li><b>The type</b> decides where a parameter comes from: path, body (a model), else query.</li>
+        <li><code>Depends</code> is constructor injection. Tests can replace it.</li>
+        <li><code>response_model</code> filters and documents the output.</li>
+        <li><b>Free:</b> 422 on bad input, and OpenAPI at <code>/docs</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3 &middot; Service" data-title="pydantic v2 at the boundary, and the v1 hallucination" data-notes="Use a dataclass for your domain objects and a pydantic model for anything that crosses the wire. They change for different reasons. The domain changes when the business changes. The wire model changes when a client needs a different field. Keeping them apart means a new API field does not reach into your domain code. The right side is the review problem. Pydantic v1 has been in examples and blog posts for years, so every model has learned it well. Many v1 calls still run, with only a deprecation warning, so your tests stay green and nothing looks broken. Only a person reading the diff catches them. The house rules file in the AskOps repository tells Copilot to use pydantic v2 only. That helps, but it is not a guarantee, so keep this table in your review checklist." data-tier="K">
+  <h2>Type hints that are <em>enforced</em> &mdash; at the boundary<span class="tag k">3</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">the wire contract &middot; schemas.py</span>from pydantic import BaseModel, ConfigDict, Field
+
+class IncidentIn(BaseModel):
+    title: str = <span class="k">Field(min_length=5, max_length=120)</span>
+    severity: <span class="k">Severity</span>   <span class="c"># enum: else 422</span>
+    service: str = Field(min_length=1)
+    runbook_id: str | None = None
+
+class IncidentOut(BaseModel):
+    <span class="k">model_config = ConfigDict(from_attributes=True)</span>
+    id: str
+    title: str
+    severity: Severity
+    opened_at: datetime
+</div>
+      <div class="take"><b>Dataclass for the domain. pydantic for the wire.</b> They change for different reasons.</div>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 386" role="img" aria-label="Five pydantic version 1 calls and the version 2 replacement for each">
+        <rect class="bx d" x="4" y="4" width="692" height="30" rx="6"/>
+        <text class="lb w" x="20" y="24">PYDANTIC v1 &mdash; WHAT MODELS WRITE</text>
+        <text class="lb w" x="368" y="24">v2 &mdash; WHAT YOU WANT</text>
+
+        <rect class="bx grow" x="4" y="42" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="80">class Config: orm_mode</text>
+        <text class="ss" x="368" y="80">ConfigDict(from_attributes=True)</text>
+
+        <rect class="bx grow w2" x="4" y="110" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="148">parse_obj(d)</text>
+        <text class="ss" x="368" y="148">model_validate(d)</text>
+
+        <rect class="bx grow w3" x="4" y="178" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="216">.dict() and .json()</text>
+        <text class="ss" x="368" y="216">.model_dump() and .model_dump_json()</text>
+
+        <rect class="bx grow w4" x="4" y="246" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="284">@validator</text>
+        <text class="ss" x="368" y="284">@field_validator</text>
+
+        <rect class="bx r grow w5" x="4" y="314" width="692" height="66" rx="6"/>
+        <text class="tt" x="20" y="354">const=True and regex=</text>
+        <text class="ss" x="368" y="354" style="fill:#e2726e;font-weight:600">Literal[...] and pattern=</text>
+      </svg>
+      <div class="callout bad">Years of v1 examples trained every model. v1 calls often <b>still run</b>, with a deprecation warning, so the tests pass. Only review catches them.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3 &middot; Service" data-title="async def is not faster, gather is" data-notes="If you know another language you already know this. asyncio.gather is Promise.all in JavaScript, CompletableFuture.allOf in Java and Task.WhenAll in C sharp. Writing async def does not make anything faster on its own. It only lets the worker do other work while it waits. The speed comes from starting both calls before you wait for either one. The bottom row is the trap, and it has no equivalent in Node, where there is no blocking sleep to reach for by accident. Python has one, and an agent will use it. A blocking call inside async def stops the event loop, so every other request on that worker waits too. Every functional test still passes, which is why nobody notices. Lab 3&#39;s test_ask_consults_both_sources_concurrently measures this, so two awaits in a row fail where you can see them." data-tier="K">
+  <h2><code>async def</code> is not faster. <code>gather</code> <em>is</em>.<span class="tag k">3</span></h2>
+  <div class="body g55">
+    <div>
+      <svg viewBox="0 0 700 262" role="img" aria-label="Two awaits in sequence take about 0.4 seconds, asyncio.gather takes about 0.2 seconds, and a blocking call stops every request on the worker">
+        <text class="lb a" x="4" y="14">SEQUENTIAL AWAITS &mdash; ABOUT 0.4 S</text>
+        <rect class="bx a grow" x="4" y="22" width="338" height="44" rx="6"/>
+        <text class="ss" x="173" y="49" text-anchor="middle">runbook wiki &middot; 0.2 s</text>
+        <rect class="bx a grow w2" x="350" y="22" width="334" height="44" rx="6"/>
+        <text class="ss" x="517" y="49" text-anchor="middle">ticket system &middot; 0.2 s</text>
+
+        <text class="lb g" x="4" y="98">ASYNCIO.GATHER &mdash; ABOUT 0.2 S</text>
+        <rect class="bx g grow w3" x="4" y="106" width="338" height="36" rx="6"/>
+        <text class="ss" x="173" y="129" text-anchor="middle">runbook wiki &middot; 0.2 s</text>
+        <rect class="bx g grow w4" x="4" y="146" width="338" height="36" rx="6"/>
+        <text class="ss" x="173" y="169" text-anchor="middle">ticket system &middot; 0.2 s</text>
+
+        <text class="lb r" x="4" y="202">A BLOCKING CALL INSIDE ASYNC DEF</text>
+        <rect class="bx r grow w5" x="4" y="210" width="338" height="44" rx="6"/>
+        <text class="ss" x="173" y="237" text-anchor="middle">blocks the event loop</text>
+        <rect class="bx grow w6" x="350" y="210" width="334" height="44" rx="6"/>
+        <text class="ss" x="517" y="237" text-anchor="middle" style="fill:#e2726e;font-weight:600">every other request waits too</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Start both, then wait</h3>
+<div class="file"><span class="fn">api.py &middot; two sources at once</span>@router.get("/ask")
+<span class="k">async def</span> ask(q: str,
+              store: Store = Depends(get_store)):
+    runbooks, incidents = <span class="k">await asyncio.gather</span>(
+        sources.runbook_hits(store, q),
+        sources.incident_hits(store, q),
+    )
+</div>
+      <ul style="margin-top:12px">
+        <li><b>Waiting on I/O</b> (httpx, an async database driver)? Use <code>async def</code> and <code>await</code>.</li>
+        <li><b>A blocking library</b> (requests, most SDKs)? Use plain <code>def</code>. FastAPI runs it in a thread pool.</li>
+        <li><b>Never</b> a blocking call inside <code>async def</code>. It passes every functional test.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3 &middot; Service" data-title="TestClient and dependency overrides" data-notes="TestClient runs your app in the same process, so there is no server to start and no port to choose. dependency_overrides swaps one dependency for the length of one test. That is why each test gets its own store and no state leaks from one test into the next. To test a failure path you write a small subclass, such as WikiDown, and override the dependency with it. You need no mocking library at all. The yield in the fixture is the dividing line: everything above it is setup, everything below it runs after the test. Now read the note on the right. A spec carries a constraint like no module-level store because the easy implementation defeats testability. A global store cannot be overridden, so the agent shortcut would break every test. A good spec tells the agent why, not only what." data-tier="K">
+  <h2>TestClient and dependency overrides &mdash; no server, no <em>mocking</em> library<span class="tag k">3</span></h2>
+  <div class="body g64">
+<div class="file"><span class="fn">a fresh store for every test</span><span class="c"># tests/conftest.py</span>
+@pytest.fixture
+def client(store):
+    <span class="c"># this test's own store</span>
+    <span class="k">app.dependency_overrides[get_store] = lambda: store</span>
+    with <span class="k">TestClient(app)</span> as c:
+        yield c          <span class="c"># teardown runs after yield</span>
+    app.dependency_overrides.clear()
+
+def test_unknown_runbook_is_404(client):
+    r = client.get("/api/runbooks/RB-999")
+    assert r.status_code == 404
+    assert "RB-999" in r.json()["detail"]
+
+def test_ask_is_503_when_a_source_fails(client, store):
+    app.dependency_overrides[get_store] = \
+        lambda: <span class="k">WikiDown(...)</span>
+    r = client.get("/api/ask?q=deploy")
+    assert r.status_code == 503
+</div>
+    <div class="pts">
+      <h3>Why this design</h3>
+      <ul>
+        <li>Every test gets a fresh store, so <b>no state leaks</b>.</li>
+        <li>A failure path is one subclass away. No mocking framework.</li>
+        <li><code>yield</code> in a fixture means setup, then teardown.</li>
+        <li>Runs in milliseconds, in process, in CI.</li>
+      </ul>
+      <div class="callout">This is why the spec says <b>no module-level store</b>. A global cannot be overridden, so the agent shortcut would break every test.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3 &middot; Service" data-title="Spec-first vibe coding with agent mode" data-notes="This is vibe coding done responsibly. You describe what you want in plain language, the agent writes the code, and the spec and the tests are what keep it honest. Without them you are only typing faster. Two habits do most of the work. First, stage it. Ask for schemas.py on its own and stop there. Reviewing a contract before the code built on it is where agent mode pays off, because one wrong field name fixed now saves you five files later. Second, pin the finish line. Say do not modify tests, and finish by running python score.py 3. The agent then loops against a target it can measure, instead of stopping when it decides it is done. The dashed line is the step people skip. When review finds something, turn it into a test, not a chat message." data-tier="K">
+  <h2>You write the intent and the checks. The agent types. You <em>review</em>.<span class="tag k">3</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Spec, tests and house rules feed agent mode, you review the diff, and each review finding goes back into the tests">
+        <rect class="bx a grow" x="4" y="20" width="212" height="96" rx="7"/>
+        <text class="tt" x="110" y="58" text-anchor="middle" style="font-size:17px">Spec</text>
+        <text class="ss" x="110" y="86" text-anchor="middle">docs/api-spec.md</text>
+
+        <rect class="bx a grow w2" x="244" y="20" width="212" height="96" rx="7"/>
+        <text class="tt" x="350" y="58" text-anchor="middle" style="font-size:17px">Tests</text>
+        <text class="ss" x="350" y="86" text-anchor="middle">acceptance criteria</text>
+
+        <rect class="bx a grow w3" x="484" y="20" width="212" height="96" rx="7"/>
+        <text class="tt" x="590" y="58" text-anchor="middle" style="font-size:17px">House rules</text>
+        <text class="ss" x="590" y="86" text-anchor="middle">copilot-instructions.md</text>
+
+        <rect class="bx grow w4" x="724" y="20" width="212" height="96" rx="7"/>
+        <text class="tt" x="830" y="58" text-anchor="middle" style="font-size:17px;fill:#6ea8fe">Agent mode</text>
+        <text class="ss" x="830" y="86" text-anchor="middle">edit, run, read, fix</text>
+
+        <rect class="bx g grow w5" x="964" y="20" width="212" height="96" rx="7"/>
+        <text class="tt" x="1070" y="58" text-anchor="middle" style="font-size:17px">You review</text>
+        <text class="ss" x="1070" y="86" text-anchor="middle">diff, then commit</text>
+
+        <path class="ar" d="M216 68 H240"/>
+        <path class="ar" d="M456 68 H480"/>
+        <path class="ar" d="M696 68 H720"/>
+        <path class="ar" d="M936 68 H960"/>
+        <path class="fl" d="M1070 120 V146 H350 V122"/>
+        <text class="ss" x="590" y="170" text-anchor="middle">a review finding becomes a test, not a chat message</text>
+
+        <rect class="bx a" x="4" y="192" width="380" height="196" rx="8"/>
+        <text class="lb a" x="24" y="220">STAGE IT</text>
+        <text class="ss" x="24" y="256">Ask for schemas.py first, then stop.</text>
+        <text class="ss" x="24" y="286">Review the contract before the</text>
+        <text class="ss" x="24" y="312">code that is built on it.</text>
+
+        <rect class="bx a" x="400" y="192" width="380" height="196" rx="8"/>
+        <text class="lb a" x="420" y="220">PIN THE FINISH LINE</text>
+        <text class="ss" x="420" y="256">&ldquo;Do not modify tests. Finish by</text>
+        <text class="ss" x="420" y="286">running python score.py 3.&rdquo;</text>
+        <text class="ss" x="420" y="312">It loops to a target it can measure.</text>
+
+        <rect class="bx r" x="796" y="192" width="380" height="196" rx="8"/>
+        <text class="lb r" x="816" y="220">WATCH FOR</text>
+        <text class="ss" x="816" y="256">pydantic v1 &middot; except Exception</text>
+        <text class="ss" x="816" y="286">module-level state &middot; a new dependency</text>
+        <text class="ss" x="816" y="312" style="fill:#e2726e;font-weight:600">a test edited to pass</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3 &middot; Service" data-title="Read the PR - merge or block" data-notes="Give yourself sixty seconds and decide before you read on. Four things in this diff are worth a comment. requests and time.sleep are blocking calls inside an async def, so while this retries for up to three seconds, every other request on the worker waits. class Config with orm_mode is pydantic v1; v2 wants ConfigDict(from_attributes=True). The name parameter goes straight into a URL, so the caller chooses which host this service calls. And there is no timeout on the request, so one slow host can hold the worker open. None of this fails a functional test, so a reviewer who only asks whether it works would merge it. That is the habit Lab 3 asks for: read every line the agent wrote, and judge it against the spec you gave it." data-tier="D">
+  <h2>Merge or <em>block</em>?<span class="tag k">3</span></h2>
+  <div class="body g64">
+<div class="file"><span class="fn">status.py &middot; +14 &minus;0</span>import requests, time
+
+class ServiceStatus(BaseModel):
+    name: str
+    healthy: bool
+    class Config:
+        orm_mode = True
+
+@router.get("/status/{name}")
+async def status(name: str):
+    for attempt in range(3):
+        r = requests.get(f"http://{name}.internal/health")
+        if r.ok:
+            return ServiceStatus(name=name, healthy=True)
+        time.sleep(1)
+    return ServiceStatus(name=name, healthy=False)
+</div>
+    <div class="pts">
+      <h3>Decide before you discuss</h3>
+      <ul>
+        <li>What happens to <b>every other request</b> while this retries?</li>
+        <li>Which lines are pydantic v1?</li>
+        <li>What does <code>name</code> let a caller reach?</li>
+        <li>Does a timeout exist?</li>
+      </ul>
+      <div class="take"><b>Lab 3 now:</b> the AskOps API, spec-first, in agent mode. Stage it, pin the finish line, review every line.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 4 ===== -->
+<section class="slide" data-sec="4 &middot; Web app" data-title="The server returns HTML and an attribute says where it goes" data-notes="htmx lets any element send a normal HTTP request and puts the HTML that comes back into the page. There is no JSON to parse, no JavaScript build step and no separate front-end project. In AskOps the same FastAPI app serves the JSON API and this page, so one process and one test suite cover both. That suits internal tools, admin pages and dashboards, where a JavaScript build and a separate front-end team are overhead. It suits rich client-side state, offline use, or a product UI with its own front-end team much less. A common mistake is pointing an htmx attribute at a route that returns JSON. htmx swaps in whatever text it receives, so the raw JSON appears in the page. Read the three attributes as one sentence: hx-get says what to fetch, hx-target says where to put it, hx-swap says how. Lab 4 puts this page on AskOps." data-tier="K">
+  <h2>The server returns HTML. An attribute says <em>where</em> it goes<span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 356" role="img" aria-label="The browser sends a normal request and FastAPI returns an HTML fragment that htmx swaps into the page">
+        <text class="lb" x="4" y="14">BROWSER &middot; THE PAGE FROM GET /</text>
+        <rect class="bx" x="4" y="22" width="470" height="190" rx="8"/>
+        <rect class="bx a" x="22" y="42" width="434" height="38" rx="5"/>
+        <text class="ss" x="36" y="66">&lt;form hx-get="/ui/ask" hx-target="#results"&gt;</text>
+        <rect class="bx g" x="22" y="92" width="434" height="70" rx="5"/>
+        <text class="ss" x="36" y="118">&lt;div id="results"&gt;</text>
+        <text class="ss" x="36" y="144" style="fill:#5fbf8f;font-weight:600">&#8592; the fragment is swapped in here</text>
+        <text class="ss" x="22" y="192">Nothing else on the page reloads.</text>
+
+        <text class="lb a" x="706" y="14">FASTAPI &middot; web.py</text>
+        <rect class="bx a" x="706" y="22" width="470" height="190" rx="8"/>
+        <text class="ss" x="726" y="58">@router.get("/ui/ask")</text>
+        <text class="ss" x="726" y="84">async def ui_ask(request, q, store=...):</text>
+        <text class="ss" x="750" y="110">hits = await ...</text>
+        <text class="ss" x="750" y="136">return templates.TemplateResponse(</text>
+        <text class="ss" x="774" y="162">request, "_results.html", {...})</text>
+        <text class="ss" x="726" y="194" style="fill:#d98a3d">It returns HTML, not JSON.</text>
+
+        <path class="ar" d="M480 78 L698 78"/>
+        <text class="ss" x="589" y="66" text-anchor="middle" style="fill:#d98a3d">GET /ui/ask?q=deploy</text>
+        <path class="fl" d="M700 148 L482 148"/>
+        <text class="ss" x="589" y="136" text-anchor="middle" style="fill:#6ea8fe">&lt;div class="hit"&gt;...&lt;/div&gt;</text>
+        <text class="ss" x="589" y="188" text-anchor="middle">No page reload.</text>
+
+        <rect class="bx grow" x="4" y="230" width="384" height="118" rx="8"/>
+        <text class="lb" x="24" y="256">hx-get / hx-post</text>
+        <text class="ss" x="24" y="288">Any element can send a request.</text>
+        <text class="ss" x="24" y="312">On submit for a form.</text>
+        <text class="ss" x="24" y="334">On click for a button.</text>
+
+        <rect class="bx grow w2" x="398" y="230" width="384" height="118" rx="8"/>
+        <text class="lb" x="418" y="256">hx-target</text>
+        <text class="ss" x="418" y="288">A CSS selector that says</text>
+        <text class="ss" x="418" y="312">where the response goes.</text>
+
+        <rect class="bx grow w3" x="792" y="230" width="384" height="118" rx="8"/>
+        <text class="lb" x="812" y="256">hx-swap</text>
+        <text class="ss" x="812" y="288">innerHTML by default.</text>
+        <text class="ss" x="812" y="312">afterbegin adds a row at</text>
+        <text class="ss" x="812" y="334">the top of a table.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="4 &middot; Web app" data-title="Jinja2 templates escape by default" data-notes="Jinja2 escapes every value you insert, because the template file name ends in .html. So a runbook title that contains a script tag is rendered as text, not run as code. Keep it that way. The filters |safe and Markup() switch escaping off, so treat each one as a change that needs a reason in review. Now look at the form route. A validation error returns 200 with an error fragment, not a 4xx. That is deliberate, not an oversight: htmx does not swap 4xx responses into the page by default, so a 422 would leave the form looking frozen. Notice also that one pydantic model, IncidentIn, validates the form fields and the JSON API body. The two doors into AskOps cannot drift apart. If you already know Razor partials or Thymeleaf fragments, a Jinja2 fragment is the same idea." data-tier="K">
+  <h2>Jinja2 templates <em>escape</em> by default &mdash; keep it that way<span class="tag k">4</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">_results.html &mdash; a fragment</span>&lt;p class="muted"&gt;Results for "<span class="k">{{ q }}</span>"&lt;/p&gt;
+<span class="k">{% for h in runbooks %}</span>
+&lt;div class="hit"&gt;
+  &lt;b&gt;{{ h.title }}&lt;/b&gt; score {{ h.score }}
+  &lt;ol&gt;
+  {% for s in steps[h.runbook_id] %}
+    &lt;li&gt;{{ s }}&lt;/li&gt;
+  {% endfor %}
+  &lt;/ol&gt;
+&lt;/div&gt;
+<span class="k">{% else %}</span>
+&lt;p&gt;No runbook matched.&lt;/p&gt;
+<span class="k">{% endfor %}</span>
+</div>
+      <div class="callout"><code>{% extends "base.html" %}</code> for full pages. Bare fragments for htmx.</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">forms, and one contract</span>@router.post("/ui/incidents")
+def ui_create(request: Request,
+              title: str = <span class="k">Form("")</span>,
+              severity: str = Form(""),
+              service: str = Form(""),
+              store=Depends(get_store)):
+    try:
+        body = <span class="k">IncidentIn</span>(title=title,
+                          severity=severity,
+                          service=service)
+    except ValidationError:
+        return templates.TemplateResponse(
+            request, "_error_row.html", {...})
+</div>
+      <div class="pts" style="margin-top:12px">
+        <ul>
+          <li><b>The same pydantic model</b> validates the form and the JSON API.</li>
+          <li><code>{{ q }}</code> is escaped because the file ends in <code>.html</code>.</li>
+          <li><code>|safe</code> and <code>Markup()</code> turn that off &mdash; <b>review every one</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="4 &middot; Web app" data-title="Read the PR - merge or block" data-notes="Take the 60 seconds on the three questions before you read on. This route builds HTML with an f-string, so every value reaches the page exactly as it arrived. A runbook title is stored text that somebody typed, and q comes straight off the query string. That is why the first question about the img tag matters: a template would have escaped both values, and this code does not. The description is the second signal. &ldquo;Simpler, and one file fewer&rdquo; is a benefit claim, and the diff delivers it by removing the thing that was protecting you. Claims like that are worth checking every time you see one. The third question is smaller but real: think about what a space inside q does to the text that is rendered. Lab 4 comes next, and you build the page version." data-tier="D">
+  <h2>Read the PR &mdash; merge or <em>block</em>?<span class="tag k">4</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">web.py &middot; +11 &minus;6</span>@router.get("/ui/ask", response_class=HTMLResponse)
+async def ui_ask(q: str, store: Store = Depends(get_store)):
+    hits = search(store, q)
+    rows = "".join(
+        f"&lt;li&gt;{h.title} ({h.score})&lt;/li&gt;" for h in hits)
+    return f"&lt;p&gt;Results for {q}&lt;/p&gt;&lt;ul&gt;{rows}&lt;/ul&gt;"
+</div>
+      <div class="callout">&ldquo;Removed the template &mdash; simpler, and one file fewer.&rdquo;</div>
+    </div>
+    <div class="pts">
+      <h3>Decide before you discuss</h3>
+      <ul>
+        <li>Search for <code>&lt;img src=x onerror=alert(1)&gt;</code>. What runs?</li>
+        <li>Is the runbook title safe to put straight into HTML?</li>
+        <li>What happens with <code>q="a b"</code>?</li>
+      </ul>
+      <div class="take"><b>Lab 4 now:</b> put a page on AskOps. When it is green, open it in a browser &mdash; that is the web app you came to build.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== tier 5 ===== -->
+<section class="slide" data-sec="5 &middot; Review and ship" data-title="A Python PR checklist" data-notes="This list is worth copying into your team's review guide. The left column is what tests sometimes catch. The right column is what usually only a reviewer catches, because the code runs correctly and still breaks a rule of this system. Every item here appeared on a Read the PR slide earlier in this module, so you have already seen each one as a real diff rather than as advice. Two are worth repeating. A bare except that returns a normal result turns a failure into a silent wrong answer, which is the AskOps /ask problem you fix later. HTML built from an f-string puts whatever the user typed straight into the page. Put this list in .github/copilot-instructions.md so the agent reads it on every request, then review anyway. An instruction file lowers how often a problem appears. It does not replace your review." data-tier="K">
+  <h2>A Python PR checklist &mdash; what you look for, <em>in order</em><span class="tag k">5</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>Correctness &mdash; the Python traps</h3>
+      <ul>
+        <li><b>Mutable defaults</b> &mdash; <code>=[]</code>, <code>={}</code>, <code>=None</code> in a dataclass list field</li>
+        <li><b>Truthiness</b> hiding a real <code>0</code> or <code>""</code>; <code>is</code> used for values</li>
+        <li><b>Blocking I/O in <code>async def</code></b>; awaits that could be gathered</li>
+        <li><b>Swallowed failures</b> &mdash; a bare <code>except</code> that returns a normal result</li>
+        <li><b>Unbounded input</b> &mdash; a limit or page size with no cap</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>Design &mdash; the house rules</h3>
+      <ul>
+        <li>Domain errors raised inside, <b>translated only at the edge</b></li>
+        <li>pydantic <b>v2</b> only; dataclass for domain, model for wire</li>
+        <li>No module-level state; dependencies through <code>Depends</code></li>
+        <li><code>logger</code> with %-args, never <code>print</code>; <code>logger.exception</code> for errors</li>
+        <li>HTML through templates, never f-strings; user input never in a host, path or SQL</li>
+        <li>Tests unchanged, or changed with a reason a human wrote</li>
+      </ul>
+      <div class="take">Put this list in <code>.github/copilot-instructions.md</code> so the agent reads it too &mdash; then review anyway.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="5 &middot; Review and ship" data-title="Green tests are necessary but they are not the decision" data-notes="&ldquo;You cannot explain a line of it&rdquo; is the bar that holds this module together. It is why the module starts with tutor mode. Reading Python fluently is what makes that bar reachable, and an agent that writes faster than you read is the reason it matters. Use the three columns as a decision you make, not a feeling you have. Reject outright covers changes that damage the safety net itself, such as a test edited until it passes or an error path that now returns success. Send it back covers work that is honest but too wide, or that ships no test for the new behaviour. Merge is the short list you would still defend in six months with no agent to help you. The most common mistake is merging on green tests alone. Green means no known failure. It does not mean the change is right." data-tier="K">
+  <h2>Green tests are necessary. They are not the <em>decision</em><span class="tag k">5</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Three review outcomes for AI-written code, and the colleague comparison that explains them">
+        <rect class="bx r grow" x="4" y="20" width="384" height="250" rx="8"/>
+        <text class="lb r" x="24" y="46">REJECT OUTRIGHT</text>
+        <text class="ss" x="24" y="82">A test was edited or deleted</text>
+        <text class="ss" x="24" y="104">so that it passes</text>
+        <text class="ss" x="24" y="136">An error path now returns success</text>
+        <text class="ss" x="24" y="168">A dependency or config change</text>
+        <text class="ss" x="24" y="190">nobody asked for</text>
+        <text class="ss" x="24" y="222" style="fill:#e2726e;font-weight:600">You cannot explain a line of it</text>
+
+        <rect class="bx a grow w2" x="398" y="20" width="384" height="250" rx="8"/>
+        <text class="lb a" x="418" y="46">SEND IT BACK</text>
+        <text class="ss" x="418" y="82">It claims a benefit the diff</text>
+        <text class="ss" x="418" y="104">does not deliver</text>
+        <text class="ss" x="418" y="136">More files changed than the</text>
+        <text class="ss" x="418" y="158">task needs</text>
+        <text class="ss" x="418" y="190">Deprecated API that still runs</text>
+        <text class="ss" x="418" y="212">(pydantic v1)</text>
+        <text class="ss" x="418" y="244">No test for the new behaviour</text>
+
+        <rect class="bx g grow w3" x="792" y="20" width="384" height="250" rx="8"/>
+        <text class="lb g" x="812" y="46">MERGE</text>
+        <text class="ss" x="812" y="82">Small, one concern, matches</text>
+        <text class="ss" x="812" y="104">the spec</text>
+        <text class="ss" x="812" y="136">Every finding you raised is</text>
+        <text class="ss" x="812" y="158">now a test</text>
+        <text class="ss" x="812" y="190">You would sign your name to it</text>
+        <text class="ss" x="812" y="222">You could maintain it without</text>
+        <text class="ss" x="812" y="244">the agent</text>
+
+        <rect class="bx d" x="4" y="286" width="1172" height="110" rx="8"/>
+        <text class="lb w" x="24" y="312">THE REAL-WORLD PARALLEL</text>
+        <text class="ss w" x="24" y="342" style="font-size:15px">An AI suggestion is a pull request from a very fast, very confident colleague</text>
+        <text class="ss w" x="24" y="366" style="font-size:15px">who never ran it in production.</text>
+        <text class="ss w" x="24" y="390" style="font-size:15px">You would not skip <tspan font-weight="700" fill="#e0b34d">that colleague&rsquo;s review. Do not skip this one.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="5 &middot; Review and ship" data-title="Git hygiene - easy to review and easy to undo" data-notes="Of everything on this slide, git add -p is the habit that pays most when an agent has touched several files. It shows you one change at a time and makes you decide on each one. If you cannot say why a hunk is there, that is the hunk to ask about. The commit before the agent starts matters just as much. It gives you a point to return to, so a run that goes wrong costs you a git restore . and nothing more. Write the message as the why, not the what. &ldquo;Return 503 when an /ask source fails, instead of an empty 200&rdquo; tells the next reader something the diff alone cannot. Keep .venv/ and __pycache__/ out of git, keep secrets out of both the code and the repo, and let a formatter in CI end the formatting debate." data-tier="D">
+  <h2>Make every change easy to review, and easy to <em>undo</em><span class="tag k">5</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">the loop, with an agent in it</span>git switch -c fix/ask-failure-contract   <span class="c"># one concern per branch</span>
+git add -A &amp;&amp; git commit -m "before agent"  <span class="c"># a checkpoint you can return to</span>
+<span class="c"># ... agent edits, tests run ...</span>
+git diff                                   <span class="c"># read it all, before staging</span>
+git add -p                                 <span class="c"># stage hunk by hunk: you choose</span>
+python score.py                            <span class="c"># green, or it does not commit</span>
+git commit -m "Return 503 when an /ask source fails,
+instead of an empty 200"                   <span class="c"># the why, not the what</span>
+git push -u origin HEAD                    <span class="c"># then open the PR</span>
+</div>
+    </div>
+    <div class="pts">
+      <h3>Python-specific hygiene</h3>
+      <ul>
+        <li><b><code>.venv/</code>, <code>__pycache__/</code>, <code>*.egg-info/</code></b> in <code>.gitignore</code> &mdash; never committed</li>
+        <li><b>No secrets in code, no <code>.env</code> in git.</b> Read them from environment variables</li>
+        <li><b>Pin what you depend on</b> in <code>pyproject.toml</code>; a new dependency is its own reviewed change</li>
+        <li><b>Formatting is not a review topic</b> &mdash; a formatter (ruff, black) in CI ends the debate</li>
+        <li><b>Revert beats repair</b> when an agent's change went wrong: <code>git restore .</code> and re-prompt</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="5 &middot; Review and ship" data-title="Lab 5 and what comes next" data-notes="Lab 5 is a review exercise, not a build exercise. You are handed a pull request that looks helpful, and you decide what to do with it. Do step one on paper, before you run anything. Once the tests are green it is much harder to read a diff with fresh eyes. Step two then tells you something useful: which of your findings the tests caught, and which ones only you caught. That gap is the whole argument for reviewing at all. Write the rejection in step three as a real review, naming the file, the line and the reason, so it reads like one you would send a colleague. The last two steps put the module together. You direct the agent from a spec, you review what comes back, and you ship it with a commit message that says why." data-tier="R">
+  <h2>PR #42 &mdash; &ldquo;Make <code>/ask</code> resilient and faster&rdquo;<span class="tag k">5</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>The lab, in five steps</h3>
+      <ul>
+        <li><b>1 &middot; Review on paper</b> &mdash; find the problems before running anything</li>
+        <li><b>2 &middot; Accept it</b> on a branch, run the scoreboard. Which of your findings did the tests catch?</li>
+        <li><b>3 &middot; Reject it</b> with a written review</li>
+        <li><b>4 &middot; Do it properly</b> &mdash; agent mode implements the failure contract; you review, 56/56</li>
+        <li><b>5 &middot; Ship it</b> &mdash; branch, commit with the why, PR</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>What you can do now</h3>
+      <ul>
+        <li>Read a Python service and say what every line does</li>
+        <li>Build a typed, tested FastAPI app with a web page</li>
+        <li>Direct an agent from a spec, and stop it when it is wrong</li>
+        <li>Block the PR that passes the tests and is still wrong</li>
+      </ul>
+      <div class="take"><b>Next:</b> AskOps&rsquo; <code>/ask</code> is keyword search. Next it gets an agent brain &mdash; and everything you learned about reviewing it still applies.</div>
+    </div>
+  </div>
+</section>
+</div></div>
+
+<script src="../assets/adlc-deck.js"></script>
+</body>
+</html>

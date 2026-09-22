@@ -36,7 +36,7 @@ two and a half hours of hands-on time.
 
 ## Set up
 
-**You need:** Python 3.12 or newer (3.14 recommended), git, VS Code with GitHub Copilot signed in (a seat
+**You need:** Python 3.14 (the version the course pins, so every lab repo runs identically), git, VS Code with GitHub Copilot signed in (a seat
 that includes agent mode), and access to PyPI for `pip install`. A GitHub account for Lab 5's pull
 request is useful but not required.
 

@@ -1,0 +1,2 @@
+# Cut 4: too far on purpose. One file, no rule, nothing to compare it with.
+src/main/java/in/brainupgrade/accountservice/posting/service/PostingService.java

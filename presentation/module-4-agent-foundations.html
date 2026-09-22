@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 4 — Agent Foundations &amp; Tool Use | Agentic AI &amp; AI-Assisted Development with GitHub Copilot</title>
+<link rel="stylesheet" href="../assets/adlc-deck.css">
+</head>
+<body data-deck="Module 4">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#71809a"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6ea8fe"/></marker>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2726e"/></marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5fbf8f"/></marker>
+</defs></svg>
+
+<div id="viewport"><div id="stage"><!-- 1 -->
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module turns AskOps, the app you built in Module 3, into an agent. Today AskOps answers a question by running the same two searches every time. After this module, a model decides what to look up next, reads the result and decides again. You will learn what makes a program an agent, and when a plain workflow is the better choice. You will see how tool calling works on the wire: what your code sends, what the model sends back, and who runs the tool. You will read a complete ReAct loop in plain Python, with no framework. Finally, you will learn the four ways a loop must stop, and how to keep the cost of one run under control. On Day 2 you rebuild this loop with LangChain and LangGraph. On Day 3 you share tools between agents through MCP." data-tier="R">
+  <div class="wrap">
+    <span class="tier">Day 1 &middot; Module 4 of 4</span>
+    <h1>Agent Foundations &amp; Tool Use</h1>
+    <p class="sub">Give AskOps a brain: a model that chooses the next step, and code that keeps it safe.</p>
+    <p class="meta">
+      <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
+      <span>Intermediate</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+    <div class="chips">
+    <span class="chip">What makes an agent</span>
+    <span class="chip">Agent or workflow</span>
+    <span class="chip">Tool calling from scratch</span>
+    <span class="chip">A ReAct loop in plain Python</span>
+    <span class="chip">Stop conditions</span>
+    <span class="chip">Cost per run</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-sec="Opening" data-title="AskOps can search. Now it decides what to search." data-notes="In Module 3 you built /api/ask. It always runs the same two searches, runbooks and incidents, and returns both lists. That is useful, but the engineer still does the thinking. They read the runbook list, open the right one and check if an incident is already open. In this module the model does those steps. It chooses a tool, reads the result, and chooses again until it can answer. That is the only real difference between a program that uses an LLM and an agent. The code is small. The hard part is the rules around it: which tools the model may call, when it must stop, and how much one run may cost. You will write those rules in Python, so you can see every line." data-tier="K">
+  <h2>AskOps can search. Now it <em>decides</em> what to search<span class="tag">M4</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="Module 3's fixed search pipeline compared with Module 4's agent that chooses each step">
+        <text class="lb" x="4" y="14">MODULE 3 &mdash; /api/ask</text>
+        <rect class="bx grow" x="4" y="24" width="692" height="120" rx="8"/>
+        <rect class="bx w" x="20" y="54" width="150" height="56" rx="6"/>
+        <text class="ss" x="95" y="87" text-anchor="middle">question</text>
+        <path class="ar" d="M172 82 L226 82" marker-end="url(#arw)"/>
+        <rect class="bx w" x="230" y="44" width="220" height="34" rx="6"/>
+        <text class="ss" x="340" y="66" text-anchor="middle">search runbooks</text>
+        <rect class="bx w" x="230" y="86" width="220" height="34" rx="6"/>
+        <text class="ss" x="340" y="108" text-anchor="middle">search incidents</text>
+        <path class="ar" d="M452 82 L506 82" marker-end="url(#arw)"/>
+        <rect class="bx w" x="510" y="54" width="170" height="56" rx="6"/>
+        <text class="ss" x="595" y="87" text-anchor="middle">two lists</text>
+        <text class="ss" x="20" y="136" style="fill:#d98a3d">Same steps every time. You do the thinking.</text>
+
+        <text class="lb a" x="4" y="178">MODULE 4 &mdash; THE ASKOPS AGENT</text>
+        <rect class="bx a grow w2" x="4" y="188" width="692" height="188" rx="8"/>
+        <rect class="bx w" x="20" y="222" width="150" height="56" rx="6"/>
+        <text class="ss" x="95" y="255" text-anchor="middle">question</text>
+        <path class="ar" d="M172 250 L226 250" marker-end="url(#arw)"/>
+        <rect class="bx p" x="230" y="210" width="220" height="80" rx="6"/>
+        <text class="tt" x="340" y="244" text-anchor="middle">model chooses</text>
+        <text class="ss" x="340" y="266" text-anchor="middle">the next step</text>
+        <path class="fl" d="M452 236 L506 236" marker-end="url(#arb)"/>
+        <path class="fl" d="M506 266 L452 266" marker-end="url(#arb)"/>
+        <rect class="bx w" x="510" y="210" width="170" height="80" rx="6"/>
+        <text class="ss" x="595" y="236" text-anchor="middle">search runbooks</text>
+        <text class="ss" x="595" y="256" text-anchor="middle">read a runbook</text>
+        <text class="ss" x="595" y="276" text-anchor="middle">list incidents</text>
+        <text class="ss" x="20" y="340" style="fill:#5fbf8f">Steps chosen at run time, until it can answer.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>What you will learn</h3>
+      <ul>
+        <li>What makes a program an <b>agent</b>.</li>
+        <li>When a plain <b>workflow</b> is better.</li>
+        <li>How <b>tool calling</b> works on the wire.</li>
+        <li>A full <b>ReAct loop</b> in plain Python.</li>
+        <li>How to <b>stop</b> it and <b>cap its cost</b>.</li>
+      </ul>
+      <div class="take"><b>Keep in mind:</b> the model chooses. Your code sets the limits.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open during the lab. In Module 1, agent meant Copilot in agent mode. Here it means any program built the same way, including the one you write. A tool is an ordinary Python function, such as search_runbooks. The model never sees the function. It sees only the tool description: a name, a sentence about when to use it, and the parameters it takes. A tool call is the model's request to run one tool with some arguments. Your code runs it, and the result you send back is the observation. The right column holds the words for the loop itself. A step is one round trip to the model. The step budget and the token budget are the two limits you set for one run. ReAct is the name of the pattern you will build: reason, then act, then reason again." data-tier="K">
+  <h2>Words used in this module<span class="tag">M4</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>Agent and tool words</h3>
+      <ul>
+        <li><b>Agent</b> &mdash; a program where the model&rsquo;s reply decides the next step.</li>
+        <li><b>Tool</b> &mdash; a function the agent may ask to run.</li>
+        <li><b>Tool description</b> &mdash; the name, purpose and parameters the model reads.</li>
+        <li><b>Tool call</b> &mdash; the model&rsquo;s request: this tool, these arguments.</li>
+        <li><b>Observation</b> &mdash; the tool&rsquo;s result, sent back to the model.</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>Loop words</h3>
+      <ul>
+        <li><b>Step</b> &mdash; one round trip to the model.</li>
+        <li><b>Stop condition</b> &mdash; a rule that ends the loop.</li>
+        <li><b>Step budget</b> &mdash; the most steps one run may take.</li>
+        <li><b>Token budget</b> &mdash; the most tokens one run may use.</li>
+        <li><b>ReAct</b> &mdash; reason, act, observe, repeat.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="An LLM is a function, not a system" data-notes="A language model on its own is a function. Text goes in, text comes out, and then it forgets everything. It has four gaps. It has no memory between calls: call two knows nothing about call one. It cannot act: it can describe how to open an incident, but it cannot open one. Its knowledge stops on the day training ended, so it has never seen your runbooks. And it cannot check itself: a confident wrong answer looks the same as a right one. Every part of an agent closes one of these gaps. Memory closes the first. Tools close the second and third. The loop, where the model sees the result of each action, helps with the fourth. When someone proposes a new part for an agent, ask which gap it closes. If it closes none, you do not need it." data-tier="K">
+  <h2>An LLM is a <em>function</em>, not a system<span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 370" role="img" aria-label="A model takes text in and returns text out, and has four gaps">
+        <rect class="bx w" x="4" y="14" width="170" height="60" rx="6"/>
+        <text class="ss" x="89" y="49" text-anchor="middle">text in</text>
+        <path class="ar" d="M176 44 L256 44" marker-end="url(#arw)"/>
+        <rect class="bx p" x="260" y="4" width="180" height="80" rx="8"/>
+        <text class="tt" x="350" y="38" text-anchor="middle">LLM</text>
+        <text class="ss" x="350" y="62" text-anchor="middle">one call, then forgets</text>
+        <path class="ar" d="M442 44 L522 44" marker-end="url(#arw)"/>
+        <rect class="bx w" x="526" y="14" width="170" height="60" rx="6"/>
+        <text class="ss" x="611" y="49" text-anchor="middle">text out</text>
+
+        <text class="lb r" x="4" y="118">FOUR GAPS</text>
+        <rect class="bx r grow" x="4" y="128" width="342" height="100" rx="8"/>
+        <text class="tt" x="20" y="160">No memory</text>
+        <text class="ss" x="20" y="186">Call two knows nothing of call one.</text>
+        <rect class="bx r grow w2" x="354" y="128" width="342" height="100" rx="8"/>
+        <text class="tt" x="370" y="160">No actions</text>
+        <text class="ss" x="370" y="186">It can describe an incident,</text>
+        <text class="ss" x="370" y="206">but not open one.</text>
+        <rect class="bx r grow w3" x="4" y="238" width="342" height="100" rx="8"/>
+        <text class="tt" x="20" y="270">No fresh facts</text>
+        <text class="ss" x="20" y="296">It has never seen your runbooks.</text>
+        <rect class="bx r grow w4" x="354" y="238" width="342" height="100" rx="8"/>
+        <text class="tt" x="370" y="270">No way to check</text>
+        <text class="ss" x="370" y="296">Right and wrong sound the same.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Each gap has one fix</h3>
+      <ul>
+        <li><b>Memory</b> &mdash; the message list you keep.</li>
+        <li><b>Tools</b> &mdash; to act, and to read fresh facts.</li>
+        <li><b>The loop</b> &mdash; it sees each result and can correct itself.</li>
+      </ul>
+      <div class="take"><b>Use it as a filter:</b> a new part must close a gap, or you do not need it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="One call, or a loop" data-notes="On the left, your code owns the order of the steps. You call the model once, or a fixed number of times, in an order you wrote. It costs the same every run and fails the same way every run. That is a good thing: you can test it. On the right, the model owns the order. Its reply decides the next step: call a tool, or answer. Your code runs the tool, adds the result to the messages and asks again. Now cost and time vary from run to run, because the number of steps varies. You have used this loop all day. Copilot agent mode reads a file, runs the tests, reads the output and decides what to do next. It is the same loop, with files and a terminal as its tools." data-tier="K">
+  <h2>One call, or a <em>loop</em><span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="A single call where your code decides the steps, compared with an agent loop where the model decides">
+        <text class="lb" x="4" y="14">SINGLE CALL &mdash; YOUR CODE DECIDES THE STEPS</text>
+        <rect class="bx grow" x="4" y="24" width="570" height="260" rx="8"/>
+        <rect class="bx w" x="30" y="70" width="140" height="56" rx="6"/>
+        <text class="ss" x="100" y="103" text-anchor="middle">input</text>
+        <path class="ar" d="M172 98 L218 98" marker-end="url(#arw)"/>
+        <rect class="bx p" x="222" y="70" width="140" height="56" rx="6"/>
+        <text class="tt" x="292" y="103" text-anchor="middle">LLM</text>
+        <path class="ar" d="M364 98 L410 98" marker-end="url(#arw)"/>
+        <rect class="bx w" x="414" y="70" width="140" height="56" rx="6"/>
+        <text class="ss" x="484" y="103" text-anchor="middle">output</text>
+        <text class="ss" x="30" y="180">Steps fixed when you write the code.</text>
+        <text class="ss" x="30" y="206">Cost and time are the same each run.</text>
+        <text class="ss" x="30" y="232" style="fill:#5fbf8f">Fails the same way each time: easy to test.</text>
+
+        <text class="lb a" x="606" y="14">AGENT LOOP &mdash; THE MODEL DECIDES THE NEXT STEP</text>
+        <rect class="bx a grow w2" x="606" y="24" width="570" height="260" rx="8"/>
+        <rect class="bx p" x="630" y="60" width="200" height="56" rx="6"/>
+        <text class="tt" x="730" y="93" text-anchor="middle">model decides</text>
+        <path class="ar" d="M832 88 L928 88" marker-end="url(#arw)"/>
+        <rect class="bx w" x="932" y="60" width="220" height="56" rx="6"/>
+        <text class="ss" x="1042" y="93" text-anchor="middle">your code runs a tool</text>
+        <path class="ar" d="M1042 118 L1042 150 L832 150" marker-end="url(#arw)"/>
+        <text class="ss" x="880" y="142">result goes back</text>
+        <path class="ar" d="M730 118 L730 170" marker-end="url(#arw)"/>
+        <text class="ss" x="745" y="162">or: answer</text>
+        <text class="ss" x="630" y="206">Steps chosen at run time.</text>
+        <text class="ss" x="630" y="232" style="fill:#d98a3d">Cost and time change from run to run.</text>
+
+        <rect class="bx d" x="4" y="304" width="1172" height="92" rx="8"/>
+        <text class="lb w" x="24" y="332">THE ONE-LINE DEFINITION</text>
+        <text class="ss w" x="24" y="364" style="font-size:16px">An agent is a model whose reply <tspan font-weight="700" fill="#e0b34d">decides what happens next.</tspan></text>
+        <text class="ss w" x="24" y="386" style="font-size:14px;fill:#6ea8fe">Copilot agent mode is this loop. Its tools are your files and your terminal.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="Perceive, reason, act, observe" data-notes="Here is one turn of the loop, using AskOps. Perceive: the agent reads the engineer's question and everything it has learned so far. Reason: the model decides the next step. Perhaps it should search for runbooks about 502 errors. Act: your code runs search_runbooks. The model only asked; your code did the work. Observe: the result, a list with RB-101 in it, goes back into the messages. Then the loop starts again, and the model now knows about RB-101. The loop ends in one of three ways. The model answers, the step budget runs out, or your code finds a loop, such as the same search run twice. Section 4 covers all the stop conditions. Notice where the model sits: only in the reason step. Everything else is your code." data-tier="K">
+  <h2>Perceive &rarr; reason &rarr; act &rarr; <em>observe</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="The four steps of the agent loop, with an AskOps example for each">
+        <rect class="bx w grow" x="4" y="10" width="300" height="96" rx="8"/>
+        <text class="lb" x="20" y="34">1 &middot; PERCEIVE</text>
+        <text class="tt" x="20" y="60">Read the question</text>
+        <text class="ss" x="20" y="84">and every result so far.</text>
+        <path class="ar" d="M306 58 L390 58" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="396" y="10" width="300" height="96" rx="8"/>
+        <text class="lb" x="412" y="34">2 &middot; REASON (THE MODEL)</text>
+        <text class="tt" x="412" y="60">Choose the next step</text>
+        <text class="ss" x="412" y="84">&ldquo;Search runbooks for 502.&rdquo;</text>
+        <path class="ar" d="M546 108 L546 196" marker-end="url(#arw)"/>
+        <rect class="bx a grow w3" x="396" y="200" width="300" height="96" rx="8"/>
+        <text class="lb a" x="412" y="224">3 &middot; ACT (YOUR CODE)</text>
+        <text class="tt" x="412" y="250">Run the tool</text>
+        <text class="ss" x="412" y="274">search_runbooks(&ldquo;502&rdquo;)</text>
+        <path class="ar" d="M394 248 L310 248" marker-end="url(#arw)"/>
+        <rect class="bx g grow w4" x="4" y="200" width="300" height="96" rx="8"/>
+        <text class="lb g" x="20" y="224">4 &middot; OBSERVE</text>
+        <text class="tt" x="20" y="250">Add the result</text>
+        <text class="ss" x="20" y="274">&ldquo;RB-101 matches.&rdquo;</text>
+        <path class="ar" d="M154 198 L154 110" marker-end="url(#arw)"/>
+        <text class="ss" x="350" y="158" text-anchor="middle">repeat</text>
+
+        <rect class="bx d" x="4" y="314" width="692" height="72" rx="8"/>
+        <text class="lb w" x="24" y="340">IT ENDS WHEN</text>
+        <text class="ss w" x="24" y="368" style="font-size:14px">the model answers &middot; the budget is spent &middot; a loop is found</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Who does what</h3>
+      <ul>
+        <li>The model works in <b>one step only</b>: reason.</li>
+        <li>Your code <b>runs every tool</b> and keeps the messages.</li>
+        <li>Each result <b>changes the next choice</b>.</li>
+      </ul>
+      <div class="take"><b>So:</b> most of an agent is ordinary code you can test.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="Agent or workflow? Draw the flowchart" data-notes="Many requests that arrive as &ldquo;we need an agent&rdquo; do not need one. Use this test. Can you draw the flowchart before you start, and does it stay the same for every input? Then build a workflow: plain code that calls the model at fixed points. The morning incident email is a workflow. Read the incidents, ask the model for a summary, send it. The steps never change, so an agent adds cost and surprises for nothing. The payments question is different. Where the agent goes next depends on what it finds. If no runbook matches, it checks recent incidents. If an incident is open, it should not open another one. You cannot draw that path in advance, so this is agent work. A workflow is cheaper, faster and easier to test. Choose it whenever the test allows." data-tier="K">
+  <h2>Agent or workflow? <em>Draw the flowchart</em><span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="A task with fixed steps needs a workflow; a task whose steps depend on results needs an agent">
+        <rect class="bx g grow" x="4" y="4" width="570" height="290" rx="8"/>
+        <text class="lb g" x="24" y="30">THE STEPS ARE THE SAME EVERY TIME</text>
+        <text class="tt" x="24" y="62">&ldquo;Each morning, email yesterday&rsquo;s incidents.&rdquo;</text>
+        <rect class="bx w" x="24" y="90" width="160" height="50" rx="6"/>
+        <text class="ss" x="104" y="120" text-anchor="middle">read incidents</text>
+        <path class="ar" d="M186 115 L214 115" marker-end="url(#arw)"/>
+        <rect class="bx w" x="218" y="90" width="160" height="50" rx="6"/>
+        <text class="ss" x="298" y="120" text-anchor="middle">summarise</text>
+        <path class="ar" d="M380 115 L408 115" marker-end="url(#arw)"/>
+        <rect class="bx w" x="412" y="90" width="140" height="50" rx="6"/>
+        <text class="ss" x="482" y="120" text-anchor="middle">send email</text>
+        <text class="tt" x="24" y="200" style="fill:#5fbf8f">Build a workflow.</text>
+        <text class="ss" x="24" y="228">Cheap, fast, and easy to test.</text>
+        <text class="ss" x="24" y="254">The model is one step in your code.</text>
+
+        <rect class="bx a grow w2" x="606" y="4" width="570" height="290" rx="8"/>
+        <text class="lb a" x="626" y="30">THE STEPS DEPEND ON WHAT YOU FIND</text>
+        <text class="tt" x="626" y="62">&ldquo;Payments returns 502s. What do I do?&rdquo;</text>
+        <rect class="bx w" x="626" y="90" width="170" height="50" rx="6"/>
+        <text class="ss" x="711" y="120" text-anchor="middle">search runbooks</text>
+        <path class="ar" d="M798 115 L826 115" marker-end="url(#arw)"/>
+        <text class="ss" x="836" y="108">match? read it</text>
+        <text class="ss" x="836" y="128">none? check incidents</text>
+        <path class="ar" d="M711 142 L711 166" marker-end="url(#arw)"/>
+        <text class="ss" x="626" y="186">incident open? add to it, do not open another</text>
+        <text class="tt" x="626" y="228" style="fill:#d98a3d">Build an agent.</text>
+        <text class="ss" x="626" y="254">You cannot draw the path in advance.</text>
+
+        <rect class="bx d" x="4" y="312" width="1172" height="84" rx="8"/>
+        <text class="lb w" x="24" y="340">THE TEST</text>
+        <text class="ss w" x="24" y="372" style="font-size:16px">If you can draw the flowchart before you start, <tspan font-weight="700" fill="#e0b34d">build a workflow.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-sec="1 &middot; What makes an agent" data-title="Autonomy is set per tool" data-notes="Autonomy means how much the agent may do without asking a person. Do not set it once for the whole agent. Set it for each tool. The three read tools only look at data. If the model calls one by mistake, you lose a few tokens and nothing else. Let them run freely. open_incident is different. It creates a record, notifies people and cannot be taken back quietly. A wrong call here has a real cost, so a person approves it first. Your code enforces this, not the prompt. A prompt that says &ldquo;ask before opening incidents&rdquo; is a request. Code that refuses to run open_incident without approval is a guarantee. On Day 2, LangGraph gives you a built-in way to wait for approval. Today it is one if statement." data-tier="K">
+  <h2>Autonomy is set <em>per tool</em>, not per agent<span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 380" role="img" aria-label="The four AskOps tools, whether each reads or writes, and whether it needs approval">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">ASKOPS TOOL</text>
+        <text class="lb w" x="300" y="24">WHAT IT DOES</text>
+        <text class="lb w" x="700" y="24">READ OR WRITE</text>
+        <text class="lb w" x="900" y="24">AUTONOMY</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="74">search_runbooks</text>
+        <text class="ss" x="300" y="74">finds runbooks for a symptom</text>
+        <text class="ss" x="700" y="74">read</text>
+        <text class="ss" x="900" y="74" style="fill:#5fbf8f;font-weight:600">runs freely</text>
+        <rect class="bx grow w2" x="4" y="100" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="132">get_runbook</text>
+        <text class="ss" x="300" y="132">returns the steps of one runbook</text>
+        <text class="ss" x="700" y="132">read</text>
+        <text class="ss" x="900" y="132" style="fill:#5fbf8f;font-weight:600">runs freely</text>
+        <rect class="bx grow w3" x="4" y="158" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="190">list_incidents</text>
+        <text class="ss" x="300" y="190">lists the open incidents</text>
+        <text class="ss" x="700" y="190">read</text>
+        <text class="ss" x="900" y="190" style="fill:#5fbf8f;font-weight:600">runs freely</text>
+        <rect class="bx r grow w4" x="4" y="216" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="248">open_incident</text>
+        <text class="ss" x="300" y="248">creates an incident, alerts people</text>
+        <text class="ss" x="700" y="248">write</text>
+        <text class="ss" x="900" y="248" style="fill:#e2726e;font-weight:600">a person approves first</text>
+
+        <rect class="bx d" x="4" y="290" width="1172" height="86" rx="8"/>
+        <text class="lb w" x="24" y="318">WHO ENFORCES IT</text>
+        <text class="ss w" x="24" y="350" style="font-size:16px">Your code, not the prompt. <tspan font-weight="700" fill="#e0b34d">A prompt is a request. Code is a guarantee.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="A tool is a function, plus a description the model reads" data-notes="On the left is everything the model knows about search_runbooks. It never sees your Python function. It sees only this description, sent with every request. The name should say what the tool does. The description should say when to use it and, just as important, when not to. Most people skip the second half. The parameters are written in JSON Schema. The enum limits service to three values, so the model cannot invent a fourth. The required list says query must always be present. This is the same idea as an output contract in Module 1: a shape your code can check. Every description costs tokens on every call, because it is sent every time. Module 2 called this the hidden cost of tool schemas. Keep descriptions short and exact." data-tier="K">
+  <h2>A tool is a function, plus a <em>description</em> the model reads<span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+<div class="file"><span class="fn">TOOL DESCRIPTION &mdash; SENT WITH EVERY REQUEST</span>{"type": "function",
+ "function": {
+   <span class="k">"name"</span>: "search_runbooks",
+   <span class="k">"description"</span>: "Find runbooks that match
+     a symptom, such as '502 after deploy'.
+     <span class="s">Use for how-to-fix questions.
+     Not for open incidents.</span>",
+   <span class="k">"parameters"</span>: {
+     "type": "object",
+     "properties": {
+       "query":   {"type": "string"},
+       "service": {"type": "string",
+         <span class="s">"enum": ["payments", "auth", "reporting"]</span>}},
+     "required": ["query"]}}}
+</div>
+    </div>
+    <div class="pts">
+      <h3>What each part does</h3>
+      <ul>
+        <li><b>name</b> &mdash; says what the tool does.</li>
+        <li><b>description</b> &mdash; says <b>when to use it</b>, and when not to.</li>
+        <li><b>parameters</b> &mdash; JSON Schema. <code>enum</code> stops invented values.</li>
+      </ul>
+      <div class="callout">The model never sees your Python code. <b>This is all it knows.</b></div>
+      <div class="take"><b>Cost:</b> it is sent on every call. Keep it short.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="What travels on the wire" data-notes="This is one tool call, message by message. First, your code sends the messages and the tool descriptions. The model does not answer in text. It replies with a tool call: a tool name, the arguments as a JSON string, and an id. Your code runs the function. Then it sends the result back as a message with the role tool, and the same id. The id pairs each result with its request, which matters when the model asks for two tools at once. Finally the model has what it needs and replies with text. Nothing is hidden here. Every agent framework, including the ones on Day 2, sends exactly these messages. When a framework misbehaves, this is the level you debug at. The endpoint is the common chat completions format, which most model servers accept." data-tier="K">
+  <h2>What travels <em>on the wire</em><span class="tag k">2</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="The five messages of one tool call between your code, the model and the tool">
+        <rect class="bx w" x="80" y="4" width="200" height="40" rx="6"/>
+        <text class="tt" x="180" y="30" text-anchor="middle">your code</text>
+        <rect class="bx p" x="660" y="4" width="200" height="40" rx="6"/>
+        <text class="tt" x="760" y="30" text-anchor="middle">model</text>
+        <rect class="bx a" x="960" y="4" width="200" height="40" rx="6"/>
+        <text class="tt" x="1060" y="30" text-anchor="middle">search_runbooks</text>
+        <path d="M180 46 L180 392" style="fill:none;stroke:#71809a;stroke-width:1.5;stroke-dasharray:3 5"/>
+        <path d="M760 46 L760 392" style="fill:none;stroke:#71809a;stroke-width:1.5;stroke-dasharray:3 5"/>
+        <path d="M1060 46 L1060 392" style="fill:none;stroke:#71809a;stroke-width:1.5;stroke-dasharray:3 5"/>
+
+        <text class="lb" x="10" y="92">1</text>
+        <path class="fl" d="M184 96 L754 96" marker-end="url(#arb)"/>
+        <text class="ss" x="200" y="86">messages + tool descriptions</text>
+        <text class="lb" x="10" y="152">2</text>
+        <path class="ar" d="M756 156 L186 156" marker-end="url(#arw)"/>
+        <text class="ss" x="200" y="146">tool_calls: name, arguments, id &mdash; <tspan style="fill:#d98a3d">no text</tspan></text>
+        <text class="lb" x="10" y="212">3</text>
+        <path class="fl" d="M184 216 L1054 216" marker-end="url(#arb)"/>
+        <text class="ss" x="200" y="206">your code runs the function</text>
+        <path class="ar" d="M1056 246 L186 246" marker-end="url(#arw)"/>
+        <text class="ss" x="800" y="238">result: RB-101</text>
+        <text class="lb" x="10" y="302">4</text>
+        <path class="fl" d="M184 306 L754 306" marker-end="url(#arb)"/>
+        <text class="ss" x="200" y="296">role: tool, same id, content: the result</text>
+        <text class="lb" x="10" y="362">5</text>
+        <path class="ar" d="M756 366 L186 366" marker-end="url(#arw)"/>
+        <text class="ss" x="200" y="356" style="fill:#5fbf8f">text: &ldquo;Follow RB-101 &hellip;&rdquo; &mdash; the answer</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="The description is the instruction" data-notes="When the model picks a tool, the only thing it reads is the name and the description. On the left, get_data tells it nothing. It does not know what data, when to call it, or what the id looks like. So it guesses, and it guesses differently each run. On the right, get_runbook names the case, shows the id format and points to the tool to use instead. When an agent keeps choosing the wrong tool, people often switch to a bigger model first. That is the expensive fix. Rewrite the descriptions first. It costs nothing, and it often fixes the problem. This is the same lesson as Module 1, applied to tools: a clear request beats a clever model. You will see it happen when you change only the descriptions and run the same questions again." data-tier="K">
+  <h2>The description <em>is</em> the instruction<span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+      <div class="callout bad" style="margin-top:0"><b>The model has to guess</b></div>
+<div class="file"><span class="fn">WEAK</span>name: get_data
+description: "Gets data."
+parameters: {"id": string}
+</div>
+      <div class="pts" style="margin-top:12px">
+        <ul>
+          <li>What data? When? What does an id look like?</li>
+          <li>It guesses, and <b>differently each run</b>.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="callout good" style="margin-top:0"><b>The model knows when to call it</b></div>
+<div class="file"><span class="fn">CLEAR</span>name: get_runbook
+description: "Return the steps of one
+  runbook by id, such as 'RB-101'.
+  <span class="s">Use after search_runbooks.
+  Not for searching.</span>"
+parameters: {"runbook_id": string}
+</div>
+      <div class="take"><b>Wrong tool, again and again?</b> Rewrite the descriptions before you change the model.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-sec="2 &middot; Tool calling from scratch" data-title="The model asks. Your code decides." data-notes="A tool call is a request, not an action. Before your code runs it, check it. Does a tool with that name exist? Models sometimes invent one, such as open_ticket. Do the arguments parse as JSON and match the schema? Is this user allowed to do this? For open_incident, has a person approved it? Rules with one right answer belong in code, never in the model. The model is good at choices that need judgement: which runbook fits, or how to explain the steps. It is poor at rules that must hold every time. When a check fails, do not crash. Send the error back as the observation, for example &ldquo;ERROR: no tool called open_ticket&rdquo;. The model reads it and usually corrects itself on the next step. A crash ends the run with nothing." data-tier="K">
+  <h2>The model <em>asks</em>. Your code decides.<span class="tag k">2</span></h2>
+  <div class="body g46">
+    <div class="pts">
+      <h3>Check every tool call before you run it</h3>
+      <ul>
+        <li>Does the <b>tool exist</b>? Models invent names.</li>
+        <li>Do the <b>arguments</b> parse and match the schema?</li>
+        <li>Is the user <b>allowed</b>? Is approval needed?</li>
+      </ul>
+      <h3>When a check fails</h3>
+      <ul>
+        <li>Return the error <b>as the observation</b>. Do not crash.</li>
+        <li>The model usually corrects itself.</li>
+      </ul>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 370" role="img" aria-label="Choices that need judgement go to the model; rules with one right answer go in code">
+        <rect class="bx p grow" x="4" y="4" width="692" height="150" rx="8"/>
+        <text class="lb" x="20" y="30">LET THE MODEL DECIDE</text>
+        <text class="ss" x="20" y="62">Which tool fits this question</text>
+        <text class="ss" x="20" y="88">Which runbook matches the symptom</text>
+        <text class="ss" x="20" y="114">How to explain the steps to a person</text>
+        <text class="ss" x="20" y="140" style="fill:#a78bfa">Judgement, where many answers are fine.</text>
+        <rect class="bx g grow w2" x="4" y="168" width="692" height="150" rx="8"/>
+        <text class="lb g" x="20" y="194">ENFORCE IN CODE</text>
+        <text class="ss" x="20" y="226">The tool name exists</text>
+        <text class="ss" x="20" y="252">open_incident has a person&rsquo;s approval</text>
+        <text class="ss" x="20" y="278">The run stops after 6 steps</text>
+        <text class="ss" x="20" y="304" style="fill:#5fbf8f">Rules with one right answer.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="ReAct: reason, act, observe, repeat" data-notes="ReAct stands for reason and act. The model thinks about what it needs, calls a tool, reads the result and thinks again. Each observation changes the next thought. That is the difference from plain chain-of-thought, where the model reasons once from what it already knows. Follow the trace. The first search finds RB-101. The model then asks for two tools in one step: the runbook's steps and the open incidents. The second result matters. INC-9001 is already open and linked to RB-101, so the right answer is to add to it, not to open a new incident. The model could only find that out by looking. With native tool calling, the thought lines are optional. Some models write them, and some go straight to the tool call. The action and the observation are always there." data-tier="K">
+  <h2>ReAct: <em>reason, act, observe</em>, repeat<span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">ONE ASKOPS RUN &mdash; THREE STEPS</span><span class="k">QUESTION</span> Payments returns 502s since the
+         14:00 release. What do I do?
+
+<span class="k">THOUGHT</span>  I need a runbook for 502 after deploy.
+<span class="k">ACTION</span>   search_runbooks(query="502 after deploy",
+                         service="payments")
+<span class="k">OBSERVE</span>  [RB-101 Payments API returns 502 after deploy]
+
+<span class="k">THOUGHT</span>  I need its steps. Is an incident open?
+<span class="k">ACTION</span>   get_runbook("RB-101") &middot; list_incidents()
+<span class="k">OBSERVE</span>  4 steps &middot; <span class="s">INC-9001 is open, linked to RB-101</span>
+
+<span class="k">ANSWER</span>   Follow RB-101. INC-9001 is already open:
+         add to it. Do not open a new one.
+</div>
+    </div>
+    <div class="pts">
+      <h3>What to notice</h3>
+      <ul>
+        <li>Each <b>observation</b> changes the next thought.</li>
+        <li>One step can call <b>two tools</b>.</li>
+        <li>It found INC-9001 only <b>by looking</b>.</li>
+      </ul>
+      <div class="take"><b>Thought lines are optional.</b> Actions and observations are not.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The loop, in plain Python" data-notes="This is the heart of the agent. The whole file is about 80 lines, and most of it is the three tools and their descriptions. It uses only the Python standard library, so there is nothing to install and nothing hidden. chat is one HTTP POST to the chat completions endpoint, about six lines with urllib. Read the loop from the top. Ask the model. Add its reply to the messages. If the reply has no tool calls, it is the answer, so return it. Otherwise run each tool and add each result with its id. Then go round again. The for loop is the step budget: after MAX_STEPS it stops. Look at the line marked no checks yet. It trusts the tool name and the arguments completely. That is on purpose. It is the first thing you will break." data-tier="K">
+  <h2>The loop, in <em>plain Python</em><span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+<div class="file"><span class="fn">agent.py &mdash; THE LOOP</span>def run(question):
+    messages = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": question}]
+    for step in range(MAX_STEPS):
+        reply = chat(messages)                    <span class="c"># reason</span>
+        msg = reply["choices"][0]["message"]
+        messages.append(msg)
+        if not msg.get("tool_calls"):             <span class="c"># no action:</span>
+            return msg["content"]                 <span class="c"># the answer</span>
+        for call in msg["tool_calls"]:            <span class="c"># act</span>
+            name = call["function"]["name"]
+            args = json.loads(call["function"]["arguments"])
+            result = TOOLS[name](**args)          <span class="s"># no checks yet</span>
+            messages.append({"role": "tool",      <span class="c"># observe</span>
+                             "tool_call_id": call["id"],
+                             "content": result})
+    return "Stopped: step budget spent."
+</div>
+    </div>
+    <div class="pts">
+      <h3>How to read it</h3>
+      <ul>
+        <li><code>chat()</code> is one HTTP POST. No framework.</li>
+        <li><b>No tool calls</b> in the reply means: the answer.</li>
+        <li>The <code>for</code> loop is the <b>step budget</b>.</li>
+        <li>Whole file: about <b>80 lines</b>, mostly tools.</li>
+      </ul>
+      <div class="take"><b>Day 2:</b> LangChain&rsquo;s <code>create_agent</code> runs this same loop for you.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="The message list is the memory" data-notes="The model remembers nothing between calls. The only memory the agent has is the messages list in your code. So every call sends the whole list again: the system prompt, all the tool descriptions, the question, every earlier reply and every tool result. Look at the bars. Each step sends everything the step before it sent, plus the new messages. So tokens per call go up at every step, and the total for one run grows faster than the number of steps. This is the hidden cost of history and tool schemas from Module 2, now in your own code. It also explains two practical rules. Keep tool results small: return the top three runbooks, not all of them. And keep runs short: every extra step pays again for everything before it." data-tier="K">
+  <h2>The message list <em>is</em> the memory<span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="Each call resends the whole message list, so every call is bigger than the one before">
+        <text class="lb" x="4" y="14">WHAT EACH CALL SENDS</text>
+        <text class="ss" x="4" y="58">call 1</text>
+        <rect class="bx grow" x="70" y="36" width="150" height="36" rx="4"/>
+        <text class="ss" x="145" y="59" text-anchor="middle">system + tools</text>
+        <rect class="bx p grow" x="222" y="36" width="80" height="36" rx="4"/>
+        <text class="ss" x="262" y="59" text-anchor="middle">question</text>
+
+        <text class="ss" x="4" y="128">call 2</text>
+        <rect class="bx grow w2" x="70" y="106" width="150" height="36" rx="4"/>
+        <rect class="bx p grow w2" x="222" y="106" width="80" height="36" rx="4"/>
+        <rect class="bx a grow w2" x="304" y="106" width="150" height="36" rx="4"/>
+        <text class="ss" x="379" y="129" text-anchor="middle">call + result</text>
+
+        <text class="ss" x="4" y="198">call 3</text>
+        <rect class="bx grow w3" x="70" y="176" width="150" height="36" rx="4"/>
+        <rect class="bx p grow w3" x="222" y="176" width="80" height="36" rx="4"/>
+        <rect class="bx a grow w3" x="304" y="176" width="150" height="36" rx="4"/>
+        <rect class="bx a grow w3" x="456" y="176" width="230" height="36" rx="4"/>
+        <text class="ss" x="571" y="199" text-anchor="middle">2 calls + 2 results</text>
+
+        <text class="ss" x="70" y="246" style="fill:#d98a3d">Every call resends everything before it.</text>
+
+        <rect class="bx d" x="4" y="270" width="692" height="104" rx="8"/>
+        <text class="lb w" x="24" y="298">SO</text>
+        <text class="ss w" x="24" y="326" style="font-size:14px">Tokens per call <tspan font-weight="700" fill="#e0b34d">go up at every step.</tspan></text>
+        <text class="ss w" x="24" y="354" style="font-size:14px">Tool descriptions are paid for on every call.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Two rules that follow</h3>
+      <ul>
+        <li>Keep <b>tool results small</b>: the top 3 runbooks, not all of them.</li>
+        <li>Keep <b>runs short</b>: each extra step pays again for all earlier ones.</li>
+      </ul>
+      <div class="take"><b>From Module 2:</b> history and tool descriptions are the hidden cost.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-sec="3 &middot; A ReAct loop in plain Python" data-title="Native tool calls, not parsed text" data-notes="The first ReAct agents asked the model to write its action as text, such as Action: search_runbooks. The code then parsed that text. This breaks as soon as the format drifts. The model writes the word Action in bold, puts two actions on one line, or writes a thought with no action at all. Each drift is a parse failure, or worse, the wrong tool running. Native tool calling removes the parsing. The model returns a structured tool call with a name, arguments and an id. You still validate the arguments, because a well-formed call can carry a wrong value. Not every model supports native tool calling well. Check this before you choose a model for an agent. The model selection matrix in Module 2 has a column for it." data-tier="R">
+  <h2>Native tool calls, <em>not parsed text</em><span class="tag">R</span></h2>
+  <div class="body g55">
+    <div>
+      <div class="callout bad" style="margin-top:0"><b>Old style: parse the model&rsquo;s text</b></div>
+<div class="file"><span class="fn">THE MODEL WRITES</span>Thought: I need a runbook.
+Action: search_runbooks
+Action Input: 502 after deploy
+</div>
+      <div class="pts" style="margin-top:12px">
+        <ul>
+          <li>The format drifts: <b>**Action:**</b>, two actions, no action.</li>
+          <li>Each drift is a <b>parse failure</b>, or the wrong tool.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="callout good" style="margin-top:0"><b>Native: the model returns a structure</b></div>
+<div class="file"><span class="fn">THE MODEL RETURNS</span>"tool_calls": [{
+  "id": "call_1",
+  "function": {
+    "name": "search_runbooks",
+    "arguments": "{\"query\": \"502\"}"}}]
+</div>
+      <div class="take"><b>Still check the arguments.</b> And choose a model that supports tool calling.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Four stop conditions, all required" data-notes="A loop with no stop condition runs until something outside stops it, such as a timeout or your budget. Every agent needs all four of these. The goal is met when the model replies with no tool call. The step budget is a hard number in your code. Six is plenty for AskOps. Loop detection catches the model repeating itself: the same tool with the same arguments means it has learned nothing new. No path forward means a tool said the answer does not exist, or the action is not allowed. The agent must say so and hand over to a person. It must not make something up. Notice that three of the four are plain code. Only the first one depends on the model. That is why a broken model cannot run up an unlimited bill." data-tier="K">
+  <h2>Four stop conditions, <em>all required</em><span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Four stop conditions, how code detects each, and an AskOps example">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">STOP WHEN</text>
+        <text class="lb w" x="300" y="24">HOW YOUR CODE KNOWS</text>
+        <text class="lb w" x="760" y="24">ASKOPS EXAMPLE</text>
+        <rect class="bx g grow" x="4" y="42" width="1172" height="58" rx="6"/>
+        <text class="tt" x="24" y="77">The goal is met</text>
+        <text class="ss" x="300" y="77">the reply has no tool call</text>
+        <text class="ss" x="760" y="77">&ldquo;Follow RB-101 &hellip;&rdquo;</text>
+        <rect class="bx grow w2" x="4" y="106" width="1172" height="58" rx="6"/>
+        <text class="tt" x="24" y="141">The step budget is spent</text>
+        <text class="ss" x="300" y="141">a step counter reaches its limit</text>
+        <text class="ss" x="760" y="141">6 steps, still searching</text>
+        <rect class="bx grow w3" x="4" y="170" width="1172" height="58" rx="6"/>
+        <text class="tt" x="24" y="205">A loop is found</text>
+        <text class="ss" x="300" y="205">same tool, same arguments, again</text>
+        <text class="ss" x="760" y="205">list_incidents() twice</text>
+        <rect class="bx r grow w4" x="4" y="234" width="1172" height="58" rx="6"/>
+        <text class="tt" x="24" y="269">No path forward</text>
+        <text class="ss" x="300" y="269">a tool says &ldquo;not found&rdquo; or &ldquo;not allowed&rdquo;</text>
+        <text class="ss" x="760" y="269">no runbook: say so, hand to a person</text>
+
+        <rect class="bx d" x="4" y="310" width="1172" height="86" rx="8"/>
+        <text class="lb w" x="24" y="338">WHY THREE ARE PLAIN CODE</text>
+        <text class="ss w" x="24" y="370" style="font-size:16px">A confused model cannot stop itself. <tspan font-weight="700" fill="#e0b34d">Your code must stop it.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Retry, or send the error back?" data-notes="When a tool fails, first ask why. A timeout, a 429 or a 503 means the service was busy for a moment. The plan was fine, so retry the same step. Wait a little longer each time, and stop after two or three tries. A 404, not found, or a validation error means the step cannot work as written. Retrying buys the same failure again. Send the error back to the model as the observation, and let it choose another route. You met this in Module 3, Lab 5. /api/ask returns 503 when a search source is down, so an empty list only ever means nothing matched. Your tools need the same rule. A tool that returns an empty list when the source is down tells the agent there is no runbook. The agent then gives a confident, wrong answer." data-tier="R">
+  <h2>Retry, or <em>send the error back</em>?<span class="tag">R</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Transient errors are retried; errors that mean the step cannot work are sent back to the model">
+        <rect class="bx a grow" x="4" y="4" width="570" height="270" rx="8"/>
+        <text class="lb a" x="24" y="30">THE SERVICE WAS BUSY</text>
+        <text class="tt" x="24" y="64">timeout &middot; 429 &middot; 503</text>
+        <text class="ss" x="24" y="100">The plan was fine.</text>
+        <text class="tt" x="24" y="150" style="fill:#d98a3d">Retry the same step.</text>
+        <text class="ss" x="24" y="184">Wait longer each time.</text>
+        <text class="ss" x="24" y="210">Stop after 2 or 3 tries.</text>
+
+        <rect class="bx p grow w2" x="606" y="4" width="570" height="270" rx="8"/>
+        <text class="lb" x="626" y="30">THE STEP CANNOT WORK</text>
+        <text class="tt" x="626" y="64">404 &middot; not found &middot; invalid argument</text>
+        <text class="ss" x="626" y="100">A retry fails the same way.</text>
+        <text class="tt" x="626" y="150" style="fill:#a78bfa">Send the error back.</text>
+        <text class="ss" x="626" y="184">It becomes the observation.</text>
+        <text class="ss" x="626" y="210">The model picks another route.</text>
+
+        <rect class="bx d" x="4" y="292" width="1172" height="104" rx="8"/>
+        <text class="lb w" x="24" y="320">FROM MODULE 3, LAB 5</text>
+        <text class="ss w" x="24" y="352" style="font-size:15px">/api/ask returns 503 when a source is down. <tspan font-weight="700" fill="#e0b34d">Empty must mean &ldquo;nothing matched&rdquo;.</tspan></text>
+        <text class="ss w" x="24" y="380" style="font-size:14px;fill:#6ea8fe">A tool that hides an error behind an empty list makes the agent confidently wrong.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Control the cost of one run" data-notes="A single model call has a cost you can predict. An agent run does not, because the number of steps changes. So set limits on the run, not on the call. The step budget caps the number of round trips. The token budget adds up the usage figure that comes back with every reply, and stops the run when the total passes your limit. max_tokens caps the length of each reply. Small tool results keep every later call cheaper, as the last section showed. Finally, the model itself: the tool-choosing step often works well on a smaller, cheaper model. Module 2 showed how to compare models on the same task. Always report tokens per run. A number per call hides the growth you saw on the message-list slide. Your capstone on Day 3 needs a cost ceiling, and this is where it starts." data-tier="K">
+  <h2>Control the cost of <em>one run</em><span class="tag k">4</span></h2>
+  <div class="body g46">
+    <div class="pts">
+      <h3>Five limits, set in code</h3>
+      <ul>
+        <li><b>Step budget</b> &mdash; the most round trips.</li>
+        <li><b>Token budget</b> &mdash; add up <code>usage</code> from each reply.</li>
+        <li><b>max_tokens</b> &mdash; the longest reply allowed.</li>
+        <li><b>Small results</b> &mdash; the top 3, not everything.</li>
+        <li><b>Right-sized model</b> &mdash; compare tiers, as in Module 2.</li>
+      </ul>
+      <div class="take"><b>Report tokens per run.</b> Per call hides the growth.</div>
+    </div>
+    <div>
+<div class="file"><span class="fn">agent.py &mdash; A TOKEN BUDGET</span>used = 0
+for step in range(MAX_STEPS):
+    reply = chat(messages)
+    <span class="s">used += reply["usage"]["total_tokens"]</span>
+    ...
+    if used &gt; MAX_TOKENS:
+        return "Stopped: token budget spent."
+
+print(f"{step + 1} steps, {used} tokens")
+</div>
+      <div class="callout">Every reply reports its own token count. <b>You only have to add it up.</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-sec="4 &middot; Stopping and cost control" data-title="Five ways a loop fails" data-notes="These five failures cover most of what goes wrong with a first agent. The wrong tool comes from weak descriptions. An invented tool or argument crashes the plain loop from the last section, because it trusts every call. A loop that never ends needs loop detection and a step budget. The fourth is the most dangerous, because nothing looks broken. A tool hides an error behind an empty list, and the agent tells the engineer there is no runbook. The fifth is a slow leak. Long results and long runs push the token count up, and nobody notices until the bill arrives. The best way to learn these is to cause each one on purpose. Then fix it, run again, and compare the tokens the run used before and after the fix." data-tier="K">
+  <h2>Five ways a loop <em>fails</em><span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Five common agent failures, what you see, and the fix for each">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">FAILURE</text>
+        <text class="lb w" x="330" y="24">WHAT YOU SEE</text>
+        <text class="lb w" x="780" y="24">THE FIX</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="76">Wrong tool</text>
+        <text class="ss" x="330" y="76">searches when it should list incidents</text>
+        <text class="ss" x="780" y="76" style="fill:#5fbf8f">rewrite the descriptions</text>
+        <rect class="bx grow w2" x="4" y="104" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="138">Invented tool or argument</text>
+        <text class="ss" x="330" y="138">KeyError or TypeError: the run crashes</text>
+        <text class="ss" x="780" y="138" style="fill:#5fbf8f">check it, return the error</text>
+        <rect class="bx grow w3" x="4" y="166" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="200">Endless loop</text>
+        <text class="ss" x="330" y="200">the same call, again and again</text>
+        <text class="ss" x="780" y="200" style="fill:#5fbf8f">loop check and step budget</text>
+        <rect class="bx r grow w4" x="4" y="228" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="262">Error read as empty</text>
+        <text class="ss" x="330" y="262">&ldquo;There is no runbook&rdquo; &mdash; source was down</text>
+        <text class="ss" x="780" y="262" style="fill:#5fbf8f">tools report errors, not []</text>
+        <rect class="bx grow w5" x="4" y="290" width="1172" height="56" rx="6"/>
+        <text class="tt" x="24" y="324">Silent cost growth</text>
+        <text class="ss" x="330" y="324">tokens per run creep up</text>
+        <text class="ss" x="780" y="324" style="fill:#5fbf8f">token budget, small results</text>
+        <text class="ss" x="4" y="384" style="font-weight:600">Learn them by causing each one on purpose, then fixing it.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-sec="Close" data-title="What to take into Day 2" data-notes="Here is what to keep from this module. An agent is a loop where the model's reply decides the next step. Use one only when you cannot draw the flowchart in advance. The model only asks for a tool. Your code checks the call, runs it and decides what is allowed. Descriptions are instructions, so fix them before you change the model. Every loop needs all four stop conditions, and you measure cost per run. On Day 2 you rebuild this same agent with LangChain and LangGraph, and compare the two versions line by line. The framework saves typing. It does not change the loop, so everything on these slides still applies. LangGraph adds what the plain loop lacks: saved state, resume after a crash and a wait for approval. On Day 3 you share tools between agents through MCP servers." data-tier="K">
+  <h2>What to take into <em>Day 2</em><span class="tag">M4</span></h2>
+  <div class="body g46">
+    <div class="pts">
+      <h3>Keep these</h3>
+      <ul>
+        <li>An agent is a <b>loop</b>. Use one only when you cannot draw the flowchart.</li>
+        <li>The model <b>asks</b>. Your code checks and runs.</li>
+        <li>Fix <b>descriptions</b> before you change the model.</li>
+        <li><b>Four stop conditions</b>, and cost per run.</li>
+      </ul>
+      <div class="take"><b>Next:</b> the same loop, built with a framework.</div>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="Today's plain loop, Day 2's framework version and Day 3's shared tools">
+        <rect class="bx a grow" x="4" y="4" width="692" height="104" rx="8"/>
+        <text class="lb a" x="20" y="30">TODAY &mdash; DAY 1</text>
+        <text class="tt" x="20" y="60">A ReAct loop in plain Python</text>
+        <text class="ss" x="20" y="88">Every message visible. Nothing hidden.</text>
+        <path class="ar" d="M350 110 L350 134" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="4" y="138" width="692" height="104" rx="8"/>
+        <text class="lb" x="20" y="164">DAY 2 &mdash; LANGCHAIN AND LANGGRAPH</text>
+        <text class="tt" x="20" y="194">The same agent, rebuilt and compared</text>
+        <text class="ss" x="20" y="222">Adds saved state, resume and approval.</text>
+        <path class="ar" d="M350 244 L350 268" marker-end="url(#arw)"/>
+        <rect class="bx g grow w3" x="4" y="272" width="692" height="104" rx="8"/>
+        <text class="lb g" x="20" y="298">DAY 3 &mdash; MCP AND PRODUCTION</text>
+        <text class="tt" x="20" y="328">Tools shared through MCP servers</text>
+        <text class="ss" x="20" y="356">Traced, tested for cost, deployed.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - C: the loop, where the reply picks the next step, makes it an agent. A and D give the model more to read, but it is still one call. Q2 - A: the steps never change, so a workflow is enough. B is tempting, but an agent adds cost and surprises for nothing. Q3 - D: the model chooses using only the descriptions. A is the expensive fix, and often not needed. Q4 - B: the model only asks. Your code checks the call and runs it. A is a common belief, but the provider never runs your functions. Q5 - A: 503 means busy, so retry with a cap. B throws away a plan that was fine. Q6 - C: every call resends the whole list. A is partly true, but the resent history is the main cost. Q7 - D: the same call with the same arguments has learned nothing new. A is the tempting one, but checking twice adds no information. Q8 - B: open_incident is the only tool that writes, so it needs approval. The other three only read." data-tier="K">
+  <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
+  <div class="body qgrid">
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>1</b><span>What turns a single model call into an agent?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>A larger context window</span><span><i>B</i>A longer system prompt</span><span class="c" data-why="In a loop, the model's reply picks the next step. A and D give the model more to read, but it is still one call."><i>C</i>A reply that picks the next step</span><span><i>D</i>A store of team documents</span></div></div>
+      <div class="qc"><div class="qh"><b>2</b><span>Each morning, email yesterday&rsquo;s incidents to the team. What do you build?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="The steps never change, so you can draw the flowchart. An agent adds cost and surprises for nothing."><i>A</i>A workflow with one model call</span><span><i>B</i>A ReAct agent with tools</span><span><i>C</i>An agent with a step budget</span><span><i>D</i>Two agents: reader and writer</span></div></div>
+      <div class="qc"><div class="qh"><b>3</b><span>The agent keeps choosing the wrong tool. What do you change first?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Switch to a bigger model</span><span><i>B</i>Raise the step budget</span><span><i>C</i>Add example chats to the prompt</span><span class="c" data-why="The model chooses using only the descriptions. A bigger model is the expensive fix, and often not needed."><i>D</i>Rewrite the tool descriptions</span></div></div>
+      <div class="qc"><div class="qh"><b>4</b><span>The model replies with a tool call. Who runs the tool?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The model, at the provider</span><span class="c" data-why="The model only asks. Your code checks the call and runs the function. The provider never runs your code."><i>B</i>Your code, after checking it</span><span><i>C</i>The model API, automatically</span><span><i>D</i>Nobody, until a person approves</span></div></div>
+    </div>
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>5</b><span>A tool call fails with HTTP 503. What should the loop do?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="503 means the service was busy; the plan was fine. Retry with a wait and a cap. B throws away a working plan."><i>A</i>Retry with a wait, a few times</span><span><i>B</i>Ask the model for a new plan</span><span><i>C</i>Stop and tell the user now</span><span><i>D</i>Report that nothing was found</span></div></div>
+      <div class="qc"><div class="qh"><b>6</b><span>Why does each call in one run use more tokens than the last?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Replies get longer each step</span><span><i>B</i>Tool descriptions grow each step</span><span class="c" data-why="The model remembers nothing, so every call resends the whole message list. A can happen, but the resent history is the main cost."><i>C</i>The whole message list is resent</span><span><i>D</i>The provider adds hidden retries</span></div></div>
+      <div class="qc"><div class="qh"><b>7</b><span>The agent calls <code>list_incidents()</code> with the same arguments three times. What is it?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The model checking its work</span><span><i>B</i>A busy service, so retry</span><span><i>C</i>A slow tool, so wait</span><span class="c" data-why="The same call with the same arguments brings nothing new. Stop the run. A sounds careful, but a repeat adds no information."><i>D</i>A loop, so stop the run</span></div></div>
+      <div class="qc"><div class="qh"><b>8</b><span>Which AskOps tool should wait for a person&rsquo;s approval?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>search_runbooks</span><span class="c" data-why="It is the only tool that writes: it creates a record and alerts people. The other three only read data."><i>B</i>open_incident</span><span><i>C</i>get_runbook</span><span><i>D</i>list_incidents</span></div></div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script src="../assets/adlc-deck.js"></script>
+</body>
+</html>

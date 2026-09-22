@@ -1,0 +1,6 @@
+# Cut 2: the posting code, its tests, and only the rule that decides the answer.
+# adr-007-rule.txt is made by audit_report.py, in your clone:
+#   the Decision and Consequences sections of docs/adr/ADR-007-duplicate-suppression.md
+src/main/java/in/brainupgrade/accountservice/posting/**/*.java
+src/test/**/*.java
+adr-007-rule.txt

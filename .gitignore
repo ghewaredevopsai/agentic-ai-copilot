@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# Agentic AI & AI-Assisted Development with GitHub Copilot — 3-day outline
+# Own repo since 2026-09-22: ghewaredevopsai/agentic-ai-copilot (PRIVATE).
+#
+# Everything tracked here is participant-facing. Keep trainer-only material
+# out of it.
+#
+# This repo is SHARED WITH PARTICIPANTS and must be self-contained: no links
+# to other course repos. The practice code repos participants clone
+# (global-bank-*, askops) stay outside it by design. meridian-freight is
+# out of scope. Trainer-only material lives in trainer-private/ (ignored).
+#
+# What IS tracked, deliberately — all of it participant-facing:
+#   course-outline-*-onepager.html   the one-page outline (must stay exactly 1 A4 page)
+#   README.md                        participant guide: the three days, setup, how to open the decks
+#   presentation/, assets/           the decks and the deck engine
+#   labs/                            lab guides and tickets
+#   resources/                       learning-outcomes tracker, video resources
+#
+# The trainer README (lineage, decision log, render steps) is
+# trainer-private/README-trainer.md, not this repo's README.md.
+# ---------------------------------------------------------------------------
+
+# Rendered on demand when a PDF is needed to send; never kept in the folder.
+*.pdf
+
+# Trainer-only: assembly map, review/fix lists, delivery notes. Local only.
+trainer-private/
+
+# Trainer context for Claude Code. Trainer-only, local only.
+CLAUDE.md
+
+# Secrets — never commit.
+.env
+.env.*
+!.env.example
+
+# Local tool state — machine-specific, not shared
+.claude/settings.local.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+
+# Python bytecode from build scripts
+__pycache__/
+*.pyc
+
+# Participants write their lab notes here. Theirs, not ours.
+labs/my-work/

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Ask</h2>
+  <form hx-get="/ui/ask" hx-target="#results">
+    <input name="q" placeholder="e.g. deploy rollback, login slow, disk full" autofocus>
+    <button>Ask</button>
+  </form>
+  <div id="results"></div>
+</section>
+
+<section>
+  <h2>Open an incident</h2>
+  <form hx-post="/ui/incidents" hx-target="#incident-rows" hx-swap="afterbegin">
+    <input name="title" placeholder="What is broken?">
+    <select name="severity">
+      {% for s in severities %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+    </select>
+    <input name="service" placeholder="service">
+    <button>Open</button>
+  </form>
+</section>
+
+<section>
+  <h2>Incidents</h2>
+  <table>
+    <thead><tr><th>Id</th><th>Title</th><th>Severity</th><th>Service</th></tr></thead>
+    <tbody id="incident-rows">
+      {% for i in incidents %}{% include "_incident_row.html" %}{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

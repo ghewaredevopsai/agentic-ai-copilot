@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic AI &amp; AI-Assisted Development with GitHub Copilot &mdash; One Page (3-day)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #faf7f2;
+      color: #3a2f26;
+      font-size: 13px;
+      line-height: 1.32;
+    }
+    a { color: #b45309; text-decoration: none; }
+    header {
+      background: linear-gradient(135deg, #3b2412 0%, #92400e 100%);
+      color: #fff;
+      padding: 12px 18px;
+      text-align: center;
+      border-bottom: 3px solid #f59e0b;
+    }
+    header h1 { margin: 0; font-size: 1.3em; }
+    header .tagline { margin-top: 3px; color: #fcd9a4; font-size: 0.9em; font-weight: 600; }
+    header .meta { margin-top: 5px; color: #d8c3ad; font-size: 0.82em; }
+    header .meta span { margin: 0 6px; }
+    header .meta .hi { color: #fbbf24; font-weight: 600; }
+    .container { max-width: 1000px; margin: 8px auto; background: #fff; padding: 10px 18px 4px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+
+    .lead { margin: 0 0 7px 0; font-size: 0.9em; }
+    .spine {
+      background: #fffbeb; border: 1px solid #fbbf24; border-left: 4px solid #f59e0b;
+      border-radius: 4px; padding: 5px 10px; font-size: 0.82em; margin-bottom: 8px;
+    }
+    .spine strong { color: #78350f; }
+
+    h2.sec {
+      margin: 8px 0 5px 0; font-size: 0.92em; color: #78350f;
+      border-bottom: 2px solid #b45309; padding-bottom: 2px; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .sessions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .s {
+      background: #fdf9f3; border-left: 3px solid #b45309; border-radius: 0 3px 3px 0;
+      padding: 5px 8px; font-size: 0.78em;
+    }
+    .s.full { grid-column: 1 / -1; background: #fffbeb; border-left-color: #f59e0b; }
+    .s h4 { margin: 0 0 2px 0; font-size: 1.04em; color: #78350f; }
+    .s h4 .n {
+      display: inline-block; background: #92400e; color: #fff; border-radius: 3px;
+      padding: 0 5px; margin-right: 5px; font-size: 0.9em;
+    }
+    .s h4 .env {
+      float: right; font-weight: 600; font-size: 0.8em; color: #92400e;
+      background: #f6ead9; border-radius: 8px; padding: 0 7px;
+    }
+    .s p { margin: 0; }
+    .s .lab { color: #92400e; display: block; margin-top: 2px; }
+
+    .facts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-top: 4px; }
+    .setup { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 7px; }
+    .setup .fact { background: #fdf9f3; }
+    .setup .fact h5 { margin: 4px 0 1px 0; font-size: 0.92em; color: #92400e; text-transform: uppercase; letter-spacing: 0.3px; }
+    .setup .fact li strong { color: #78350f; }
+    .fact { background: #fdf6ec; border-left: 3px solid #b45309; border-radius: 0 3px 3px 0; padding: 5px 8px; font-size: 0.76em; }
+    .fact h4 { margin: 0 0 3px 0; font-size: 1.05em; color: #78350f; }
+    .fact ul { margin: 0; padding-left: 13px; }
+    .fact li { margin-bottom: 1px; }
+
+    footer { background: #2e1c0e; color: #fff; text-align: center; padding: 8px; font-size: 0.78em; }
+    footer a { color: #fbbf24; }
+
+    @media print {
+      @page { size: A4; margin: 7mm; }
+      body { font-size: 10.9px; background: #fff; }
+      header { padding: 7px 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      header h1 { font-size: 1.26em; }
+      .container { box-shadow: none; padding: 6px 8px 2px; margin: 5px auto; max-width: 100%; }
+      .s, .fact, .spine, .setup { break-inside: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      footer { padding: 5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</h1>
+    <div class="tagline">From prompt to production agent &mdash; one continuous build across three intensive days</div>
+    <div class="meta">
+      <span class="hi">3 days &middot; 09:00&ndash;19:00</span> |
+      <span class="hi">Intermediate</span> |
+      <span>Trainer: Rajesh Gheware</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <p class="lead">
+      A <strong>Copilot-first</strong>, practitioner-led programme taking a development team from prompting to a
+      production-grade agentic system. <strong>Copilot on their own machines on Day&nbsp;1; our browser sandbox with
+      per-participant Kubernetes on Days&nbsp;2&ndash;3.</strong> Roughly 50% theory / 50% hands-on, every block paired with labs.
+      <strong>Token optimisation and model selection by use case</strong> taught as a Day-1 discipline.
+    </p>
+
+    <div class="spine">
+      <strong>Built as one continuous project, not a list of topics.</strong> &ldquo;AskOps&rdquo;, an internal engineering
+      assistant, is scaffolded on Day&nbsp;1 morning, given an agent brain by Day&nbsp;1 evening, rebuilt on production
+      frameworks and grounded in documents on Day&nbsp;2, then hardened, deployed to Kubernetes and forked by every
+      participant for their own capstone on Day&nbsp;3. Every block closes on the exact limitation the next block removes.
+    </div>
+
+    <h2 class="sec">Day 1 &mdash; Direct the Model, Build the App, Give It a Brain &nbsp;<span style="font-weight:400;text-transform:none;letter-spacing:0;">own machine &middot; GitHub Copilot</span></h2>
+    <div class="sessions">
+
+      <div class="s">
+        <h4><span class="n">1.1</span><a href="presentation/module-1-prompt-context-engineering.html" style="color:inherit;text-decoration:none" title="Open the Module 1 slides">Prompt &amp; Context Engineering</a></h4>
+        <p>Prompt anatomy &amp; output contracts · patterns (few-shot, CoT, decomposition, self-critique) ·
+           <strong>context engineering</strong> · Copilot depth: <code>@workspace</code>, <code>copilot-instructions.md</code>,
+           prompt files, agent mode · model behaviour compared (incl. Claude) · hallucination &amp; drift.</p>
+        <span class="lab">Labs: prompt teardown &amp; rewrite · schema-valid JSON contract · author your team's instructions file · break and repair a prompt.</span>
+      </div>
+
+      <div class="s" style="background:#fffbeb;border-left-color:#f59e0b;">
+        <h4><span class="n">1.2</span><a href="presentation/module-2-token-optimization.html" style="color:inherit;text-decoration:none" title="Open the Module 2 slides">Token Optimisation &amp; Model Selection</a> <span class="n" style="background:#f59e0b;color:#3b2412;">NEW</span></h4>
+        <p>Where tokens go (input / output / cached, hidden cost of history &amp; tool schemas) · <strong>context budgeting</strong> ·
+           prompt caching · cheaper by design (structured output, <code>max_tokens</code>, deterministic code) ·
+           <strong>model selection matrix by use case</strong> (quality, latency, cost, context, tool-calling, residency) ·
+           <strong>Copilot model picker &amp; premium-request budget</strong> · routing &amp; cascades · measuring cost per trace.</p>
+        <span class="lab">Labs: token audit, cut 40%+ with no quality loss · same task on three model tiers, score &amp; justify · Copilot budget exercise · cheap-first router.</span>
+      </div>
+
+      <div class="s">
+        <h4><span class="n">1.3</span><a href="presentation/module-3-python/index.html" style="color:inherit;text-decoration:none" title="Open the Module 3 slides and labs">Python Accelerated with Copilot &mdash; the AskOps API</a></h4>
+        <p>The Python you need: types, packages, dataclasses, exceptions, logging · <strong>type hints and pydantic</strong> ·
+           Copilot as tutor · spec-first vibe coding in agent mode · FastAPI service, async &amp; I/O ·
+           <strong>tests as the guardrail</strong> · AI code review, when to reject · Git hygiene.</p>
+        <span class="lab">Labs: AI-tutored drills · build the AskOps package &amp; API · pytest suite to green · accept a bad suggestion and catch it with tests · refactor + PR.</span>
+      </div>
+
+      <div class="s">
+        <h4><span class="n">1.4</span>Agent Foundations, Tool Use &amp; MCP</h4>
+        <p>Perceive &rarr; reason &rarr; act &rarr; observe · <strong>tool calling from scratch</strong> · a ReAct loop in ~80
+           lines of plain Python · stop conditions &amp; per-run cost control · <strong>agent vs. workflow</strong> ·
+           <strong>MCP</strong> architecture, and consuming an MCP server from Copilot.</p>
+        <span class="lab">Labs: hand-rolled tool-calling agent · make it fail, fix it, report the tokens burned · drive a task through MCP in Copilot.</span>
+      </div>
+    </div>
+
+    <h2 class="sec">Day 2 &mdash; Frameworks, Teams of Agents, Grounding &nbsp;<span style="font-weight:400;text-transform:none;letter-spacing:0;">browser sandbox &middot; OpenCode</span></h2>
+    <div class="sessions">
+
+      <div class="s">
+        <h4><span class="n">2.1</span>LangChain &amp; LangGraph</h4>
+        <p>Sandbox + <strong>OpenCode</strong> orientation · LangChain core, LCEL, tools, agents · <strong>LangGraph</strong>
+           state, nodes, conditional routing, cycles · <strong>checkpointers &amp; session memory</strong> ·
+           human-in-the-loop interrupts · streaming, per-node model selection, token accounting.</p>
+        <span class="lab">Labs: port the Day-1 agent, diff the two · switch OpenCode's model backend and compare · graph with a conditional branch · kill and resume · approval interrupt.</span>
+      </div>
+
+      <div class="s">
+        <h4><span class="n">2.2</span>Multi-Agent &mdash; CrewAI &amp; Google ADK</h4>
+        <p>Why multiple agents, and what it costs · patterns: sequential, hierarchical, parallel fan-out, critic, router ·
+           <strong>CrewAI</strong> crews, tasks, delegation · <strong>Google ADK</strong> agents, tools, sessions, runners,
+           evaluation · <strong>selection matrix</strong>, mixing model tiers across agents · anti-patterns.</p>
+        <span class="lab">Labs: build a crew · rebuild it in ADK and compare code, traces, spend · add a critic, then smaller worker models, re-measure · justify a framework per scenario.</span>
+      </div>
+
+      <div class="s full">
+        <h4><span class="n">2.3</span>RAG, Vector Stores &amp; Agent Memory</h4>
+        <p>Retrieval vs. fine-tuning vs. long context, with token economics · chunking strategies &amp; metadata · embeddings ·
+           ChromaDB / pgvector, hybrid retrieval, rerankers · <strong>agentic RAG</strong> ·
+           <strong>long-term memory</strong> with write &amp; eviction policies · evaluation with Ragas.
+           <span class="lab">Labs: three chunking strategies compared on quality and tokens per answer · retriever as an agent tool · hybrid + rerank, measure the lift · long-term memory across sessions · Ragas run, tune, re-run.</span></p>
+      </div>
+    </div>
+
+    <h2 class="sec">Day 3 &mdash; Production, Then Yours &nbsp;<span style="font-weight:400;text-transform:none;letter-spacing:0;">browser sandbox &middot; per-participant Kubernetes</span></h2>
+    <div class="sessions">
+
+      <div class="s">
+        <h4><span class="n">3.1</span>MCP Servers, Production &amp; Kubernetes</h4>
+        <p><strong>Build your own MCP server</strong> wrapping an internal-style API · <strong>Langfuse tracing</strong>,
+           token spend &amp; cost per trace · <strong>evals as CI gates incl. a cost-regression gate</strong> · guardrails, PII,
+           rate limits, budget caps · timeouts, retries, fallback to a cheaper tier · containerise and <strong>deploy to Kubernetes</strong>.</p>
+        <span class="lab">Labs: build &amp; register an MCP server · read a real trace with cost · eval suite with quality threshold + cost ceiling · guardrails + budget cap · deploy to the cluster · chaos drill.</span>
+      </div>
+
+      <div class="s" style="background:#fffbeb;border-left-color:#f59e0b;">
+        <h4><span class="n">3.2</span>Capstone &mdash; Build, Deploy &amp; Demo</h4>
+        <p><strong>Every participant takes a real internal use case end-to-end and builds and deploys it themselves</strong> in the sandbox on
+           their own Kubernetes cluster access. <strong>Must include:</strong> multi-agent orchestration (choice justified) ·
+           RAG on a real document set · a self-built MCP tool · session + long-term memory · Langfuse tracing and an eval suite
+           with a quality threshold <strong>and a cost ceiling</strong> · <strong>a justified model choice per agent</strong> · running on Kubernetes.</p>
+        <span class="lab">Cadence: pitch &amp; architecture review, scope locked &rarr; mentored build with regular checkpoints &rarr; demos, eval &amp; cost results, post-mortem, promotion plan. Deliverables: repository · architecture note · evaluation &amp; cost report · demo.</span>
+      </div>
+    </div>
+
+    <h2 class="sec">At a Glance &amp; Participant Machine Setup</h2>
+    <div class="facts">
+      <div class="fact">
+        <h4>Format</h4>
+        <ul>
+          <li><strong>3 consecutive days, 09:00&ndash;19:00</strong></li>
+          <li>Intermediate: any language + basic Python, Git, REST</li>
+          <li>Max 20 participants per cohort</li>
+        </ul>
+      </div>
+      <div class="fact">
+        <h4>Models &amp; tokens</h4>
+        <ul>
+          <li><strong>GitHub Copilot</strong> &mdash; already licensed internally</li>
+          <li><strong>OpenCode</strong> (opencode.ai) in the sandbox &mdash; Big Pickle, Nemotron on free usage; <strong>Qwen/Gemma</strong> on our own gateway</li>
+        </ul>
+      </div>
+      <div class="fact">
+        <h4>Participants receive</h4>
+        <ul>
+          <li>All lab notebooks, repositories &amp; worked solutions</li>
+          <li>Prompt, context, <strong>token &amp; model-selection</strong>, and framework cheat sheets</li>
+          <li>Their own capstone repository</li>
+          <li>Reading &amp; further-study list</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup">
+      <div class="fact">
+        <h4>Day 1 &mdash; own machine <span style="font-weight:400;color:#92400e;">&middot; GitHub Copilot &middot; corporate network</span></h4>
+        <h5>Installed and working before Day 1</h5>
+        <ul>
+          <li><strong>VS Code + GitHub Copilot</strong>, signed in to the client-provided licence, <strong>agent mode enabled</strong></li>
+          <li><strong>Python 3.14</strong> (the trainer's version, so lab repos run identically), <code>pip</code> or <code>uv</code> for virtual environments</li>
+          <li><strong>git</strong>, a terminal, a modern browser</li>
+          <li><strong>Network:</strong> the <strong>corporate network</strong>, since Copilot only runs there &mdash; with <code>github.com</code> (lab repos) and <code>*.brainupgrade.in</code> (model endpoint for the agent labs) reachable from it</li>
+        </ul>
+        <h5>Provided by the trainer</h5>
+        <ul>
+          <li>All lab repositories and the model endpoint for the agent labs</li>
+          <li><strong>Confirm with client IT before kickoff:</strong> <code>github.com</code> and <code>*.brainupgrade.in</code> are reachable from the corporate network, allowlisted if needed</li>
+        </ul>
+      </div>
+      <div class="fact" style="background:#fffbeb;border-left-color:#f59e0b;">
+        <h4>Days 2&ndash;3 &mdash; browser sandbox <span style="font-weight:400;color:#92400e;">&middot; JupyterLab &middot; OpenCode &middot; Kubernetes</span></h4>
+        <h5>Needed on the machine</h5>
+        <ul>
+          <li>A modern browser only &mdash; <strong>nothing to install</strong>; thin client to <code>*.brainupgrade.in</code> over HTTPS/WebSocket on <strong>guest or personal wifi</strong> (Copilot is not used on these days)</li>
+          <li>Sandbox login details, issued by the trainer on Day 2</li>
+        </ul>
+        <h5>Pre-provisioned per participant, persists across both days</h5>
+        <ul>
+          <li><strong>JupyterLab</strong> (notebooks, datasets, solutions) &middot; <strong>OpenCode</strong> with Big Pickle/Nemotron &middot; Qwen/Gemma endpoint &middot; ChromaDB/pgvector &middot; Langfuse &middot; Docker</li>
+          <li><strong>Kubernetes cluster access</strong> with <code>kubectl</code> for the Day 3 labs and capstone</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    &copy; 2026 Gheware DevOps &amp; Agentic AI |
+    <a href="https://devops.gheware.com">devops.gheware.com</a> |
+    Trainer: Rajesh Gheware |
+    Agentic AI &amp; AI-Assisted Development with GitHub Copilot v2.0
+  </footer>
+</body>
+</html>

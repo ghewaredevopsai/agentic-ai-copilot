@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Accelerated Tier 5 &mdash; Review and Ship</title>
+<link rel="stylesheet" href="../../assets/py-theme.css">
+</head>
+<body data-deck="Python &middot; Tier 5" data-home="index.html"
+      data-prev="t4-web-app.html" data-prev-label="Tier 4">
+<div id="viewport"><div id="stage">
+
+<!-- 1 ---------------------------------------------------------------- -->
+<section class="slide title">
+  <div class="wrap">
+    <span class="tier">Tier 5</span>
+    <h1>Review and ship</h1>
+    <p class="sub">An agent can now write Python faster than you can read it. The job that is left is deciding
+      what gets merged: a review checklist, the signals that say reject, and the git habits that make it reviewable.</p>
+    <p class="meta">
+      <span>5 slides &middot; ~10 minutes</span>
+      <span>Lab 5 follows</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+  </div>
+</section>
+
+<!-- 2 ---------------------------------------------------------------- -->
+<section class="slide">
+  <header><div class="hgroup">
+    <p class="eyebrow">A Python PR checklist</p>
+    <h2>What you now look for, in order</h2>
+  </div></header>
+  <div class="body">
+    <div class="grid2 fill">
+      <div class="card on">
+        <h3>Correctness &mdash; the Python traps</h3>
+        <ul>
+          <li><b>Mutable defaults</b> &mdash; <code>=[]</code>, <code>={}</code>, <code>=None</code> in a dataclass list field</li>
+          <li><b>Truthiness</b> hiding a real <code>0</code> or <code>""</code>; <code>is</code> used for values</li>
+          <li><b>Blocking I/O in <code>async def</code></b>; sequential awaits that should be gathered</li>
+          <li><b>Swallowed failures</b> &mdash; bare <code>except</code>, <code>except Exception</code> returning a normal result</li>
+          <li><b>Unbounded input</b> &mdash; a limit, size or page with no upper bound</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Design &mdash; the house rules</h3>
+        <ul>
+          <li>Domain errors raised inside, <b>translated only at the edge</b></li>
+          <li>pydantic <b>v2</b> only; dataclass for domain, model for wire</li>
+          <li>No module-level state; dependencies via <code>Depends</code></li>
+          <li><code>logger</code> with %-args, never <code>print</code>; <code>logger.exception</code> for errors</li>
+          <li>HTML through templates, never f-strings; user input never in a hostname, path or SQL</li>
+          <li>Tests unchanged, or changed with a reason a human wrote</li>
+        </ul>
+      </div>
+    </div>
+    <div class="takeaway">Every item here was on a <b>Read the PR</b> slide today. Put this list in
+      <code>.github/copilot-instructions.md</code> so the agent reads it too &mdash; then review anyway.</div>
+  </div>
+  <div class="notes"><p>Worth copying into your team's review guide. The left column is what tests sometimes catch; the right column is what usually only a reviewer catches.</p></div>
+</section>
+
+<!-- 3 ---------------------------------------------------------------- -->
+<section class="slide">
+  <header><div class="hgroup">
+    <p class="eyebrow">When to reject AI-written code</p>
+    <h2>Green tests are necessary. They are not the decision.</h2>
+  </div></header>
+  <div class="body">
+    <div class="grid3 fill">
+      <div class="card bad"><h3>Reject outright</h3><ul>
+        <li>A test was edited or deleted to pass</li>
+        <li>An error path now returns success</li>
+        <li>A dependency or config change nobody asked for</li>
+        <li>You cannot explain a line of it</li>
+      </ul></div>
+      <div class="card"><h3>Send it back</h3><ul>
+        <li>The description claims a benefit the diff does not deliver ("faster", "simpler")</li>
+        <li>More files changed than the task needs</li>
+        <li>Deprecated API that still runs (pydantic v1)</li>
+        <li>No test for the new behaviour</li>
+      </ul></div>
+      <div class="card good"><h3>Merge</h3><ul>
+        <li>Small, one concern, matches the spec</li>
+        <li>Every finding you raised is now a test</li>
+        <li>You would sign your name to it</li>
+        <li>You could maintain it without the agent</li>
+      </ul></div>
+    </div>
+    <div class="parallel"><span class="tag">The real-world parallel</span>An AI suggestion is a pull request from a
+      very fast, very confident colleague who never ran it in production. <b>You would not skip the review for
+      that colleague. Do not skip it here.</b></div>
+  </div>
+  <div class="notes"><p>"You cannot explain a line of it" is why the module starts with tutor mode: reading Python fluently is what makes that bar reachable.</p></div>
+</section>
+
+<!-- 4 ---------------------------------------------------------------- -->
+<section class="slide">
+  <header><div class="hgroup">
+    <p class="eyebrow">Git hygiene</p>
+    <h2>Make every change easy to review, and easy to undo</h2>
+  </div></header>
+  <div class="body">
+    <div class="grid2 fill">
+      <div class="card on">
+        <h3>The loop, with an agent in it</h3>
+<pre>git switch -c fix/ask-failure-contract   <i># one concern per branch</i>
+git add -A &amp;&amp; git commit -m "before agent"  <i># a checkpoint you can return to</i>
+<i># ... agent edits, tests run ...</i>
+git diff                                   <i># read it all, before staging</i>
+git add -p                                 <i># stage hunk by hunk: you choose</i>
+python score.py                            <i># green, or it does not commit</i>
+git commit -m "Return 503 when an /ask source fails,
+instead of an empty 200"                   <i># the why, not the what</i>
+git push -u origin HEAD                    <i># then open the PR</i></pre>
+      </div>
+      <div class="card">
+        <h3>Python-specific hygiene</h3>
+        <ul>
+          <li><b><code>.venv/</code>, <code>__pycache__/</code>, <code>*.egg-info/</code></b> in <code>.gitignore</code> &mdash; never committed</li>
+          <li><b>No secrets in code or <code>.env</code> in git.</b> Read from environment variables</li>
+          <li><b>Pin what you depend on</b> in <code>pyproject.toml</code>; a new dependency is its own reviewed change</li>
+          <li><b>Formatting is not a review topic</b> &mdash; a formatter (ruff, black) in CI ends the debate</li>
+          <li><b>Revert beats repair</b> when an agent's change went sideways: <code>git restore .</code> and re-prompt</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><p><code>git add -p</code> is the most useful habit when an agent has touched several files: it forces a decision hunk by hunk.</p></div>
+</section>
+
+<!-- 5 ---------------------------------------------------------------- -->
+<section class="slide">
+  <header><div class="hgroup">
+    <p class="eyebrow">Lab 5 &middot; and what comes next</p>
+    <h2>PR #42: "Make /ask resilient and faster"</h2>
+  </div></header>
+  <div class="body">
+    <div class="grid2 fill">
+      <div class="card on">
+        <h3>The lab</h3>
+        <ol style="margin:0;padding-left:20px">
+          <li><b>Review on paper</b> &mdash; find the problems before running anything</li>
+          <li><b>Accept it</b> on a branch, run the scoreboard. Which of your findings did the tests catch?</li>
+          <li><b>Reject it</b> with a written review</li>
+          <li><b>Do it properly</b> &mdash; agent mode implements the failure contract; you review, 56/56</li>
+          <li><b>Ship it</b> &mdash; branch, commit with the why, PR</li>
+        </ol>
+      </div>
+      <div class="card blue">
+        <h3>What you can do now</h3>
+        <ul>
+          <li>Read a Python service and say what every line does</li>
+          <li>Build a typed, tested FastAPI app with a web page</li>
+          <li>Direct an agent from a spec, and stop it when it is wrong</li>
+          <li>Block the PR that passes the tests and is still wrong</li>
+        </ul>
+        <div class="note" style="margin-top:10px"><b>Next:</b> AskOps' <code>/ask</code> is keyword search. Next it gets an
+          agent brain &mdash; and everything you learned about reviewing it still applies.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+<script src="../../assets/py-deck.js"></script>
+</body>
+</html>

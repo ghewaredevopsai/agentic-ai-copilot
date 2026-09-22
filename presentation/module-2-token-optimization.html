@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 2 — Token Optimisation &amp; Model Selection | Agentic AI &amp; AI-Assisted Development with GitHub Copilot</title>
+<link rel="stylesheet" href="../assets/adlc-deck.css">
+</head>
+<body data-deck="Module 2">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#71809a"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6ea8fe"/></marker>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2726e"/></marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5fbf8f"/></marker>
+</defs></svg>
+
+<div id="viewport"><div id="stage"><!-- 1 -->
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module is about cost: where the tokens in a Copilot request go, and how to send fewer of them without getting a worse answer. You start with what one request really costs, using one measured workshop day. Then you learn to choose a model by the task, not by its reputation. You will send easy work to a cheap model and hard cases to a strong one, using a rule you can check. You will cut what you attach by at least 40% while keeping the right answer. Finally, you will find model calls that plain code could do for free. Each part ends with a short lab on the global-bank-account clone from Module 1. Two of the five labs need no Copilot at all. After this module you can say what a request costs, choose a model with a reason, and prove a saving with a number. Module 3 then uses these habits while you build the AskOps app." data-tier="R">
+  <div class="wrap">
+    <span class="tier">Day 1 &middot; Module 2 of 4</span>
+    <h1>Token Optimisation &amp; Model Selection</h1>
+    <p class="sub">Where the tokens go &mdash; and how to send fewer without a worse answer.</p>
+    <p class="meta">
+      <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
+      <span>Intermediate</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+    <div class="chips">
+    <span class="chip">What one request costs</span>
+    <span class="chip">Choosing the model</span>
+    <span class="chip">Routing and cascades</span>
+    <span class="chip">A budget per turn</span>
+    <span class="chip">Levers in your own code</span>
+    <span class="chip">Five measured labs</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-sec="Opening" data-title="A seat is a flat fee; the work in it is not" data-notes="A Copilot seat has a fixed monthly price, so it is easy to think usage is free. It is not. Chat, agent mode, code review and the CLI all draw AI credits, and credits are a bill for tokens. Two facts drive everything in this module. First, an output token costs more than an input token, about six times more at the example rates on the next slide. Second, input is where almost all the tokens are, because every turn sends the files, the rules and the whole chat again. So the saving is in what you send, not in how short the answer is. Each part of this module ends with a lab that measures a number before and after a change. The labs use the global-bank-account clone from Module 1, at the m3-start tag." data-tier="K">
+  <h2>A seat is a flat fee. The work in it is <em>not</em><span class="tag">M2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 300" role="img" aria-label="Output tokens cost more each, but input tokens are most of the traffic">
+        <rect class="bx a grow" x="4" y="4" width="340" height="190" rx="8"/>
+        <text class="lb a" x="20" y="30">OUTPUT TOKENS</text>
+        <text class="tt" x="20" y="62">The answer you read.</text>
+        <text class="ss" x="20" y="96">Cost the most per token.</text>
+        <text class="ss" x="20" y="120">A small part of the traffic.</text>
+
+        <rect class="bx g grow w2" x="356" y="4" width="340" height="190" rx="8"/>
+        <text class="lb g" x="372" y="30">INPUT TOKENS</text>
+        <text class="tt" x="372" y="62">Everything sent to the model.</text>
+        <text class="ss" x="372" y="120">Almost all of the traffic.</text>
+
+        <rect class="bx d" x="4" y="214" width="692" height="82" rx="8"/>
+        <text class="lb w" x="24" y="240">THE IDEA OF THIS MODULE</text>
+        <text class="ss w" x="24" y="270" style="font-size:15px">The saving is in <tspan font-weight="700" fill="#e0b34d">what you send</tspan>, not in shorter answers.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>What you will learn</h3>
+      <ul>
+        <li>Where the tokens go.</li>
+        <li>Choose a model by the task.</li>
+        <li>Cheap model first, then escalate.</li>
+        <li>Send 40% less, same answer.</li>
+        <li>Replace a model call with code.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open in a tab during the labs. Module 1 already explained the context window, a turn and an ADR, so they are not repeated here. The left column holds the token words. A token is roughly three quarters of an English word, and code usually splits into more tokens than prose. Cached tokens are input that was sent before without any change. The provider can reuse its earlier work, so they are billed at about a tenth of the input price. AI credits are what GitHub bills Copilot usage in. A credit is not a token: it depends on the model's price and on how much of the request was cached. The right column holds the words the labs use. The bundle is the list of files you send. The always-on file in global-bank-account is .github/copilot-instructions.md, which Copilot adds to every request in that repository." data-tier="K">
+  <h2>Words used in this module<span class="tag">M2</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>Token words</h3>
+      <ul>
+        <li><b>Token</b> &mdash; the unit a model reads. About &frac34; of a word.</li>
+        <li><b>Input tokens</b> &mdash; everything sent with a request.</li>
+        <li><b>Output tokens</b> &mdash; the answer the model writes.</li>
+        <li><b>Cached tokens</b> &mdash; input sent again unchanged. Billed cheaper.</li>
+        <li><b>AI credit</b> &mdash; the unit GitHub bills Copilot usage in.</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>Words for the labs</h3>
+      <ul>
+        <li><b>Bundle</b> &mdash; the set of files sent with one request.</li>
+        <li><b>Always on</b> &mdash; a file Copilot adds to every request.</li>
+        <li><b>Cascade</b> &mdash; cheap model first, strong one if needed.</li>
+        <li><b>Gate</b> &mdash; the rule that decides when to escalate.</li>
+        <li><b>clientReference</b> &mdash; the caller&rsquo;s own id for a payment.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="A credit is a bill for tokens, priced three ways" data-notes="Every metered request becomes credits in the same way. The input, cached and output tokens are each multiplied by their own price, and the total in dollars is divided by one cent. The prices on the slide are an example published rate for a default frontier model. Rates change, so check GitHub's current pricing before you quote a figure. The shape stays the same: cached input costs about a tenth of input, and output costs about six times input. Completions and next edit suggestions are not metered on a paid plan, and letting Copilot choose the model with Auto takes 10% off. Check the organisation default most carefully. People with a personal plan expect usage to stop at zero. In an organisation, extra usage is on. The bill keeps growing until an admin sets a limit." data-tier="K">
+  <h2>A credit is a bill for tokens, <em>priced three ways</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 330" role="img" aria-label="Example prices per million tokens: input, cached input and output">
+        <text class="lb" x="4" y="18">EXAMPLE RATES &middot; PER 1M TOKENS</text>
+        <text class="tt" x="4" y="62">Input</text>
+        <rect class="bx g grow" x="130" y="40" width="100" height="34" rx="5"/>
+        <text class="tt" x="244" y="62">$2.50</text>
+        <text class="tt" x="4" y="112">Cached input</text>
+        <rect class="bx g grow w2" x="130" y="90" width="10" height="34" rx="3"/>
+        <text class="tt" x="154" y="112">$0.25 &middot; a tenth of input</text>
+        <text class="tt" x="4" y="162">Output</text>
+        <rect class="bx a grow w3" x="130" y="140" width="560" height="34" rx="5"/>
+        <text class="tt w" x="146" y="162">$15.00 &middot; six times input</text>
+
+        <rect class="bx d" x="4" y="200" width="692" height="120" rx="8"/>
+        <text class="lb w" x="24" y="228">HOW A REQUEST BECOMES CREDITS</text>
+        <text class="ss w" x="24" y="260" style="font-size:15px">(input &times; rate) + (cached &times; rate) + (output &times; rate)</text>
+        <text class="ss w" x="24" y="290" style="font-size:15px">then divide the dollars by <tspan font-weight="700" fill="#e0b34d">$0.01</tspan> to get credits</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Metered</h3>
+      <ul>
+        <li>Chat, agent mode, review, CLI.</li>
+      </ul>
+      <h3>Free on a paid plan</h3>
+      <ul>
+        <li>Completions.</li>
+        <li><b>Auto</b> takes 10% off.</li>
+      </ul>
+      <div class="take"><b>In an organisation</b>, extra usage is <b>on</b> until an admin caps it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="One measured day: 42.7M tokens, 99% input" data-notes="These numbers come from the workshop's model gateway. It counted every participant's tokens and requests for one full day. The workshop used an open model. So the money is not a Copilot bill, and it is never quoted as one. What carries over is the split: 99.2% input, and 128 input tokens for every output token. That comes from how agents work, not from which model ran. Every agent turn sends the system prompt, the instruction files, the tool definitions, the chat so far and every file read, all over again. The answer is short. Because output costs more per token, it is still about 5% of the money here. So asking for shorter answers saves about 5%. Notice also that 46% of the day's spend fell in a single afternoon hour. You will see why in part 4." data-tier="K">
+  <h2>One measured day: 42.7M tokens, <em>99% input</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 330" role="img" aria-label="Of 42.7 million tokens in one workshop day, 99.2 percent were input and 0.8 percent output">
+        <text class="lb" x="4" y="18">ONE WORKSHOP DAY &middot; EVERY PARTICIPANT &middot; TO SCALE</text>
+        <rect class="bx g grow" x="4" y="32" width="686" height="56" rx="6"/>
+        <text class="tt w" x="20" y="66">Input &mdash; 42.39M tokens &middot; 99.2%</text>
+        <rect class="bx a grow w2" x="4" y="98" width="6" height="56" rx="2"/>
+        <text class="tt" x="22" y="132">Output &mdash; 0.33M &middot; 0.8% &mdash; the part you read</text>
+
+        <rect class="bx w rise r2" x="4" y="176" width="220" height="140" rx="8"/>
+        <text class="tt" x="20" y="216" style="font-size:26px">128 : 1</text>
+        <text class="ss" x="20" y="250">input tokens for</text>
+        <text class="ss" x="20" y="272">each output token</text>
+        <rect class="bx w rise r4" x="238" y="176" width="220" height="140" rx="8"/>
+        <text class="tt" x="254" y="216" style="font-size:26px">3,892</text>
+        <text class="ss" x="254" y="250">requests, 27 people</text>
+        <text class="ss" x="254" y="272">~11,000 tokens each</text>
+        <rect class="bx r rise r6" x="472" y="176" width="220" height="140" rx="8"/>
+        <text class="tt" x="488" y="216" style="font-size:26px">46%</text>
+        <text class="ss" x="488" y="250">of the day&rsquo;s spend</text>
+        <text class="ss" x="488" y="272">in one hour</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>What it means</h3>
+      <ul>
+        <li>&ldquo;Be concise&rdquo; changes <b>0.8%</b> of the traffic.</li>
+        <li>Shorter answers save about <b>5%</b> of the money.</li>
+        <li>The rest is what each turn sends again.</li>
+      </ul>
+      <div class="take"><b>Cut the input.</b> That is where the tokens are.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="Turn ten costs more than turn one" data-notes="This picture comes back in every later part of the module. Each turn sends the same system prompt and instruction files, plus every file the agent has read, plus the whole chat so far. Only the small block on the right is what you typed. So a long chat gets more expensive with every turn, even when your messages get shorter. Part 4 marks which of these bands to remove first. Each lever in part 5 makes one of the bands narrower. The instruction and tool band is also where the always-on file sits: in global-bank-account, Copilot adds .github/copilot-instructions.md to every request. In Lab 0 you will measure how a chat grows over ten turns with the naive bundle." data-tier="K">
+  <h2>Turn ten costs more than turn one &mdash; and <em>you typed less</em><span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="What is sent on turns 1, 5 and 10: the fixed bands stay, the conversation band grows">
+        <text class="lb" x="4" y="18">WHAT IS SENT, PER TURN</text>
+        <text class="tt" x="4" y="62">Turn 1</text>
+        <rect class="bx w grow" x="100" y="40" width="70" height="36" rx="4"/>
+        <rect class="bx p grow" x="174" y="40" width="110" height="36" rx="4"/>
+        <rect class="bx r grow" x="288" y="40" width="300" height="36" rx="4"/>
+        <rect class="bx a grow" x="592" y="40" width="50" height="36" rx="4"/>
+        <text class="tt" x="4" y="122">Turn 5</text>
+        <rect class="bx w grow w2" x="100" y="100" width="70" height="36" rx="4"/>
+        <rect class="bx p grow w2" x="174" y="100" width="110" height="36" rx="4"/>
+        <rect class="bx r grow w2" x="288" y="100" width="300" height="36" rx="4"/>
+        <rect class="bx g grow w2" x="592" y="100" width="240" height="36" rx="4"/>
+        <rect class="bx a grow w2" x="836" y="100" width="50" height="36" rx="4"/>
+        <text class="tt" x="4" y="182">Turn 10</text>
+        <rect class="bx w grow w3" x="100" y="160" width="70" height="36" rx="4"/>
+        <rect class="bx p grow w3" x="174" y="160" width="110" height="36" rx="4"/>
+        <rect class="bx r grow w3" x="288" y="160" width="300" height="36" rx="4"/>
+        <rect class="bx g grow w3" x="592" y="160" width="500" height="36" rx="4"/>
+        <rect class="bx a grow w3" x="1096" y="160" width="50" height="36" rx="4"/>
+
+        <rect class="bx w" x="100" y="230" width="18" height="18" rx="3"/><text class="ss" x="126" y="245">system prompt</text>
+        <rect class="bx p" x="270" y="230" width="18" height="18" rx="3"/><text class="ss" x="296" y="245">instructions + tool definitions</text>
+        <rect class="bx r" x="560" y="230" width="18" height="18" rx="3"/><text class="ss" x="586" y="245">files it has read</text>
+        <rect class="bx g" x="760" y="230" width="18" height="18" rx="3"/><text class="ss" x="786" y="245">the chat so far</text>
+        <rect class="bx a" x="950" y="230" width="18" height="18" rx="3"/><text class="ss" x="976" y="245">what you typed</text>
+
+        <rect class="bx d" x="4" y="290" width="1172" height="100" rx="8"/>
+        <text class="lb w" x="24" y="320">READ IT FROM LEFT TO RIGHT</text>
+        <text class="ss w" x="24" y="354" style="font-size:16px">Only the last block is new. <tspan font-weight="700" fill="#e0b34d">Everything to its left is sent again, every turn.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="Six levers, and a budget for what they miss" data-notes="These are the six levers, with the evidence for each from the measured day. Look at lever 2's two numbers. The median request carried about 2,300 tokens. The heaviest carried 67,600, about thirty times more. The people were not that different. What they attached was. Part 4 starts with that heaviest user. Lever 3 comes from a multi-agent app, where one question caused almost four model calls. Lever 6 is easy to forget: completions are free on a paid plan, so they are the cheapest help Copilot gives. Levers reduce spend, but they do not cap it. Set a budget before a team starts, not after the first surprise bill. Usage views show totals and arrive late, never one request at a time. That is why Lab 0 gives you a second tool, ctxmeter, which answers straight away." data-tier="R">
+  <h2>Six levers &mdash; and a <em>budget</em> for what they miss<span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 440" role="img" aria-label="Six levers, what each cuts, and the evidence from the measured day">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">LEVER</text>
+        <text class="lb w" x="380" y="24">WHAT IT CUTS</text>
+        <text class="lb w" x="640" y="24">EVIDENCE FROM THE MEASURED DAY</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="69">1 &middot; A new chat per task</text><text class="ss" x="380" y="69">the chat sent again</text><text class="ss" x="640" y="69">99.2% of all tokens were input</text>
+        <rect class="bx grow w2" x="4" y="90" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="117">2 &middot; Point at files, not the repo</text><text class="ss" x="380" y="117">files per turn</text><text class="ss" x="640" y="117">median request 2.3k tokens; heaviest 67.6k</text>
+        <rect class="bx grow w3" x="4" y="138" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="165">3 &middot; Cap the agent loop</text><text class="ss" x="380" y="165">repeated turns</text><text class="ss" x="640" y="165">one app: 3.85 model calls per question</text>
+        <rect class="bx grow w4" x="4" y="186" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="213">4 &middot; Model per task, Auto by default</text><text class="ss" x="380" y="213">the price per token</text><text class="ss" x="640" y="213">Auto is 10% off</text>
+        <rect class="bx grow w5" x="4" y="234" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="261">5 &middot; Keep standing context stable</text><text class="ss" x="380" y="261">full-price input</text><text class="ss" x="640" y="261">cached input costs a tenth</text>
+        <rect class="bx grow w6" x="4" y="282" width="1172" height="42" rx="5"/>
+        <text class="tt" x="24" y="309">6 &middot; Use completions</text><text class="ss" x="380" y="309">nothing &mdash; they are free</text><text class="ss" x="640" y="309">not metered on paid plans</text>
+
+        <rect class="bx d" x="4" y="340" width="1172" height="94" rx="8"/>
+        <text class="lb w" x="24" y="368">THE GUARDRAIL</text>
+        <text class="ss w" x="24" y="400" style="font-size:16px">Set a budget on <tspan font-weight="700" fill="#e0b34d">day one</tspan>. Usage views show totals, late, never per request.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="Lab 0 - count your own bundle" data-notes="In Lab 0 you hold two measuring tools that do not agree, and are not meant to. ctxmeter is a small Python script in the lab folder. It estimates the tokens in a list of files straight away, and it prints the same number for everyone. It cannot see Copilot's hidden system prompt or the files Copilot opens by itself, so its number is a minimum. Your GitHub billing page is the true record of money, but it is late, it shows totals, and on a company seat you may not see it at all. Keep the two apart: ctxmeter shows that a cut worked, and the billing page shows what you spent. The lab takes about six minutes and needs no Copilot. The lab guide is labs/module-2-tokens/lab-0-count-your-own-bundle.md." data-tier="K">
+  <h2>Lab 0 &mdash; two tools that <em>do not agree</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 320" role="img" aria-label="ctxmeter is instant but counts only what you list; the billing page is the true money but late">
+        <rect class="bx g grow" x="4" y="4" width="340" height="200" rx="8"/>
+        <text class="lb g" x="20" y="30">CTXMETER</text>
+        <text class="tt" x="20" y="62">Answers straight away.</text>
+        <text class="ss" x="20" y="96">Counts only what you list.</text>
+        <text class="ss" x="20" y="120">Same number for everyone.</text>
+        <text class="ss" x="20" y="180" style="fill:#5fbf8f;font-weight:600">Proves the cut.</text>
+
+        <rect class="bx a grow w2" x="356" y="4" width="340" height="200" rx="8"/>
+        <text class="lb a" x="372" y="30">YOUR BILLING PAGE</text>
+        <text class="tt" x="372" y="62">The true money.</text>
+        <text class="ss" x="372" y="96">Late, and totals only.</text>
+        <text class="ss" x="372" y="120">May be hidden on a company seat.</text>
+        <text class="ss" x="372" y="180" style="fill:#d98a3d;font-weight:600">Proves the spend.</text>
+
+        <rect class="bx d" x="4" y="224" width="692" height="88" rx="8"/>
+        <text class="lb w" x="24" y="252">THE RULE</text>
+        <text class="ss w" x="24" y="284" style="font-size:15px">Never put the two numbers <tspan font-weight="700" fill="#e0b34d">in the same row</tspan> of a table.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Steps &middot; about 6 minutes</h3>
+      <ul>
+        <li>Compare two bundles of Global Bank files.</li>
+        <li>Watch a ten-turn chat grow.</li>
+        <li>Look for your credit figure.</li>
+        <li>Read how accurate ctxmeter is.</li>
+      </ul>
+      <div class="take"><b>No Copilot needed.</b> Guide: <code>labs/module-2-tokens/</code></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Six criteria, shaded not numbered" data-notes="The three model types are fast, default and reasoning. A reasoning model thinks step by step before it answers, and costs the most. Read each row from left to right: green is strong, red is weak, grey is in between. The cells are shaded, not numbered, on purpose. Any number would be out of date within a month, while the direction of each row has stayed the same for a long time. The residency row matters most in a bank. Many people assume the cheap models are the ones that can be hosted where the bank needs them. That is not a rule. It depends on the vendor and the contract. So do not read the row as a property of the tier. Tool calling is on the grid because agents use tools, and you will test it in Module 4." data-tier="K">
+  <h2>Six criteria &mdash; shaded, <em>not numbered</em><span class="tag k">2</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 420" role="img" aria-label="Fast, default and reasoning models compared on six criteria; residency depends on the vendor, not the tier">
+        <text class="lb" x="420" y="22">FAST</text>
+        <text class="lb" x="640" y="22">DEFAULT</text>
+        <text class="lb" x="860" y="22">REASONING</text>
+        <text class="tt" x="4" y="58">Quality on hard work</text>
+        <rect class="bx r grow" x="380" y="38" width="200" height="30" rx="4"/><rect class="bx grow" x="600" y="38" width="200" height="30" rx="4"/><rect class="bx g grow" x="820" y="38" width="200" height="30" rx="4"/>
+        <text class="tt" x="4" y="102">Speed</text>
+        <rect class="bx g grow w2" x="380" y="82" width="200" height="30" rx="4"/><rect class="bx grow w2" x="600" y="82" width="200" height="30" rx="4"/><rect class="bx r grow w2" x="820" y="82" width="200" height="30" rx="4"/>
+        <text class="tt" x="4" y="146">Cost per call</text>
+        <rect class="bx g grow w3" x="380" y="126" width="200" height="30" rx="4"/><rect class="bx grow w3" x="600" y="126" width="200" height="30" rx="4"/><rect class="bx r grow w3" x="820" y="126" width="200" height="30" rx="4"/>
+        <text class="tt" x="4" y="190">Context window</text>
+        <rect class="bx grow w4" x="380" y="170" width="200" height="30" rx="4"/><rect class="bx g grow w4" x="600" y="170" width="200" height="30" rx="4"/><rect class="bx g grow w4" x="820" y="170" width="200" height="30" rx="4"/>
+        <text class="tt" x="4" y="234">Tool calling</text>
+        <rect class="bx grow w5" x="380" y="214" width="200" height="30" rx="4"/><rect class="bx g grow w5" x="600" y="214" width="200" height="30" rx="4"/><rect class="bx g grow w5" x="820" y="214" width="200" height="30" rx="4"/>
+        <text class="tt" x="4" y="278">Data residency</text>
+        <rect class="bx p grow w6" x="380" y="258" width="640" height="30" rx="4"/>
+        <text class="ss" x="400" y="278">set by the vendor and the contract, not the tier</text>
+
+        <rect class="bx d" x="4" y="318" width="1172" height="94" rx="8"/>
+        <text class="lb w" x="24" y="346">WHY NO NUMBERS</text>
+        <text class="ss w" x="24" y="378" style="font-size:16px">Numbers go out of date in a month. <tspan font-weight="700" fill="#e0b34d">The direction of each row lasts.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Place the task, not the model" data-notes="This chart places tasks, not models, so it still works when the list of models changes. The horizontal axis is how often the cheap model already gets the task right. The vertical axis is what it costs you when the answer is quietly wrong. Tasks above and left of the dashed line are worth a reasoning model. Tasks below and right of it can use a cheap one. When a new model arrives, you do not redraw the chart. You move the line, and every task keeps its place. Before you move on, place two of your own tasks on this chart. Most teams have never talked about the vertical axis, and it is the one that decides. In Global Bank, anything that touches money or value dates sits at the top, because a quiet mistake there is a client money break." data-tier="K">
+  <h2>Place the <em>task</em>, not the model<span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 340" role="img" aria-label="Tasks placed by how often the cheap model is right and what being wrong costs; a line separates reasoning from cheap">
+        <path class="ar" d="M70 300 H690"/>
+        <path class="ar" d="M70 300 V14"/>
+        <text class="ss" x="220" y="326">how often the cheap model is right &rarr;</text>
+        <text class="ss" x="4" y="150">cost of</text>
+        <text class="ss" x="4" y="170">wrong</text>
+        <path d="M110 300 L690 40" style="fill:none;stroke:#d98a3d;stroke-width:2;stroke-dasharray:7 7"/>
+        <text class="lb a" x="330" y="40">USE REASONING HERE</text>
+        <text class="lb g" x="470" y="290">CHEAP MODEL HERE</text>
+        <circle cx="140" cy="60" r="7" fill="#e2726e"/><text class="ss" x="154" y="66">money or dates in production</text>
+        <circle cx="200" cy="110" r="7" fill="#e2726e"/><text class="ss" x="214" y="116">multi-file refactor</text>
+        <circle cx="160" cy="170" r="7" fill="#d98a3d"/><text class="ss" x="174" y="176">a subtle bug</text>
+        <circle cx="420" cy="130" r="7" fill="#d98a3d"/><text class="ss" x="406" y="136" text-anchor="end">write a unit test</text>
+        <circle cx="520" cy="200" r="7" fill="#5fbf8f"/><text class="ss" x="534" y="206">explain this code</text>
+        <circle cx="600" cy="250" r="7" fill="#5fbf8f"/><text class="ss" x="614" y="256">docstring</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Why tasks, not models</h3>
+      <ul>
+        <li>No model names, so the chart lasts.</li>
+        <li>A new model moves the line. Tasks stay.</li>
+      </ul>
+      <h3>Ask of each task</h3>
+      <ul>
+        <li>What does it cost if this is <b>quietly wrong</b>?</li>
+      </ul>
+      <div class="take"><b>&ldquo;Is it hard?&rdquo;</b> is a different question.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Models differ - check yours on a ticket you know" data-notes="Everything in this module applies to any model, but models still differ, and the differences show up in the same few places. Do not trust a leaderboard. Run your own two-minute check on a ticket you already know, such as GB-151 from Module 1. Send one prompt and score the reply against the four rows. This works with whatever your seat offers, including a seat that shows only Auto. If you can pick another model, run the same prompt and compare. Keep the score sheet, not the scores, because model versions change every few weeks. Tool calling also differs between models. You will see it in Module 4, where the agent gets tools. In class you will also see one comparison that includes Claude, for contrast only. Nothing you build later depends on it. Watch the last row most: a model that never says it is unsure is filling the gap." data-tier="D">
+  <h2>Models differ &mdash; check yours on a ticket <em>you know</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 330" role="img" aria-label="Four things to check in a model's reply, and what a weak reply looks like">
+        <rect class="bx d" x="4" y="4" width="692" height="28" rx="6"/>
+        <text class="lb w" x="20" y="23">WHAT TO CHECK</text>
+        <text class="lb w" x="400" y="23">A WEAK REPLY</text>
+        <rect class="bx grow" x="4" y="40" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="66">Keeps the output contract</text>
+        <text class="ss" x="20" y="88">Ask for the JSON only</text>
+        <text class="ss" x="400" y="78" style="font-size:14px">JSON wrapped in a paragraph.</text>
+        <rect class="bx grow w2" x="4" y="110" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="136">Holds a long file</text>
+        <text class="ss" x="20" y="158">Ask about a rule near the top</text>
+        <text class="ss" x="400" y="148" style="font-size:14px">Forgets the rule.</text>
+        <rect class="bx a grow w3" x="4" y="180" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="206">Answers briefly</text>
+        <text class="ss" x="20" y="228">Count the lines you must read</text>
+        <text class="ss" x="400" y="218" style="font-size:14px">Explains at length, then answers.</text>
+        <rect class="bx r grow w4" x="4" y="250" width="692" height="62" rx="6"/>
+        <text class="tt" x="20" y="276">Admits a gap</text>
+        <text class="ss" x="20" y="298">Leave out one fact it needs</text>
+        <text class="ss" x="400" y="288" style="font-size:14px">Fills the gap and sounds sure.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>How to run it</h3>
+      <ul>
+        <li>One prompt, one ticket you know.</li>
+        <li>Works on Auto. Add a model if you can.</li>
+        <li>Keep the sheet, not the score.</li>
+      </ul>
+      <div class="take"><b>Warning:</b> never unsure means guessing.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Lab 1 - write the guess down first" data-notes="Most model comparisons are not evidence. Someone runs three models once, reads the answers, and prefers the one they already expected to prefer. With one run each and no prediction written down, you cannot tell a result from a preference. Lab 1 fixes that with one habit: write your prediction down before you open the data. You name your team's three most common AI tasks and predict which model type gives the best value for each. Then you read 72 recorded runs and count how many predictions held. The runs are made up, and the file says so, so every room discusses the same numbers. Many seats show only Auto, so reading recorded runs is the version of this lab that works for everyone. You also do one real run of your own on global-bank-account. The lab takes about 16 minutes." data-tier="K">
+  <h2>Lab 1 &mdash; write the guess down <em>first</em><span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div class="callout bad">
+      <b>How it usually goes</b>
+      <p>Run three models once. Read the answers. Prefer the one you expected. Call it a benchmark.</p>
+      <p>No prediction, one run each: you cannot tell a result from a preference.</p>
+    </div>
+    <div class="callout good">
+      <b>What Lab 1 does &middot; about 16 minutes</b>
+      <p>Predict the best model type for your three most common tasks. Write it down.</p>
+      <p>Then read 72 recorded runs and count how many predictions held.</p>
+      <p>Finish with one rule you would defend.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="A rule has to say what it is not for" data-notes="The rule on the left sounds safe, but it spends the most expensive rate on almost everything. To the person doing it, every task is important. The rule on the right names the tasks it covers, the model type for each, and when to review it. The last line matters. A rule with no date to check it again is how teams end up on last year's choice. Writing down when to review it is the cheapest control in this module. Use this shape for the row you write at the end of Lab 1. If your own data disagrees with the example on the right, trust your data." data-tier="R">
+  <h2>A rule has to say what it is <em>not</em> for<span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div class="callout bad">
+      <b>Hard to defend</b>
+      <p>&ldquo;Use the reasoning model for anything important.&rdquo;</p>
+      <p>Every task is important to the person doing it. You pay the top rate for docstrings.</p>
+    </div>
+    <div class="callout good">
+      <b>Easy to defend</b>
+      <p>Unit tests and multi-file changes: default model.</p>
+      <p>Money, dates or boundaries: reasoning, and read the change.</p>
+      <p>Everything else: Auto.</p>
+      <p><b>Review it when the model list changes.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="One model, a router, or a cascade" data-notes="There are three ways to use models on a stream of work. One model sends everything to the strong model: simple, and the most expensive. A router classifies each case first and sends it down one path, so it pays once. A cascade tries the cheap model on every case, and a gate decides whether to send it on to the strong model. The line under the cascade is the whole risk. A cascade always pays for the cheap call, and sometimes pays again for the strong one. That is fine when few cases go on to the strong model, and very costly when many do. For an operations desk that triages payment tickets, most tickets are routine, so a cascade usually fits. Lab 2 lets you find where it stops paying." data-tier="K">
+  <h2>One model, a router, or a <em>cascade</em><span class="tag k">3</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Three ways to use models: one strong model, a router, and a cascade with a gate">
+        <rect class="bx w grow" x="4" y="4" width="380" height="270" rx="8"/>
+        <text class="lb" x="20" y="30">ONE MODEL</text>
+        <rect class="bx r" x="40" y="90" width="300" height="50" rx="6"/><text class="tt" x="60" y="121">every case &rarr; strong</text>
+        <text class="ss" x="20" y="250">cost = cases &times; strong</text>
+
+        <rect class="bx w grow w2" x="398" y="4" width="380" height="270" rx="8"/>
+        <text class="lb" x="414" y="30">ROUTER</text>
+        <rect class="bx p" x="434" y="60" width="300" height="44" rx="6"/><text class="tt" x="454" y="88">classify the case first</text>
+        <path class="ar" d="M500 104 V140"/><path class="ar" d="M660 104 V140"/>
+        <rect class="bx g" x="434" y="144" width="140" height="44" rx="6"/><text class="tt" x="454" y="172">cheap</text>
+        <rect class="bx r" x="594" y="144" width="140" height="44" rx="6"/><text class="tt" x="614" y="172">strong</text>
+        <text class="ss" x="414" y="250">one call per case</text>
+
+        <rect class="bx w grow w3" x="792" y="4" width="384" height="270" rx="8"/>
+        <text class="lb" x="808" y="30">CASCADE</text>
+        <rect class="bx g" x="828" y="60" width="300" height="44" rx="6"/><text class="tt" x="848" y="88">cheap, on every case</text>
+        <path class="ar" d="M978 104 V140"/>
+        <rect class="bx a" x="828" y="144" width="300" height="44" rx="6"/><text class="tt" x="848" y="172">gate: good enough?</text>
+        <text class="ss" x="808" y="226">no &rarr; strong as well</text>
+        <text class="ss" x="808" y="250">cost = cases &times; cheap + escalated &times; strong</text>
+
+        <rect class="bx d" x="4" y="296" width="1172" height="96" rx="8"/>
+        <text class="lb w" x="24" y="324">THE RISK</text>
+        <text class="ss w" x="24" y="358" style="font-size:16px">A cascade <tspan font-weight="700" fill="#e0b34d">always pays for the cheap call</tspan>, even when it escalates.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="Escalate on a rule, not on a feeling" data-notes="The gate is the rule that decides when the cheap answer is not good enough. Good gates are things a program can check: the cheap model's own confidence below a threshold you measured, a validator that rejects the shape of the answer, a test that fails, or an input that is longer or more unusual than the cheap model handles. Bad gates cannot be automated or were never measured. The last warning is the one that breaks real cascades. Suppose the cheap model is as confident when it is wrong as when it is right. Then the gate picks cases at random, and a random gate that costs money is worse than either model alone. Check that before you tune a threshold. Step 6 of Lab 2 shows you how." data-tier="K">
+  <h2>Escalate on a <em>rule</em>, not on a feeling<span class="tag k">3</span></h2>
+  <div class="body g55">
+    <div class="callout good">
+      <b>Gates that work</b>
+      <p>Confidence below a threshold you measured.</p>
+      <p>A validator rejects the shape.</p>
+      <p>A test the answer must pass fails.</p>
+      <p>The input is unusual for the cheap model.</p>
+    </div>
+    <div class="callout bad">
+      <b>Gates that do not</b>
+      <p>&ldquo;It looks unsure&rdquo; &mdash; a feeling cannot be automated.</p>
+      <p>Escalate every time, or never.</p>
+      <p>A threshold nobody measured.</p>
+      <p><b>A cheap model that is confidently wrong</b> cannot be cascaded. Replace it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="Lab 2 - twenty tickets, two models, one gate" data-notes="In Lab 2 the payment operations desk sorts twenty tickets into six queues, such as unknown-account and duplicate-suspected. The two models are Python functions with a known accuracy and a known price, so no real model is called and everyone gets the same numbers. The cheap model costs 4 units a call and is right 70% of the time. The strong model costs 48 and is always right. You write the gate: one line in tools/cascade.py that decides when to escalate. Then a report shows accuracy and cost at eight thresholds at once. Look for the cheapest threshold that still reaches 100%, and look hard at the last row. The lab takes about 15 minutes and needs no Copilot and no network." data-tier="K">
+  <h2>Lab 2 &mdash; twenty tickets, two models, <em>one gate</em><span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 320" role="img" aria-label="Lab 2 baselines: always cheap is 70 percent at cost 80; always strong is 100 percent at cost 960">
+        <rect class="bx d" x="4" y="4" width="692" height="30" rx="6"/>
+        <text class="lb w" x="20" y="24">STRATEGY</text><text class="lb w" x="320" y="24">ACCURACY</text><text class="lb w" x="500" y="24">COST</text>
+        <rect class="bx g grow" x="4" y="44" width="692" height="56" rx="6"/>
+        <text class="tt" x="20" y="78">Always cheap</text><text class="tt" x="320" y="78">70%</text><text class="tt" x="500" y="78">80</text>
+        <rect class="bx r grow w2" x="4" y="110" width="692" height="56" rx="6"/>
+        <text class="tt" x="20" y="144">Always strong</text><text class="tt" x="320" y="144">100%</text><text class="tt" x="500" y="144">960</text>
+        <rect class="bx a grow w3" x="4" y="176" width="692" height="56" rx="6"/>
+        <text class="tt" x="20" y="210">Your cascade</text><text class="tt" x="320" y="210" style="fill:#71809a">?</text><text class="tt" x="500" y="210" style="fill:#71809a">?</text>
+        <rect class="bx d" x="4" y="248" width="692" height="64" rx="8"/>
+        <text class="ss w" x="24" y="286" style="font-size:15px">Everything you find lands <tspan font-weight="700" fill="#e0b34d">between the first two rows</tspan>.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Steps &middot; about 15 minutes</h3>
+      <ul>
+        <li>Run it with no gate.</li>
+        <li>Write a one-line gate.</li>
+        <li>See eight thresholds at once.</li>
+        <li>Check confidence when right and wrong.</li>
+      </ul>
+      <div class="take"><b>No Copilot, no network.</b> Same numbers for everyone.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="What Lab 2 showed" data-after="lab" data-notes="This slide is best read after Lab 2. The cascade at a threshold of 0.60 reaches the strong model's accuracy for 368, which is 38% of always-strong's cost. Thresholds from 0.60 to 0.70 all cost the same. A threshold in the middle of a flat range still works when the data shifts a little. The last row is the one to remember. Sending every ticket to the strong model gives 100% accuracy and costs 1040, more than always-strong's 960. You paid for the cheap answer twenty times and threw it away twenty times. Nothing in the answers shows the waste; only the cost column does. The cascade works here because the cheap model is less confident when it is wrong: 0.53 on average, against 0.85 when it is right." data-tier="R">
+  <h2>What Lab 2 showed &mdash; one row costs <em>more than doing nothing</em><span class="tag k">3</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Lab 2 results: a well set gate matches strong accuracy at 368; escalating everything costs 1040">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">STRATEGY</text><text class="lb w" x="380" y="24">ACCURACY</text><text class="lb w" x="540" y="24">COST</text><text class="lb w" x="700" y="24">WHAT IT MEANS</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="74">Always cheap</text><text class="tt" x="380" y="74">70%</text><text class="tt" x="540" y="74">80</text><text class="ss" x="700" y="74">cheapest, and wrong 3 times in 10</text>
+        <rect class="bx grow w2" x="4" y="102" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="134">Always strong</text><text class="tt" x="380" y="134">100%</text><text class="tt" x="540" y="134">960</text><text class="ss" x="700" y="134">the cost to beat</text>
+        <rect class="bx g grow w3" x="4" y="162" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="194">Cascade, gate &lt; 0.60</text><text class="tt" x="380" y="194">100%</text><text class="tt" x="540" y="194">368</text><text class="ss" x="700" y="194">same accuracy, 62% less</text>
+        <rect class="bx r grow w4" x="4" y="222" width="1172" height="52" rx="6"/>
+        <text class="tt" x="24" y="254">Cascade, escalate all</text><text class="tt" x="380" y="254">100%</text><text class="tt" x="540" y="254">1040</text><text class="ss" x="700" y="254">more than always-strong</text>
+        <rect class="bx d" x="4" y="294" width="1172" height="98" rx="8"/>
+        <text class="lb w" x="24" y="322">THE LESSON</text>
+        <text class="ss w" x="24" y="356" style="font-size:16px">The answers look perfect in the last row. <tspan font-weight="700" fill="#e0b34d">Only the cost column shows the waste.</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-sec="4 &middot; A budget per turn" data-title="One participant sent 54% of the tokens" data-notes="This is the same measured day as part 1. The bars show tokens per request. Participant A's requests carried about 67,600 tokens each, while the median request carried about 2,300. Same room, same day, same task list. The difference was what each request carried. A's day was 23.0 million tokens over 340 requests, 54% of everyone's total. At the example rates from part 1, uncached, a median request is about 0.6 credits and one of A's is about 17. That is a what-if to show scale, not a bill. Nobody traced what caused A's spike. A likely explanation is an agent loop carrying a growing chat. That is the band that grows in the turn diagram. Treat it as a likely explanation, not a finding. In a shared plan, the heaviest few users spend the team's credits." data-tier="K">
+  <h2>One participant sent <em>54%</em> of the tokens<span class="tag k">4</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 320" role="img" aria-label="Tokens per request: participant A 67.6 thousand, B 19.6, C 13.9, median 2.3">
+        <text class="lb" x="4" y="18">TOKENS PER REQUEST &middot; 27 PEOPLE &middot; ONE DAY</text>
+        <text class="tt" x="4" y="62">A</text><rect class="bx r grow" x="60" y="40" width="560" height="34" rx="4"/><text class="tt w" x="76" y="62">67.6k</text>
+        <text class="tt" x="4" y="112">B</text><rect class="bx a grow w2" x="60" y="90" width="162" height="34" rx="4"/><text class="tt" x="236" y="112">19.6k</text>
+        <text class="tt" x="4" y="162">C</text><rect class="bx a grow w3" x="60" y="140" width="115" height="34" rx="4"/><text class="tt" x="189" y="162">13.9k</text>
+        <text class="tt" x="4" y="212">median</text><rect class="bx g grow w4" x="60" y="190" width="19" height="34" rx="3"/><text class="tt" x="93" y="212">2.3k</text>
+        <rect class="bx d" x="4" y="244" width="692" height="68" rx="8"/>
+        <text class="ss w" x="24" y="284" style="font-size:15px">Same room, same tasks. <tspan font-weight="700" fill="#e0b34d">What each request carried</tspan> made the gap.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Participant A, one day</h3>
+      <ul>
+        <li>23.0M tokens in 340 requests.</li>
+        <li>About 17 credits a request, against 0.6.</li>
+      </ul>
+      <h3>What it means</h3>
+      <ul>
+        <li>The average hides the spike.</li>
+      </ul>
+      <div class="take"><b>Budget for the heaviest users</b>, not the average.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-sec="4 &middot; A budget per turn" data-title="What to drop first, what never to drop" data-notes="This is the turn diagram from part 1, now read for what to remove. Drop the files you attached first: most of what gets attached is never needed for the answer. Drop the chat history next: starting a new chat costs nothing. Never drop the system prompt or the instruction files, but keep them stable. A standing context that does not change is cached, and cached input costs a tenth of the price. Editing the instruction file every morning throws that discount away. Tool definitions also sit in the instruction band, and every tool you enable is sent on every turn. You will see that again in Module 4, when you connect an MCP server and look at its tool list." data-tier="R">
+  <h2>What to drop first &mdash; and what <em>never</em> to drop<span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Attached files go first, the chat second; the system prompt and instructions stay but should be stable">
+        <text class="lb" x="4" y="18">ONE TURN &middot; THE SAME BANDS AS PART 1</text>
+        <rect class="bx w grow" x="4" y="36" width="120" height="60" rx="5"/><text class="ss" x="16" y="72">system</text>
+        <rect class="bx p grow" x="130" y="36" width="200" height="60" rx="5"/><text class="ss" x="142" y="72">instructions + tools</text>
+        <rect class="bx r grow w2" x="336" y="36" width="420" height="60" rx="5"/><text class="tt" x="352" y="72">files you attached</text>
+        <rect class="bx g grow w3" x="762" y="36" width="300" height="60" rx="5"/><text class="tt" x="778" y="72">the chat so far</text>
+        <rect class="bx a grow w4" x="1068" y="36" width="108" height="60" rx="5"/><text class="ss" x="1080" y="72">ask</text>
+
+        <text class="lb" x="4" y="136">NEVER DROP</text><text class="ss" x="4" y="162">keep it stable,</text><text class="ss" x="4" y="184">and it is cached</text>
+        <text class="lb r" x="352" y="136">1 &middot; DROP FIRST</text><text class="ss" x="352" y="162">most of it is never needed</text>
+        <text class="lb g" x="778" y="136">2 &middot; THEN THIS</text><text class="ss" x="778" y="162">a new chat costs nothing</text>
+
+        <rect class="bx d" x="4" y="230" width="1172" height="160" rx="8"/>
+        <text class="lb w" x="24" y="260">TWO THINGS PEOPLE MISS</text>
+        <text class="ss w" x="24" y="296" style="font-size:16px">Every tool you enable is <tspan font-weight="700" fill="#e0b34d">sent on every turn</tspan>.</text>
+        <text class="ss w" x="24" y="332" style="font-size:16px">Editing the instruction file daily <tspan font-weight="700" fill="#e0b34d">loses the cache discount</tspan>.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-sec="4 &middot; A budget per turn" data-title="Lab 3 - four cuts, check the answer after each" data-notes="In Lab 3 you cut what you send with one question in four steps, and you check the answer after every step. The question is whether the posting API stops a retried payment instruction from posting twice. The right answer has three parts, and the lab guide lists them. The cuts go in this order: drop the older account code, replace the docs folder with only the lines that decide the answer, start a new chat, and finally send one file. An audit that only measures tokens proves you sent less, which was never in doubt. The column that matters is whether the answer is still right. The cut that breaks the answer is the most useful line on your record sheet. The lab takes about 19 minutes and uses Copilot in Ask mode." data-tier="K">
+  <h2>Lab 3 &mdash; four cuts, check the answer <em>after each</em><span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 420" role="img" aria-label="The four cuts of Lab 3, what each saves and what each risks">
+        <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
+        <text class="lb w" x="24" y="24">CUT</text><text class="lb w" x="560" y="24">SAVES</text><text class="lb w" x="800" y="24">RISKS</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="50" rx="6"/>
+        <text class="tt" x="24" y="73">1 &middot; Drop the older account code</text><text class="ss" x="560" y="73">about half</text><text class="ss" x="800" y="73">nothing, for this question</text>
+        <rect class="bx grow w2" x="4" y="100" width="1172" height="50" rx="6"/>
+        <text class="tt" x="24" y="131">2 &middot; Docs folder &rarr; the lines that decide</text><text class="ss" x="560" y="131">40% of what is left</text><text class="ss" x="800" y="131">you must pick the right lines</text>
+        <rect class="bx grow w3" x="4" y="158" width="1172" height="50" rx="6"/>
+        <text class="tt" x="24" y="189">3 &middot; Start a new chat</text><text class="ss" x="560" y="189">the chat band</text><text class="ss" x="800" y="189">losing context you needed</text>
+        <rect class="bx r grow w4" x="4" y="216" width="1172" height="50" rx="6"/>
+        <text class="tt" x="24" y="247">4 &middot; Send one file only</text><text class="ss" x="560" y="247">almost everything</text><text class="ss" x="800" y="247">this one goes too far</text>
+        <rect class="bx d" x="4" y="286" width="1172" height="126" rx="8"/>
+        <text class="lb w" x="24" y="316">THE RULE &middot; ABOUT 19 MINUTES &middot; ASK MODE</text>
+        <text class="ss w" x="24" y="352" style="font-size:16px">Aim for <tspan font-weight="700" fill="#e0b34d">40% or more</tspan>. Re-check the answer after every cut.</text>
+        <text class="ss w" x="24" y="384" style="font-size:16px">Write down what the meter could not see.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-sec="5 &middot; Levers in your own code" data-title="The ladder of levers" data-notes="Parts 1 to 4 were about how you ask. This part is about the calls your own software makes, where the cheapest token is the one no model ever sees. Bar width is the typical saving. Height on the ladder is the effort to adopt. Changing the model sits at the top: it needs approval and it goes out of date. Setting max_tokens is on almost every cost checklist, but it limits output, which was 0.8% of the traffic. It is still worth setting as a guard against a runaway answer. Narrowing the attachment and starting a new chat are the two widest bars, and they cost nothing. The widest of all is at the bottom: do not call the model when the answer can be worked out from data you already have." data-tier="K">
+  <h2>Cheapest at the bottom. <em>Most people start at the top</em><span class="tag k">5</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Levers ranked by effort, with bar width showing typical saving; not calling the model saves most">
+        <text class="lb" x="4" y="18">BAR WIDTH = TYPICAL SAVING &middot; HIGHER = MORE EFFORT</text>
+        <text class="tt" x="4" y="58">Change the model</text><rect class="bx r grow" x="330" y="38" width="200" height="30" rx="4"/><text class="ss" x="548" y="58">needs approval, and ages</text>
+        <text class="tt" x="4" y="104">Set max output tokens</text><rect class="bx grow w2" x="330" y="84" width="90" height="30" rx="4"/><text class="ss" x="438" y="104">small &mdash; output is 0.8%</text>
+        <text class="tt" x="4" y="150">Ask for structured output</text><rect class="bx grow w3" x="330" y="130" width="150" height="30" rx="4"/><text class="ss" x="498" y="150">shorter than prose, often</text>
+        <text class="tt" x="4" y="196">Narrow the attachment</text><rect class="bx p grow w4" x="330" y="176" width="560" height="30" rx="4"/><text class="ss" x="908" y="196">the big one, and free</text>
+        <text class="tt" x="4" y="242">Start a new chat</text><rect class="bx g grow w5" x="330" y="222" width="420" height="30" rx="4"/><text class="ss" x="768" y="242">free and instant</text>
+        <text class="tt" x="4" y="288">Do not call the model</text><rect class="bx g grow w6" x="330" y="268" width="846" height="30" rx="4"/>
+        <rect class="bx d" x="4" y="320" width="1172" height="72" rx="8"/>
+        <text class="ss w" x="24" y="362" style="font-size:16px">The widest bars <tspan font-weight="700" fill="#e0b34d">cost nothing and need nobody&rsquo;s approval</tspan>.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-sec="5 &middot; Levers in your own code" data-title="Lab 4 - is the answer derivable from data you hold?" data-notes="Every morning, someone in payments operations pastes the postings the API rejected into Copilot with the prompt on the left. Part of it is a judgement: which group to work on first. The rest is counting. Counting is not a judgement call. Every rejection already carries a fixed reason string, such as unknown-account, so grouping them is one line of Python. The argument is not only tokens. Three model runs can give three different groupings, while three Python runs always give the same one. You were paying for arithmetic that changes from run to run. Keep the model for the part that needs judgement. In Lab 4 you measure the prompt, run it three times, run the code three times, and write a much shorter prompt with the counts supplied. It takes about 12 minutes." data-tier="K">
+  <h2>Lab 4 &mdash; is the answer <em>derivable</em> from data you hold?<span class="tag k">5</span></h2>
+  <div class="body g55">
+    <div class="file"><span class="fn">prompts/summarise-rejections.md</span>Group this morning's rejected postings
+by cause, count each group, total the
+amounts, and say which group to work
+on first.
+
+<span class="c">~140 tokens, plus a ~2,300-token list</span></div>
+    <div class="pts">
+      <h3>The same count, in Python</h3>
+      <div class="file"><span class="k">from</span> collections <span class="k">import</span> Counter
+counts = Counter(r[<span class="s">"reason"</span>] <span class="k">for</span> r <span class="k">in</span> rows)</div>
+      <ul>
+        <li>0 tokens. The same result every time.</li>
+        <li>Keep the model for: which group first?</li>
+      </ul>
+      <div class="take"><b>Lab 4:</b> do three runs agree? About 12 minutes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-sec="Close" data-title="What to take into Module 3" data-notes="Here is what to keep doing. Before you send, look at what you are attaching: the biggest saving is usually the files, not the words. Start a new chat for each task. Choose a model by what a quiet mistake would cost, and write the rule down with a date to review it. Use a cheap model first only with a gate you measured, and check that its confidence is lower when it is wrong. When a prompt runs every day, ask whether code could do part of it. Measure every saving with one tool, the same way each time, and keep that separate from the money on the billing page. In Module 3 you build the AskOps app with Copilot. Use these habits on every request you send there." data-tier="R">
+  <h2>What to take into Module 3<span class="tag">M2</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>Before you send</h3>
+      <ul>
+        <li>Attach files, not the repo.</li>
+        <li>A new chat for each task.</li>
+        <li>Pick the model by the cost of a quiet mistake.</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>When you build</h3>
+      <ul>
+        <li>Cheap first, with a gate you measured.</li>
+        <li>Counting goes to code, not a model.</li>
+        <li>Measure savings one way; keep money apart.</li>
+      </ul>
+      <div class="take"><b>Next:</b> Module 3 builds AskOps. Use these habits there.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 24 -->
+<section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - C: 99.2% of the measured day was input. A is tempting because output costs more per token, but it was 0.8% of the tokens. Q2 - B: output was 0.8% of the traffic, so shorter answers touch very little. D is the input share. Q3 - D: in an organisation extra usage is on until an admin caps it. A is what happens on a personal plan. Q4 - A: residency depends on the vendor and the contract. B and C do follow the tier. Q5 - C: a cascade always pays for the cheap call, so escalating everything costs more. A is tempting because the accuracy is the same. Q6 - B: the gate needs confidence to be lower when the cheap model is wrong. A helps, but a rarely wrong model with random confidence still cannot be gated. Q7 - D: check the answer after every cut, so you know which cut broke it. A only tells you something broke. Q8 - A: counting by a fixed reason is code. B and D touch the small output share." data-tier="K">
+  <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
+  <div class="body qgrid">
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>1</b><span>In the measured day, which tokens were 99% of the total?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Output tokens</span><span><i>B</i>Cached tokens</span><span class="c" data-why="Every turn sends files, rules and the chat again. Output costs more per token but was only 0.8% of the tokens."><i>C</i>Input tokens</span><span><i>D</i>Tool-call tokens</span></div></div>
+      <div class="qc"><div class="qh"><b>2</b><span>&ldquo;Be concise&rdquo; changes roughly what share of the tokens?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>About a quarter</span><span class="c" data-why="Output was 0.8% of the measured day. The saving is in what you send, not in shorter answers."><i>B</i>About 1%</span><span><i>C</i>About half</span><span><i>D</i>About 99%</span></div></div>
+      <div class="qc"><div class="qh"><b>3</b><span>An organisation runs out of included credits. What happens next?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Usage stops until next month</span><span><i>B</i>Copilot switches to Auto</span><span><i>C</i>Only completions keep working</span><span class="c" data-why="In an organisation extra usage is on by default. A is what happens on a personal plan."><i>D</i>Extra usage keeps growing</span></div></div>
+      <div class="qc"><div class="qh"><b>4</b><span>Which row of the grid does not follow the model tier?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="Where a model can be hosted depends on the vendor and the contract. Speed and cost do follow the tier."><i>A</i>Data residency</span><span><i>B</i>Speed</span><span><i>C</i>Cost per call</span><span><i>D</i>Context window</span></div></div>
+    </div>
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>5</b><span>A cascade sends every case to the strong model. Against always-strong, it costs:</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The same</span><span><i>B</i>Less</span><span class="c" data-why="It pays the cheap call on every case and then the strong one too. The accuracy looks the same, which hides it."><i>C</i>More</span><span><i>D</i>Half as much</span></div></div>
+      <div class="qc"><div class="qh"><b>6</b><span>What must be true for a confidence gate to work?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The cheap model is rarely wrong</span><span class="c" data-why="If confidence is the same when right and wrong, the gate picks at random. A rarely wrong model can still be confidently wrong."><i>B</i>Confidence drops when it is wrong</span><span><i>C</i>The strong model is cheap</span><span><i>D</i>The threshold is 0.5</span></div></div>
+      <div class="qc"><div class="qh"><b>7</b><span>In a token audit, when do you check the answer again?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Only at the end</span><span><i>B</i>Only if tokens rise</span><span><i>C</i>Before the first cut</span><span class="c" data-why="Checking after each cut tells you which cut broke the answer. Checking only at the end tells you something broke."><i>D</i>After every cut</span></div></div>
+      <div class="qc"><div class="qh"><b>8</b><span>A daily prompt counts rejections by reason. What is the best first fix?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="The reason is already a fixed field, so counting is code: free and the same every run. B and D only touch output."><i>A</i>Count them in code</span><span><i>B</i>Ask for a shorter answer</span><span><i>C</i>Switch to a cheaper model</span><span><i>D</i>Set max_tokens lower</span></div></div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script src="../assets/adlc-deck.js"></script>
+</body>
+</html>

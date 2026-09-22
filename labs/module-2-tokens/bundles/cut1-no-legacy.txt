@@ -1,0 +1,7 @@
+# Cut 1: the same set, minus the older account code.
+# controller/, service/, model/ and the rest predate the posting API (see docs/architecture.md).
+src/main/java/in/brainupgrade/accountservice/posting/**/*.java
+src/test/**/*.java
+src/main/resources/*
+docs/**/*.md
+pom.xml

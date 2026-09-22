@@ -1,0 +1,212 @@
+{
+  "about": "Posting instructions the posting API rejected between 07:00 and 09:00 on one morning. Made up for this lab. Each reason is the stable string the API returns (docs/conventions.md, 'Errors').",
+  "rejections": [
+    {
+      "receivedAt": "2026-09-22T07:04:00+05:30",
+      "clientReference": "PAY-2026-09-4103",
+      "debitAccountId": "ACC-CLIENT-003",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 1779900,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-003"
+    },
+    {
+      "receivedAt": "2026-09-22T07:06:00+05:30",
+      "clientReference": "PAY-2026-09-4106",
+      "debitAccountId": "ACC-USD-001",
+      "creditAccountId": "ACC-CLIENT-001",
+      "amountMinor": 925900,
+      "reason": "currency-mismatch",
+      "detail": "Cannot post between accounts in USD and INR"
+    },
+    {
+      "receivedAt": "2026-09-22T07:14:00+05:30",
+      "clientReference": "PAY-2026-09-4109",
+      "debitAccountId": "ACC-USD-001",
+      "creditAccountId": "ACC-FEES",
+      "amountMinor": 614400,
+      "reason": "currency-mismatch",
+      "detail": "Cannot post between accounts in USD and INR"
+    },
+    {
+      "receivedAt": "2026-09-22T07:20:00+05:30",
+      "clientReference": "PAY-2026-09-4112",
+      "debitAccountId": "ACC-CLIENT-01",
+      "creditAccountId": "ACC-PAYROLL",
+      "amountMinor": 1568700,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-01"
+    },
+    {
+      "receivedAt": "2026-09-22T07:22:00+05:30",
+      "clientReference": "PAY-2026-09-4115",
+      "debitAccountId": "ACC-CLIENT-001",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 10050000001,
+      "reason": "invalid-amount",
+      "detail": "Amount exceeds the single-posting limit of 100000000.00 minor units"
+    },
+    {
+      "receivedAt": "2026-09-22T07:29:00+05:30",
+      "clientReference": "PAY-2026-09-4118",
+      "debitAccountId": "ACC-PAYROLL",
+      "creditAccountId": "ACC-CLIENT-001",
+      "amountMinor": 0,
+      "reason": "invalid-amount",
+      "detail": "Amount must be greater than zero"
+    },
+    {
+      "receivedAt": "2026-09-22T07:36:00+05:30",
+      "clientReference": "PAY-2026-09-4121",
+      "debitAccountId": "ACC-PAYROLL",
+      "creditAccountId": "ACC-CLIENT-001",
+      "amountMinor": 0,
+      "reason": "invalid-amount",
+      "detail": "Amount must be greater than zero"
+    },
+    {
+      "receivedAt": "2026-09-22T07:37:00+05:30",
+      "clientReference": "PAY-2026-09-4124",
+      "debitAccountId": "ACC-PAYROLL",
+      "creditAccountId": "ACC-PAYROL",
+      "amountMinor": 204700,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-PAYROL"
+    },
+    {
+      "receivedAt": "2026-09-22T07:41:00+05:30",
+      "clientReference": "PAY-2026-09-4127",
+      "debitAccountId": "ACC-CLIENT-001",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 10000000001,
+      "reason": "invalid-amount",
+      "detail": "Amount exceeds the single-posting limit of 100000000.00 minor units"
+    },
+    {
+      "receivedAt": "2026-09-22T07:45:00+05:30",
+      "clientReference": "PAY-2026-09-4130",
+      "debitAccountId": "ACC-PAYROL",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 4540900,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-PAYROL"
+    },
+    {
+      "receivedAt": "2026-09-22T07:52:00+05:30",
+      "clientReference": "PAY-2026-09-4133",
+      "debitAccountId": "ACC-USD-001",
+      "creditAccountId": "ACC-FEES",
+      "amountMinor": 616300,
+      "reason": "currency-mismatch",
+      "detail": "Cannot post between accounts in USD and INR"
+    },
+    {
+      "receivedAt": "2026-09-22T07:53:00+05:30",
+      "clientReference": "PAY-2026-09-4136",
+      "debitAccountId": "ACC-PAYROLL",
+      "creditAccountId": "ACC-CLIENT-01",
+      "amountMinor": 2143500,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-01"
+    },
+    {
+      "receivedAt": "2026-09-22T07:55:00+05:30",
+      "clientReference": "PAY-2026-09-4139",
+      "debitAccountId": "ACC-CLIENT-002",
+      "creditAccountId": "ACC-CLIENT-003",
+      "amountMinor": 4319100,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-003"
+    },
+    {
+      "receivedAt": "2026-09-22T08:03:00+05:30",
+      "clientReference": "PAY-2026-09-4142",
+      "debitAccountId": "ACC-USD-001",
+      "creditAccountId": "ACC-FEES",
+      "amountMinor": 170900,
+      "reason": "currency-mismatch",
+      "detail": "Cannot post between accounts in USD and INR"
+    },
+    {
+      "receivedAt": "2026-09-22T08:07:00+05:30",
+      "clientReference": "PAY-2026-09-4145",
+      "debitAccountId": "ACC-CLIENT-002",
+      "creditAccountId": "ACC-SUSPENCE",
+      "amountMinor": 367400,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-SUSPENCE"
+    },
+    {
+      "receivedAt": "2026-09-22T08:10:00+05:30",
+      "clientReference": "PAY-2026-09-4148",
+      "debitAccountId": "ACC-USD-001",
+      "creditAccountId": "ACC-FEES",
+      "amountMinor": 1033900,
+      "reason": "currency-mismatch",
+      "detail": "Cannot post between accounts in USD and INR"
+    },
+    {
+      "receivedAt": "2026-09-22T08:11:00+05:30",
+      "clientReference": "PAY-2026-09-4151",
+      "debitAccountId": "ACC-PAYROL",
+      "creditAccountId": "ACC-PAYROLL",
+      "amountMinor": 3869500,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-PAYROL"
+    },
+    {
+      "receivedAt": "2026-09-22T08:18:00+05:30",
+      "clientReference": "PAY-2026-09-4154",
+      "debitAccountId": "ACC-CLIENT-002",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 601600,
+      "reason": "invalid-amount",
+      "detail": "Debit and credit accounts must differ"
+    },
+    {
+      "receivedAt": "2026-09-22T08:24:00+05:30",
+      "clientReference": "PAY-2026-09-4157",
+      "debitAccountId": "ACC-CLIENT-001",
+      "creditAccountId": "ACC-CLIENT-01",
+      "amountMinor": 1296000,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-01"
+    },
+    {
+      "receivedAt": "2026-09-22T08:27:00+05:30",
+      "clientReference": "PAY-2026-09-4160",
+      "debitAccountId": "ACC-PAYROLL",
+      "creditAccountId": "ACC-CLIENT-001",
+      "amountMinor": -250000,
+      "reason": "invalid-amount",
+      "detail": "Amount must be greater than zero"
+    },
+    {
+      "receivedAt": "2026-09-22T08:33:00+05:30",
+      "clientReference": "PAY-2026-09-4163",
+      "debitAccountId": "ACC-SUSPENCE",
+      "creditAccountId": "ACC-PAYROLL",
+      "amountMinor": 4650300,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-SUSPENCE"
+    },
+    {
+      "receivedAt": "2026-09-22T08:39:00+05:30",
+      "clientReference": "PAY-2026-09-4166",
+      "debitAccountId": "ACC-CLIENT-002",
+      "creditAccountId": "ACC-CLIENT-002",
+      "amountMinor": 374200,
+      "reason": "invalid-amount",
+      "detail": "Debit and credit accounts must differ"
+    },
+    {
+      "receivedAt": "2026-09-22T08:43:00+05:30",
+      "clientReference": "PAY-2026-09-4169",
+      "debitAccountId": "ACC-CLIENT-002",
+      "creditAccountId": "ACC-CLIENT-003",
+      "amountMinor": 2189300,
+      "reason": "unknown-account",
+      "detail": "No account with id ACC-CLIENT-003"
+    }
+  ]
+}

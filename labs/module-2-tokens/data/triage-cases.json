@@ -1,0 +1,153 @@
+{
+  "about": "Twenty Global Bank operations tickets about payment instructions. Each ticket goes to one of six queues. The two 'models' in cascade.py read the answers from this file, so every run gives the same numbers. The confidence values are illustrative, not recorded from a real model.",
+  "queues": [
+    "unknown-account",
+    "invalid-amount",
+    "currency-mismatch",
+    "duplicate-suspected",
+    "value-date-query",
+    "access-request"
+  ],
+  "cases": [
+    {
+      "id": "OPS-001",
+      "text_tokens": 480,
+      "true_answer": "currency-mismatch",
+      "cheap_answer": "currency-mismatch",
+      "cheap_confidence": 0.8
+    },
+    {
+      "id": "OPS-002",
+      "text_tokens": 320,
+      "true_answer": "invalid-amount",
+      "cheap_answer": "invalid-amount",
+      "cheap_confidence": 0.93
+    },
+    {
+      "id": "OPS-003",
+      "text_tokens": 480,
+      "true_answer": "currency-mismatch",
+      "cheap_answer": "value-date-query",
+      "cheap_confidence": 0.57
+    },
+    {
+      "id": "OPS-004",
+      "text_tokens": 820,
+      "true_answer": "invalid-amount",
+      "cheap_answer": "invalid-amount",
+      "cheap_confidence": 0.86
+    },
+    {
+      "id": "OPS-005",
+      "text_tokens": 210,
+      "true_answer": "unknown-account",
+      "cheap_answer": "unknown-account",
+      "cheap_confidence": 0.93
+    },
+    {
+      "id": "OPS-006",
+      "text_tokens": 420,
+      "true_answer": "duplicate-suspected",
+      "cheap_answer": "invalid-amount",
+      "cheap_confidence": 0.52
+    },
+    {
+      "id": "OPS-007",
+      "text_tokens": 670,
+      "true_answer": "value-date-query",
+      "cheap_answer": "value-date-query",
+      "cheap_confidence": 0.97
+    },
+    {
+      "id": "OPS-008",
+      "text_tokens": 330,
+      "true_answer": "invalid-amount",
+      "cheap_answer": "invalid-amount",
+      "cheap_confidence": 0.8
+    },
+    {
+      "id": "OPS-009",
+      "text_tokens": 860,
+      "true_answer": "unknown-account",
+      "cheap_answer": "access-request",
+      "cheap_confidence": 0.52
+    },
+    {
+      "id": "OPS-010",
+      "text_tokens": 420,
+      "true_answer": "duplicate-suspected",
+      "cheap_answer": "duplicate-suspected",
+      "cheap_confidence": 0.77
+    },
+    {
+      "id": "OPS-011",
+      "text_tokens": 430,
+      "true_answer": "unknown-account",
+      "cheap_answer": "unknown-account",
+      "cheap_confidence": 0.74
+    },
+    {
+      "id": "OPS-012",
+      "text_tokens": 860,
+      "true_answer": "access-request",
+      "cheap_answer": "value-date-query",
+      "cheap_confidence": 0.55
+    },
+    {
+      "id": "OPS-013",
+      "text_tokens": 450,
+      "true_answer": "unknown-account",
+      "cheap_answer": "unknown-account",
+      "cheap_confidence": 0.74
+    },
+    {
+      "id": "OPS-014",
+      "text_tokens": 290,
+      "true_answer": "access-request",
+      "cheap_answer": "access-request",
+      "cheap_confidence": 0.8
+    },
+    {
+      "id": "OPS-015",
+      "text_tokens": 280,
+      "true_answer": "unknown-account",
+      "cheap_answer": "access-request",
+      "cheap_confidence": 0.43
+    },
+    {
+      "id": "OPS-016",
+      "text_tokens": 520,
+      "true_answer": "value-date-query",
+      "cheap_answer": "value-date-query",
+      "cheap_confidence": 0.96
+    },
+    {
+      "id": "OPS-017",
+      "text_tokens": 880,
+      "true_answer": "duplicate-suspected",
+      "cheap_answer": "duplicate-suspected",
+      "cheap_confidence": 0.88
+    },
+    {
+      "id": "OPS-018",
+      "text_tokens": 250,
+      "true_answer": "unknown-account",
+      "cheap_answer": "duplicate-suspected",
+      "cheap_confidence": 0.56
+    },
+    {
+      "id": "OPS-019",
+      "text_tokens": 850,
+      "true_answer": "duplicate-suspected",
+      "cheap_answer": "duplicate-suspected",
+      "cheap_confidence": 0.91
+    },
+    {
+      "id": "OPS-020",
+      "text_tokens": 780,
+      "true_answer": "invalid-amount",
+      "cheap_answer": "invalid-amount",
+      "cheap_confidence": 0.77
+    }
+  ]
+}

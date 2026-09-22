@@ -1,0 +1,9 @@
+# Everything a "use my whole codebase" request can reach.
+src/**/*.java
+src/main/resources/*
+docs/**/*.md
+.github/**/*.md
+.github/workflows/*.yml
+pom.xml
+mvnw
+mvnw.cmd

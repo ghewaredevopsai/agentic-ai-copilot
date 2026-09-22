@@ -1,0 +1,4 @@
+# The three files that decide the answer, and nothing else.
+src/main/java/in/brainupgrade/accountservice/posting/service/PostingService.java
+src/main/java/in/brainupgrade/accountservice/posting/repository/PostingRepository.java
+docs/adr/ADR-007-duplicate-suppression.md

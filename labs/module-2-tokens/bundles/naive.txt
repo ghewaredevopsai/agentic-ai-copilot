@@ -1,0 +1,6 @@
+# "Attach the folder and let it work it out."
+# This is what most people send on the first try.
+src/**/*.java
+src/main/resources/*
+docs/**/*.md
+pom.xml

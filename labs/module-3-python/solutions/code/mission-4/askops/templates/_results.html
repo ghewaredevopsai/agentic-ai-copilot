@@ -1,0 +1,16 @@
+{% if too_short %}
+<p class="muted">Type at least 3 characters.</p>
+{% else %}
+<p class="muted">Results for "{{ q }}"</p>
+{% for h in runbooks %}
+<div class="hit">
+  <b>{{ h.runbook_id }} &middot; {{ h.title }}</b> <span class="score">score {{ h.score }}</span>
+  <ol>{% for step in steps[h.runbook_id] %}<li>{{ step }}</li>{% endfor %}</ol>
+</div>
+{% else %}
+<p class="muted">No runbook matched.</p>
+{% endfor %}
+{% if incidents %}
+<p><b>Related incidents:</b> {% for i in incidents %}{{ i.id }} {{ i.title }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+{% endif %}
+{% endif %}

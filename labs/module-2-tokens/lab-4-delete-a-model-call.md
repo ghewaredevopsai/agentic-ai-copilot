@@ -60,6 +60,9 @@ Save the three replies in `$M2/../my-work/`, then answer two questions:
   `invalid-amount` into its three messages?)
 - Are the three **counts and totals** the same? Check them against Step 3.
 
+Open the **references** list above each reply. If it shows anything from the course's `solutions/`
+folder, Copilot read the answer by itself. Delete that chat and run it again.
+
 ## Step 3 — Run the code version
 
 ```bash
@@ -91,7 +94,7 @@ Write a much shorter prompt that asks only for the judgement, with the counts su
 
 ```text
 Here are this morning's rejected postings, counted:
-  unknown-account: 11 (4 different account ids, 3 of them one letter off a real one)
+  unknown-account: 11 (ACC-CLIENT-003 x3, ACC-CLIENT-01 x3, ACC-PAYROL x3, ACC-SUSPENCE x2)
   invalid-amount: 7 (3 zero or negative, 2 over the posting limit, 2 same account)
   currency-mismatch: 5 (all from the USD client pool to an INR account)
 

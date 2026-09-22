@@ -32,8 +32,16 @@ The three model types in this lab are:
 
 ## Step 1 — Predict before you open anything
 
-Name your team's **three most common tasks** that you use AI for. For each one, predict which
+The data covers six task types:
+
+`explain-code` · `write-docstring` · `mechanical-rename` · `write-unit-test` · `find-subtle-bug` ·
+`multi-file-feature`
+
+Pick the **three** that are closest to what your team uses AI for most. For each one, predict which
 model type gives the best **value for money**: fast, default or reasoning.
+
+**Best value** means the cheapest model type that keeps at least 3 of 4 results. That is how you will
+score it in Step 3.
 
 Write them down now:
 
@@ -42,9 +50,9 @@ mkdir -p $M2/../my-work
 cat > $M2/../my-work/lab-1-record.md <<'EOF'
 # Lab 1
 
-task 1: ____________________  my prediction: ______
-task 2: ____________________  my prediction: ______
-task 3: ____________________  my prediction: ______
+task type 1: ____________________  my prediction: ______
+task type 2: ____________________  my prediction: ______
+task type 3: ____________________  my prediction: ______
 EOF
 ```
 
@@ -80,6 +88,9 @@ PY
 per run.
 
 ## Step 3 — Score your predictions
+
+For each of your three task types, find the cheapest model type with **kept** at 3/4 or 4/4. That
+is the best value. Does it match your prediction?
 
 How many of your three held? Most people get one.
 

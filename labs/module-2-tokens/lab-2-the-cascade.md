@@ -16,11 +16,11 @@ By the end you can:
 
 ## What to look for
 
-- **A flat range, not a single point.** Thresholds 0.60 to 0.70 all cost the same. A threshold in
-  the middle of a flat range is safe. A threshold at the edge of a sudden jump only fits this
-  sample.
-- **The last row.** Sending every case to the strong model reaches 100% accuracy and costs **more**
-  than using the strong model alone. Only the cost column shows it.
+- **A flat range, not a single point.** Is there a range of thresholds that all cost the same? A
+  threshold in the middle of a flat range is safe. A threshold at the edge of a sudden jump only
+  fits this sample.
+- **The last row.** Sending every case to the strong model reaches 100% accuracy. How does its cost
+  compare with using the strong model alone? Only the cost column can tell you.
 - **Confidence when right, against confidence when wrong.** If those two were equal, the whole
   pattern fails. Almost nobody checks.
 
@@ -76,19 +76,10 @@ python $M2/tools/cascade.py
 python $M2/tools/cascade_report.py
 ```
 
-```
-gate < 0.40        70%       80          0%
-gate < 0.50        75%      128          5%
-gate < 0.60       100%      368         30%   cheapest at full accuracy
-gate < 0.65       100%      368         30%   same cost - the plateau
-gate < 0.70       100%      368         30%   same cost - the plateau
-gate < 0.80       100%      560         50%   full accuracy, 1.5x the cost of 0.60
-gate < 0.90       100%      800         75%   full accuracy, 2.2x the cost of 0.60
-gate < 1.01       100%     1040        100%   costs MORE than always-strong
-```
+It prints one row per threshold: accuracy, cost and how many tickets went to the strong model.
 
-**Find the cheapest threshold that still reaches 100%.** Then notice that 0.60 to 0.70 is a flat
-range. A threshold in the middle of it still works if the data shifts a little.
+**Find the cheapest threshold that still reaches 100%.** Then look for a range of thresholds with
+the same cost. A threshold in the middle of that range still works if the data shifts a little.
 
 This report does not change `cascade.py`. Your gate from Step 3 stays as you wrote it.
 

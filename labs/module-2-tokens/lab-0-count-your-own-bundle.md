@@ -70,8 +70,8 @@ Three things can happen. **All three are results.** Write down which one you got
 3. **You see nothing at all.** This is common on a company seat, where only an administrator sees
    usage.
 
-If you got 3, you have found the limit this module is designed around. Three of the five labs need
-no credit figure.
+If you got 3, you have found the limit this module is designed around. No lab needs a credit
+figure.
 
 ## Step 5 — Read the calibration
 
@@ -119,6 +119,12 @@ Fill in the blanks in any editor and save.
 
 ## Stretch
 
-Run the diff again with `--rate 2.50`. Now you have a money figure per turn. Before you put that
+Run the diff again with a price of $2.50 per million input tokens. `--rate` goes **before** `diff`:
+
+```bash
+python $M2/tools/ctxmeter.py --rate 2.50 diff $M2/bundles/everything.txt $M2/bundles/naive.txt
+```
+
+Now you have a money figure per turn. Before you put that
 number in an email to your head of engineering, what else would you need to know? There are at
 least three things, and two of them are in the footer the tool prints.

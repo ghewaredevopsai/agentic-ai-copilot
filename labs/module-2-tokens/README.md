@@ -9,7 +9,7 @@ Each lab follows the part of the deck that it practises.
 | Lab | Time | What you do | What you record |
 |---|:--:|---|---|
 | [0 · Count your own bundle](lab-0-count-your-own-bundle.md) | 6 min | Measure two bundles. Find out what your seat shows you about credits | Bundle sizes, how a chat grows, credits visible or not |
-| [1 · One matrix row](lab-1-one-matrix-row.md) | 16 min | Predict first, then read 72 recorded runs | How many of your three predictions held |
+| [1 · One matrix row](lab-1-one-matrix-row.md) | 16 min | Predict first, then read 72 example runs | How many of your three predictions held |
 | [2 · The cascade](lab-2-the-cascade.md) | 15 min | Write the rule that sends hard cases to the strong model. Find where it pays | Accuracy and cost at four thresholds |
 | [3 · The 40% token audit](lab-3-the-40-percent-audit.md) | 19 min | Four cuts. Check the answer after each one | Tokens, and whether the answer held, at every cut |
 | [4 · Delete a model call](lab-4-delete-a-model-call.md) | 12 min | Replace the counting half of a prompt with a few lines of Python | Tokens, and whether three runs agree |
@@ -42,6 +42,8 @@ python $M2/tools/ctxmeter.py diff $M2/bundles/everything.txt $M2/bundles/naive.t
 
 If the last command prints two lists of files and a line starting `saved`, you are ready.
 
+If `python` is not found, use `python3` in every command in these labs.
+
 Keep that terminal open. Every command in these labs uses `$M2`. If you open a new terminal, run the
 `export` line again.
 
@@ -67,7 +69,7 @@ Keep that terminal open. Every command in these labs uses `$M2`. If you open a n
 | `tools/cascade_report.py`, `tools/audit_report.py` | Print the whole table for Labs 2 and 3, so you do not copy numbers by hand |
 | `tools/rejections.py` | Lab 4. Counts the morning's rejected postings without a model |
 | `bundles/` | The file lists that Labs 0 and 3 measure |
-| `data/` | The cases for Lab 2, the recorded runs for Lab 1, and the rejected postings for Lab 4 |
+| `data/` | The cases for Lab 2, the example runs for Lab 1, and the rejected postings for Lab 4 |
 | `prompts/` | The morning prompt for Lab 4 |
 | [`solutions/`](solutions/README.md) | A reference answer for every lab. Look whenever you want |
 | [`learning-outcomes.md`](learning-outcomes.md) | What you should be able to do after each part. Tick them off |

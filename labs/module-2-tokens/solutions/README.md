@@ -14,7 +14,7 @@ Every token figure below was measured on `global-bank-account` at tag `m3-start`
 |---|--:|
 | `everything.txt` | 23,756 est. tokens |
 | `naive.txt` | 18,261 est. tokens |
-| Saved by leaving out the build scripts and `.github/` | 5,495 (23.1%) |
+| Saved by leaving out the build scripts and the CI workflows | 5,495 (23.1%) |
 | Turn 1 of `naive.txt` sends | 18,261 |
 | Turn 10 sends | 22,761 |
 | 10 turns in total | 205,110 est. input tokens, for 2,500 tokens of answers |
@@ -61,9 +61,11 @@ own runs before you quote a row.
 A row you could defend:
 
 ```markdown
-For unit tests and multi-file changes we use the default model type,
-because in our runs it kept 3 of 4 results at about a fifth of the
-reasoning model's cost, and the reasoning model also kept 3 of 4.
+For unit tests we use the default model type, because in our runs
+it kept 3 of 4 results at about a fifth of the reasoning model's
+cost, and the reasoning model also kept 3 of 4. Multi-file changes
+are different: there reasoning kept 4 of 4, so we use it and read
+the change.
 We check this again when the model list changes, or when fewer than
 3 in 4 of our test results are kept for two weeks.
 ```
@@ -94,7 +96,9 @@ gate < 1.01       100%     1040        100%   costs MORE than always-strong
 
 **Stretch.** With `COST_STRONG_MINOR = 12`, always-strong costs 240. The gate at 0.60 costs 152, a
 37% saving instead of 62%. Sending everything costs 320, so that trap is still there. As the price
-ratio falls, the saving shrinks, and at some point the extra code is not worth it. The threshold is
+ratio falls, the saving shrinks. With 6 of 20 tickets escalated, the cascade costs 20 cheap calls
+plus 6 strong ones, against 20 strong ones. That breaks even when the strong model costs about
+**1.4 times** the cheap one. Well before that, the extra code is not worth it. The threshold is
 a property of these twenty tickets. The price ratio is a property of the pattern. Take the ratio to
 work.
 
@@ -104,11 +108,16 @@ work.
 |---|--:|--:|
 | baseline — `naive.txt` | 17,337 | 100% |
 | cut 1 — drop the older account code | 9,055 | 52% |
-| cut 2 — the rule, not all of `docs/` | 5,199 | 30% |
-| cut 3 — start a new chat | same | same |
+| cut 2 — the rule, not all of `docs/` | 5,235 | 30% |
+| cut 3 — a new chat (already done) | same | same |
 | cut 4 — `PostingService.java` only | 648 | 4% |
 
-These totals leave out the always-on instruction file, which is the same in every cut.
+These totals leave out the four instruction files Copilot adds by itself (924 tokens), because they
+are the same in every cut. That is why the baseline is 17,337, not Lab 0's 18,261 for the same
+`naive.txt`.
+
+**Cut 3** was already applied: every check used a new chat. Its saving is the history you did not
+send, about 44,000 est. tokens for six turns with the cut 2 file.
 
 **What a right answer says:** no duplicate check exists, because `PostingService.post` always
 creates a new posting. ADR-007 is accepted but not built. A duplicate is the same `clientReference`
@@ -135,11 +144,11 @@ which makes it stronger.
 | Version | est. tokens |
 |---|--:|
 | The morning prompt with the data | 2,850 |
-| The short prompt, counts supplied | 488 |
+| The short prompt, counts supplied | 499 |
 | Python | 0 |
 
 Both token figures include the 389-token always-on instruction file. Without it, the drop is from
-2,461 to 99 tokens.
+2,461 to 110 tokens.
 
 The code version, every time:
 
@@ -152,7 +161,7 @@ total                 23      20081016502
 
 **What the model is still good for:** deciding what to work on first. The seven `invalid-amount`
 rejections are few, but two of them are over the posting limit, so they hold almost all of the
-morning's money. Three of the four unknown account ids are near-misses of real ones
-(`ACC-PAYROL` for `ACC-PAYROLL`). That points to bad account data in an upstream system, not eleven
-separate problems. Those
-are judgements. The counts are not.
+morning's money. The four unknown account ids (`ACC-CLIENT-003`, `ACC-CLIENT-01`, `ACC-PAYROL`,
+`ACC-SUSPENCE`) are each one or two characters away from a real one, such as `ACC-PAYROL` for
+`ACC-PAYROLL`. A model can spot that from the list. It points to bad account data in an upstream
+system, not eleven separate problems. Those are judgements. The counts are not.

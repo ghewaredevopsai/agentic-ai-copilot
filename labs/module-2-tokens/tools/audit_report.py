@@ -40,7 +40,7 @@ CUTS = [
 
 
 def ensure_rule() -> None:
-    """Cut 2 attaches ADR-007's Decision and Consequences; make it if it is not there."""
+    """Cut 2 attaches ADR-007's title, status, Decision and Consequences; make it if it is not there."""
     target = REPO / "adr-007-rule.txt"
     if target.exists():
         return
@@ -50,8 +50,10 @@ def ensure_rule() -> None:
         return
     lines = adr.read_text(encoding="utf-8").splitlines()
     start = next(i for i, line in enumerate(lines) if line.startswith("## Decision"))
-    target.write_text("\n".join(lines[start:]) + "\n", encoding="utf-8")
-    print(f"  (made adr-007-rule.txt, {len(lines) - start} lines, for cut 2)")
+    status = next(line for line in lines if line.startswith("**Status:**"))
+    rule = [lines[0], "", status, ""] + lines[start:]
+    target.write_text("\n".join(rule) + "\n", encoding="utf-8")
+    print(f"  (made adr-007-rule.txt, {len(rule)} lines, for cut 2)")
 
 
 def bundle_total(name: str) -> int | None:
@@ -97,7 +99,7 @@ def main() -> int:
         print("%-10s %-26s %10d  %9s   %s" % (label, desc, total, share, "___"))
         if label == "cut 2":
             print("%-10s %-26s %10s  %9s   %s"
-                  % ("cut 3", "start a new chat", "same", "same", "___"))
+                  % ("cut 3", "a new chat (already done)", "same", "same", "same as cut 2"))
     print()
     print("  cut 3 changes no attachment - it drops the conversation you keep re-sending:")
     print("    " + conversation_cost())
@@ -114,12 +116,15 @@ def main() -> int:
             lines.append("%-10s %-27s %8s  %6s   ___"
                          % (label, desc, total or "____", share))
             if label == "cut 2":
-                lines.append("%-10s %-27s %8s  %6s   ___" % ("cut 3", "start a new chat", "same", "same"))
+                lines.append("%-10s %-27s %8s  %6s   same as cut 2"
+                             % ("cut 3", "a new chat (already done)", "same", "same"))
         MY_WORK.mkdir(exist_ok=True)
         (MY_WORK / "lab-3-record.md").write_text("""# Lab 3
 
                                        est. tok   share   answer still right?
 """ + "\n".join(lines) + """
+
+Cut 3, the history a new chat did not send: """ + conversation_cost() + """
 
 Largest cut that kept the answer: ____%
 The cut that broke it, and why:

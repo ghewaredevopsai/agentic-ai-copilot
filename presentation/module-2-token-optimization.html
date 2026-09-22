@@ -38,7 +38,7 @@
 </section>
 
 <!-- 2 -->
-<section class="slide" data-sec="Opening" data-title="A seat is a flat fee; the work in it is not" data-notes="A Copilot seat has a fixed monthly price, so it is easy to think usage is free. It is not. Chat, agent mode, code review and the CLI all draw AI credits, and credits are a bill for tokens. Two facts drive everything in this module. First, an output token costs more than an input token, about six times more at the example rates on the next slide. Second, input is where almost all the tokens are, because every turn sends the files, the rules and the whole chat again. So the saving is in what you send, not in how short the answer is. Each part of this module ends with a lab that measures a number before and after a change. The labs use the global-bank-account clone from Module 1, at the m3-start tag." data-tier="K">
+<section class="slide" data-sec="Opening" data-title="A seat is a flat fee; the work in it is not" data-notes="A Copilot seat has a fixed monthly price, so it is easy to think usage is free. It is not. Chat, agent mode, code review and the CLI all draw AI credits, and credits are a bill for tokens. Two facts drive everything in this module. First, an output token costs more than an input token, about six times more at the example rates in part 1. Second, input is where almost all the tokens are, because every turn sends the files, the rules and the whole chat again. So the saving is in what you send, not in how short the answer is. Each part of this module ends with a lab that measures a number before and after a change. The labs use the global-bank-account clone from Module 1, at the m3-start tag." data-tier="K">
   <h2>A seat is a flat fee. The work in it is <em>not</em><span class="tag">M2</span></h2>
   <div class="body g64">
     <div>
@@ -138,7 +138,7 @@
 </section>
 
 <!-- 5 -->
-<section class="slide" data-sec="1 &middot; What one request costs" data-title="One measured day: 42.7M tokens, 99% input" data-notes="These numbers come from the workshop's model gateway. It counted every participant's tokens and requests for one full day. The workshop used an open model. So the money is not a Copilot bill, and it is never quoted as one. What carries over is the split: 99.2% input, and 128 input tokens for every output token. That comes from how agents work, not from which model ran. Every agent turn sends the system prompt, the instruction files, the tool definitions, the chat so far and every file read, all over again. The answer is short. Because output costs more per token, it is still about 5% of the money here. So asking for shorter answers saves about 5%. Notice also that 46% of the day's spend fell in a single afternoon hour. You will see why in part 4." data-tier="K">
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="One measured day: 42.7M tokens, 99% input" data-notes="These numbers come from the workshop's model gateway. It counted every participant's tokens and requests for one full day. The workshop used an open model. So the money is not a Copilot bill, and it is never quoted as one. What carries over is the split: 99.2% input, and 128 input tokens for every output token. That comes from how agents work, not from which model ran. Every agent turn sends the system prompt, the instruction files, the tool definitions, the chat so far and every file read, all over again. The answer is short. Because output costs more per token, it is still about 5% of the money here. So asking for shorter answers saves about 5%. Notice also that 46% of the day's spend fell in a single afternoon hour. A daily total hides a spike like that." data-tier="K">
   <h2>One measured day: 42.7M tokens, <em>99% input</em><span class="tag k">1</span></h2>
   <div class="body g64">
     <div>
@@ -215,7 +215,7 @@
 </section>
 
 <!-- 7 -->
-<section class="slide" data-sec="1 &middot; What one request costs" data-title="Six levers, and a budget for what they miss" data-notes="These are the six levers, with the evidence for each from the measured day. Look at lever 2's two numbers. The median request carried about 2,300 tokens. The heaviest carried 67,600, about thirty times more. The people were not that different. What they attached was. Part 4 starts with that heaviest user. Lever 3 comes from a multi-agent app, where one question caused almost four model calls. Lever 6 is easy to forget: completions are free on a paid plan, so they are the cheapest help Copilot gives. Levers reduce spend, but they do not cap it. Set a budget before a team starts, not after the first surprise bill. Usage views show totals and arrive late, never one request at a time. That is why Lab 0 gives you a second tool, ctxmeter, which answers straight away." data-tier="R">
+<section class="slide" data-sec="1 &middot; What one request costs" data-title="Six levers, and a budget for what they miss" data-notes="These are the six levers, with the evidence for each. Levers 1 and 2 come from the measured day. Lever 3 comes from another app, and levers 4 to 6 come from the price list. Look at lever 2's two numbers. The median request carried about 2,300 tokens. The heaviest carried 67,600, about thirty times more. The people were not that different. What they attached was. Part 4 starts with that heaviest user. Lever 3 comes from a multi-agent app, where one question caused almost four model calls. Lever 6 is easy to forget: completions are free on a paid plan, so they are the cheapest help Copilot gives. Levers reduce spend, but they do not cap it. Set a budget before a team starts, not after the first surprise bill. Usage views show totals and arrive late, never one request at a time. That is why Lab 0 gives you a second tool, ctxmeter, which answers straight away." data-tier="R">
   <h2>Six levers &mdash; and a <em>budget</em> for what they miss<span class="tag k">1</span></h2>
   <div class="body g1">
     <div>
@@ -223,7 +223,7 @@
         <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
         <text class="lb w" x="24" y="24">LEVER</text>
         <text class="lb w" x="380" y="24">WHAT IT CUTS</text>
-        <text class="lb w" x="640" y="24">EVIDENCE FROM THE MEASURED DAY</text>
+        <text class="lb w" x="640" y="24">EVIDENCE</text>
         <rect class="bx grow" x="4" y="42" width="1172" height="42" rx="5"/>
         <text class="tt" x="24" y="69">1 &middot; A new chat per task</text><text class="ss" x="380" y="69">the chat sent again</text><text class="ss" x="640" y="69">99.2% of all tokens were input</text>
         <rect class="bx grow w2" x="4" y="90" width="1172" height="42" rx="5"/>
@@ -315,7 +315,7 @@
 </section>
 
 <!-- 10 -->
-<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Place the task, not the model" data-notes="This chart places tasks, not models, so it still works when the list of models changes. The horizontal axis is how often the cheap model already gets the task right. The vertical axis is what it costs you when the answer is quietly wrong. Tasks above and left of the dashed line are worth a reasoning model. Tasks below and right of it can use a cheap one. When a new model arrives, you do not redraw the chart. You move the line, and every task keeps its place. Before you move on, place two of your own tasks on this chart. Most teams have never talked about the vertical axis, and it is the one that decides. In Global Bank, anything that touches money or value dates sits at the top, because a quiet mistake there is a client money break." data-tier="K">
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Place the task, not the model" data-notes="This chart places tasks, not models, so it still works when the list of models changes. The horizontal axis is how often the cheap model already gets the task right. The vertical axis is what it costs you when the answer is quietly wrong. Tasks above and left of the dashed line are worth a reasoning model. Tasks below and right of it do not need one. Below the line means the fast or the default model, and your own data decides which. When a new model arrives, you do not redraw the chart. You move the line, and every task keeps its place. Before you move on, place two of your own tasks on this chart. Most teams have never talked about the vertical axis, and it is the one that decides. In Global Bank, anything that touches money or value dates sits at the top, because a quiet mistake there is a client money break." data-tier="K">
   <h2>Place the <em>task</em>, not the model<span class="tag k">2</span></h2>
   <div class="body g64">
     <div>
@@ -331,7 +331,7 @@
         <circle cx="140" cy="60" r="7" fill="#e2726e"/><text class="ss" x="154" y="66">money or dates in production</text>
         <circle cx="200" cy="110" r="7" fill="#e2726e"/><text class="ss" x="214" y="116">multi-file refactor</text>
         <circle cx="160" cy="170" r="7" fill="#d98a3d"/><text class="ss" x="174" y="176">a subtle bug</text>
-        <circle cx="420" cy="130" r="7" fill="#d98a3d"/><text class="ss" x="406" y="136" text-anchor="end">write a unit test</text>
+        <circle cx="250" cy="262" r="7" fill="#d98a3d"/><text class="ss" x="264" y="268">write a unit test</text>
         <circle cx="520" cy="200" r="7" fill="#5fbf8f"/><text class="ss" x="534" y="206">explain this code</text>
         <circle cx="600" cy="250" r="7" fill="#5fbf8f"/><text class="ss" x="614" y="256">docstring</text>
       </svg>
@@ -391,7 +391,7 @@
 </section>
 
 <!-- 12 -->
-<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Lab 1 - write the guess down first" data-notes="Most model comparisons are not evidence. Someone runs three models once, reads the answers, and prefers the one they already expected to prefer. With one run each and no prediction written down, you cannot tell a result from a preference. Lab 1 fixes that with one habit: write your prediction down before you open the data. You name your team's three most common AI tasks and predict which model type gives the best value for each. Then you read 72 recorded runs and count how many predictions held. The runs are made up, and the file says so, so every room discusses the same numbers. Many seats show only Auto, so reading recorded runs is the version of this lab that works for everyone. You also do one real run of your own on global-bank-account. The lab takes about 16 minutes." data-tier="K">
+<section class="slide" data-sec="2 &middot; Choosing the model" data-title="Lab 1 - write the guess down first" data-notes="Most model comparisons are not evidence. Someone runs three models once, reads the answers, and prefers the one they already expected to prefer. With one run each and no prediction written down, you cannot tell a result from a preference. Lab 1 fixes that with one habit: write your prediction down before you open the data. From the six task types in the data, you pick the three closest to your team's work. For each, you predict which model type gives the best value: the cheapest one that keeps at least 3 of 4 results. Then you read 72 example runs and count how many predictions held. The runs are made up, and the file says so, so every room discusses the same numbers. Many seats show only Auto, so reading example runs is the version of this lab that works for everyone. You also do one real run of your own on global-bank-account. The lab takes about 16 minutes." data-tier="K">
   <h2>Lab 1 &mdash; write the guess down <em>first</em><span class="tag k">2</span></h2>
   <div class="body g55">
     <div class="callout bad">
@@ -401,8 +401,8 @@
     </div>
     <div class="callout good">
       <b>What Lab 1 does &middot; about 16 minutes</b>
-      <p>Predict the best model type for your three most common tasks. Write it down.</p>
-      <p>Then read 72 recorded runs and count how many predictions held.</p>
+      <p>Pick three of the six task types. Predict the best model type for each. Write it down.</p>
+      <p>Then read 72 example runs and count how many predictions held.</p>
       <p>Finish with one rule you would defend.</p>
     </div>
   </div>
@@ -419,8 +419,8 @@
     </div>
     <div class="callout good">
       <b>Easy to defend</b>
-      <p>Unit tests and multi-file changes: default model.</p>
-      <p>Money, dates or boundaries: reasoning, and read the change.</p>
+      <p>Unit tests: default model.</p>
+      <p>Money, dates, boundaries or multi-file changes: reasoning, and read the change.</p>
       <p>Everything else: Auto.</p>
       <p><b>Review it when the model list changes.</b></p>
     </div>
@@ -428,7 +428,7 @@
 </section>
 
 <!-- 14 -->
-<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="One model, a router, or a cascade" data-notes="There are three ways to use models on a stream of work. One model sends everything to the strong model: simple, and the most expensive. A router classifies each case first and sends it down one path, so it pays once. A cascade tries the cheap model on every case, and a gate decides whether to send it on to the strong model. The line under the cascade is the whole risk. A cascade always pays for the cheap call, and sometimes pays again for the strong one. That is fine when few cases go on to the strong model, and very costly when many do. For an operations desk that triages payment tickets, most tickets are routine, so a cascade usually fits. Lab 2 lets you find where it stops paying." data-tier="K">
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="One model, a router, or a cascade" data-notes="There are three ways to use models on a stream of work. One model sends everything to the strong model: simple, and the most expensive. A router classifies each case first and sends it down one path, so it pays for the classify step and one model. A cascade tries the cheap model on every case, and a gate decides whether to send it on to the strong model. The line under the cascade is the whole risk. A cascade always pays for the cheap call, and sometimes pays again for the strong one. That is fine when few cases go on to the strong model, and very costly when many do. For an operations desk that triages payment tickets, most tickets are routine, so a cascade usually fits. Lab 2 lets you find where it stops paying." data-tier="K">
   <h2>One model, a router, or a <em>cascade</em><span class="tag k">3</span></h2>
   <div class="body g1">
     <div>
@@ -444,7 +444,8 @@
         <path class="ar" d="M500 104 V140"/><path class="ar" d="M660 104 V140"/>
         <rect class="bx g" x="434" y="144" width="140" height="44" rx="6"/><text class="tt" x="454" y="172">cheap</text>
         <rect class="bx r" x="594" y="144" width="140" height="44" rx="6"/><text class="tt" x="614" y="172">strong</text>
-        <text class="ss" x="414" y="250">one call per case</text>
+        <text class="ss" x="414" y="226">one model call per case</text>
+        <text class="ss" x="414" y="250">cost = cases &times; (classify + cheap or strong)</text>
 
         <rect class="bx w grow w3" x="792" y="4" width="384" height="270" rx="8"/>
         <text class="lb" x="808" y="30">CASCADE</text>
@@ -515,8 +516,8 @@
 </section>
 
 <!-- 17 -->
-<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="What Lab 2 showed" data-after="lab" data-notes="This slide is best read after Lab 2. The cascade at a threshold of 0.60 reaches the strong model's accuracy for 368, which is 38% of always-strong's cost. Thresholds from 0.60 to 0.70 all cost the same. A threshold in the middle of a flat range still works when the data shifts a little. The last row is the one to remember. Sending every ticket to the strong model gives 100% accuracy and costs 1040, more than always-strong's 960. You paid for the cheap answer twenty times and threw it away twenty times. Nothing in the answers shows the waste; only the cost column does. The cascade works here because the cheap model is less confident when it is wrong: 0.53 on average, against 0.85 when it is right." data-tier="R">
-  <h2>What Lab 2 showed &mdash; one row costs <em>more than doing nothing</em><span class="tag k">3</span></h2>
+<section class="slide" data-sec="3 &middot; Routing and cascades" data-title="What Lab 2 showed - one row costs more than the strong model alone" data-after="lab" data-notes="This slide is best read after Lab 2. The cascade at a threshold of 0.60 reaches the strong model's accuracy for 368, which is 38% of always-strong's cost. Thresholds from 0.60 to 0.70 all cost the same. A threshold in the middle of a flat range still works when the data shifts a little. The last row is the one to remember. Sending every ticket to the strong model gives 100% accuracy and costs 1040, more than always-strong's 960. You paid for the cheap answer twenty times and threw it away twenty times. Nothing in the answers shows the waste; only the cost column does. The cascade works here because the cheap model is less confident when it is wrong: 0.53 on average, against 0.85 when it is right." data-tier="R">
+  <h2>What Lab 2 showed &mdash; one row costs <em>more than the strong model alone</em><span class="tag k">3</span></h2>
   <div class="body g1">
     <div>
       <svg viewBox="0 0 1180 400" role="img" aria-label="Lab 2 results: a well set gate matches strong accuracy at 368; escalating everything costs 1040">

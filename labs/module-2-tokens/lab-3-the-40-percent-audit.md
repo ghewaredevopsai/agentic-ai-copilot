@@ -55,14 +55,18 @@ python $M2/tools/audit_report.py
 ------------------------------------------------------------------------------
 baseline   what most people attach         17337       100%   ___
 cut 1      drop the older account code      9055        52%   ___
-cut 2      the rule, not all of docs/       5199        30%   ___
-cut 3      start a new chat                 same       same   ___
+cut 2      the rule, not all of docs/       5235        30%   ___
+cut 3      a new chat (already done)        same       same   same as cut 2
 cut 4      one file, far too little          648         4%   ___
 ```
 
 The arithmetic is done. **The last column is yours**, and it is the only one that matters. The file
 lists for each cut are in `$M2/bundles/`. The report also made `adr-007-rule.txt` in your clone: the
-**Decision** and **Consequences** sections of ADR-007, which cut 2 uses.
+title, the status line, and the **Decision** and **Consequences** sections of ADR-007, which cut 2
+uses.
+
+The baseline here is 17,337, not Lab 0's 18,261 for the same `naive.txt`. These totals leave out the
+four instruction files Copilot adds by itself (924 tokens), because they are the same in every cut.
 
 ## How to send each cut
 
@@ -82,6 +86,8 @@ For every check below:
 - Type `#file:` and pick the `pack-….txt` file for that cut, then paste the question.
 - After the answer, open the **references** list above it. Write down any file Copilot added **by
   itself**. The meter cannot see those files.
+- If that list shows a `pack-` file for a different cut, or anything from the course's `solutions/`
+  folder, the check is not fair. Delete that chat and ask again in a new one.
 
 ## Step 2 — Baseline
 
@@ -96,19 +102,29 @@ rest of the older account code. New chat, same question. Mark the row.
 ## Step 4 — Cut 2: the rule, not the whole docs folder
 
 Attach `pack-cut2-rule-not-docs.txt`. It keeps the posting code and its tests. It swaps the whole
-`docs/` folder, the resources and the build file for `adr-007-rule.txt`: only the part of ADR-007 that states the
-rule. New chat, same question. Mark the row.
+`docs/` folder, the resources and the build file for `adr-007-rule.txt`: ADR-007's title, its status
+line and the part that states the rule. New chat, same question. Mark the row.
 
 ## Step 5 — Cut 3: start a new chat
 
-No change to the files. The saving is the chat history you stop sending again, which no file list
-can show. The report printed what six turns of history cost.
+You have already made this cut. Every check above used a new chat, so none of them sent any history.
+That is why the cut 3 row says "same as cut 2": there is nothing new to ask.
 
-Ask again in a fresh chat with the cut 2 file. Mark the row.
+The saving is the chat history you did not send, which no file list can show. The report printed
+what six turns of history cost with the cut 2 file: about 44,000 tokens. The record sheet in Step 8
+fills that figure in. In one long chat, every question would have paid for all the turns before it.
 
 ## Step 6 — Cut 4: go too far
 
+First remove the other packs and the rule file, so Copilot cannot find them by itself:
+
+```bash
+rm -f adr-007-rule.txt pack-naive.txt pack-cut1-*.txt pack-cut2-*.txt
+```
+
 Attach **only `pack-cut4-one-file.txt`**: just `PostingService.java`. No tests, no docs, no ADR.
+If the references list shows `docs/adr/ADR-007…`, Copilot found the rule by itself. Note that on
+your sheet: the cut did not really happen.
 
 **You are expected to break the answer here.** Copilot can still see there is no duplicate check.
 It cannot know the team's rule, so it may invent one. A common invention is the `Idempotency-Key`
@@ -148,7 +164,7 @@ git status --short        # should print nothing
   run and you stopped at 40%, you stopped early.
 - **The biggest single cut was code nobody needed.** The older account code is almost half of what
   people attach, and `docs/architecture.md` already says it is out of scope for posting work.
-- **The rule is small, and it is what makes the answer right.** Cut 2 keeps about 28 lines of
+- **The rule is small, and it is what makes the answer right.** Cut 2 keeps about 32 lines of
   ADR-007. Cut 4 drops them, and the answer changes from the team's design to a generic one. A
   missing rule is more costly than the tokens it saves.
 - **`ctxmeter` refusing the percentage means the tool is working.** Using `--allow-mixed` is fine.

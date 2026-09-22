@@ -53,22 +53,22 @@ lab evidence: tick those only when the lab actually runs and you can show the re
 ### Block 1.2 · Token Optimisation & Model Selection
 
 - [ ] Account for where tokens actually go: input, output, cached, and the hidden cost of
-      conversation history and tool schemas.
+      conversation history and every tool you enable.
 - [ ] Budget a context window deliberately instead of filling it.
-- [ ] Use prompt caching where it pays, and say where it does not.
-- [ ] Make a task cheaper by design — structured output, `max_tokens`, deterministic code instead of
-      a model call.
-- [ ] Score a model on a use case against the full matrix: quality, latency, cost, context length,
-      tool-calling reliability, residency.
-- [ ] Work Copilot's model picker and premium-request budget as a deliberate choice, not a default.
-- [ ] Route cheap-first with escalation, and measure cost per trace to prove it worked.
+- [ ] Say what prompt caching rewards, and what a daily edit to an instructions file costs.
+- [ ] Make a task cheaper by design — `max_tokens`, and deterministic code instead of a model call.
+- [ ] Choose a model type for a use case against the full grid: quality, latency, cost, context
+      length, tool calling, residency.
+- [ ] Work Copilot's model picker and AI-credit budget as a deliberate choice, not a default.
+- [ ] Route cheap-first with a cascade, and find the gate that pays for itself.
 
 **Lab evidence**
 
-- [ ] Token audit — 40%+ cut with no quality loss, measured.
-- [ ] Same task on three model tiers — scored and justified in writing.
-- [ ] Copilot budget exercise — completed.
-- [ ] Cheap-first router — built and its escalation rate observed.
+- [ ] Count your own bundle — two bundles measured, and you know what your seat shows about credits.
+- [ ] One matrix row — predictions written first, scored against the data, one row you would defend.
+- [ ] The cascade — accuracy and cost at four thresholds, including the one that costs more.
+- [ ] Token audit — 40%+ cut, with the answer checked after every cut.
+- [ ] Delete a model call — the counting done in code, and three runs compared.
 
 ### Block 1.3 · Python Accelerated with Copilot — the AskOps API
 

@@ -4,7 +4,7 @@
 
 Tick a box (`- [x]`) when you can do the thing **without looking it up**.
 
-This module assumes you use an AI assistant at work and have a seat on a paid plan or a gateway key.
+This module assumes you use an AI assistant at work and have a Copilot seat.
 It does not teach prompting &mdash; see *What other modules cover* at the foot.
 
 ## Progress
@@ -23,8 +23,8 @@ It does not teach prompting &mdash; see *What other modules cover* at the foot.
 - [ ] Name what is metered and what is not, and say what Auto changes.
 - [ ] State what happens at zero on an individual plan versus in an organisation &mdash; and say
       which default surprises people.
-- [ ] Explain why input dominates a bill by two orders of magnitude, in terms of what an agent turn
-      re-sends.
+- [ ] Explain why input is about 100 times output on a bill, in terms of what an agent turn sends
+      again.
 - [ ] Say why "be concise" is not a cost lever, with a number.
 
 **Lab evidence**
@@ -35,9 +35,9 @@ It does not teach prompting &mdash; see *What other modules cover* at the foot.
 
 - [ ] Name the six selection criteria, and say which one is not a property of the model tier at all.
 - [ ] Explain why the grid is shaded rather than numbered.
-- [ ] Place a task on the frontier using what being wrong costs and how often the cheap model is
+- [ ] Place a task on the chart using what being wrong costs and how often the cheap model is
       already right &mdash; and say why placing tasks outlives placing models.
-- [ ] Pre-register a prediction before opening evidence, and say what that protects you from.
+- [ ] Write your prediction down before you look at the evidence, and say what that protects you from.
 - [ ] Write a selection rule that says what it is *not* for, and includes its own review trigger.
 
 **Lab evidence**
@@ -46,7 +46,7 @@ It does not teach prompting &mdash; see *What other modules cover* at the foot.
 
 ## Part 3 &middot; Routing and cascades
 
-- [ ] Draw the three topologies and give the cost formula for each in one line.
+- [ ] Draw the three set-ups and give the cost formula for each in one line.
 - [ ] Say why a cascade pays the cheap call even when it escalates, and what that implies.
 - [ ] Name four gates that can be automated and two that cannot.
 - [ ] Find the escalation rate at which a cascade matches the strong model's accuracy, and the rate
@@ -61,10 +61,10 @@ It does not teach prompting &mdash; see *What other modules cover* at the foot.
 ## Part 4 &middot; A budget per turn
 
 - [ ] Explain why the average user tells you nothing about a token bill, using the distribution.
-- [ ] Give the eviction order: what goes first, what goes second, what never goes.
+- [ ] Say what to drop first, second, and never.
 - [ ] Say what caching rewards, and what a daily edit to an instructions file costs you.
-- [ ] Run a context audit that re-checks the answer after every cut, and say why one that does not
-      is worthless.
+- [ ] Run a context audit that checks the answer again after every cut, and say why checking only at
+      the end is not enough.
 - [ ] State what a context meter cannot see, without prompting.
 
 **Lab evidence**

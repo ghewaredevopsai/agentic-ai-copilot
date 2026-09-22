@@ -109,8 +109,13 @@ def main() -> int:
     strong_cost = base["always_strong"]["cost_minor"]
     saved = strong_cost - mine["cost_minor"]
     lost = base["always_strong"]["accuracy"] - mine["accuracy"]
-    print(f"\n  against always-strong: {100 * saved / strong_cost:+.0f}% cost, "
-          f"{-100 * lost:+.0f} points of accuracy")
+    pct = round(100 * abs(saved) / strong_cost)
+    cost_words = ("the same cost" if pct == 0
+                  else f"{pct}% cheaper" if saved > 0 else f"{pct}% dearer")
+    points = round(100 * lost)
+    accuracy_words = ("the same accuracy" if points == 0
+                      else f"{points} points less accurate")
+    print(f"\n  against always-strong: {cost_words}, {accuracy_words}")
     if mine["escalation_rate"] == 0:
         print("  you escalated nothing - this is the cheap model with extra steps")
     elif mine["cost_minor"] >= strong_cost:

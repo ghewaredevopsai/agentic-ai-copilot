@@ -35,12 +35,14 @@ changed (`git diff --stat`).
 ## 3. The store
 
 ```text
-Complete the four TODOs in askops/store.py, one at a time, following the comment on each and
+Complete the five TODOs in askops/store.py, one at a time, following the comment on each and
 tests/test_m2_core.py. Do not modify tests or any other file.
 - Load incidents.json. A record that fails to parse is skipped with logger.warning naming its id.
 - _read_json turns FileNotFoundError and json.JSONDecodeError into DataError, with the path in the message.
 - get_runbook uses try/except KeyError (EAFP) and raises RunbookNotFound from None.
-- add_incident validates runbook_id first, then assigns the next INC- number.
+- incidents() returns a new list, newest first by opened_at.
+- add_incident validates runbook_id first, then assigns the next INC- number. opened_at is a naive
+  local datetime, like the seed data.
 Run python score.py 2 after each TODO.
 ```
 

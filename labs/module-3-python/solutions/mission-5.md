@@ -14,7 +14,6 @@
 ## 1. Apply the PR, as the engineer who clicked Merge
 
 ```bash
-git add -A && git commit -m "before PR 42"
 git switch -c pr-42
 cp -r review/pr-42/. .          # the PR's api.py and search.py, over yours
 python score.py
@@ -23,8 +22,10 @@ python score.py
 `git apply review/pr-42-ask-resilience.diff` will **not** work: the diff was made against the PR author's code, and
 yours was written by your agent. The `.diff` is for reading in the review; `review/pr-42/` is for running.
 
-**Check:** the score drops from 54 to 51, and five checks go red: `test_search_respects_limit`, `test_ask_consults_both_sources_concurrently`, and
-three in Mission 5.
+**Check:** the score drops from 54 to 51. Five checks are red, and the PR caused three of them:
+`test_search_respects_limit`, `test_ask_consults_both_sources_concurrently` and
+`test_a_bug_is_not_disguised_as_unavailable`. The other two are Mission 5 checks that were already red before
+the PR, because the failure contract is not written yet.
 
 ## 2. A second reviewer, after your own review
 
@@ -41,7 +42,7 @@ Review review/pr-42-ask-resilience.diff as a strict senior Python reviewer, agai
 | Problem | Caught by |
 |---|---|
 | The two sources are awaited one after the other, so `/ask` takes ~0.4 s | `test_ask_consults_both_sources_concurrently` |
-| `except Exception` returns an empty 200 when a source fails | three Mission 5 checks |
+| `except Exception` returns an empty 200 when a source fails | `test_a_bug_is_not_disguised_as_unavailable` |
 | `_cache: dict = {}` is a mutable default argument, shared across calls and stores, keyed on query but not `limit` | `test_search_respects_limit` |
 | `le=20` removed, so `limit` is unbounded | **no test** &mdash; only review catches it |
 
@@ -56,11 +57,11 @@ For each, cite the test that proves it or say no test catches it, and state the 
 ```
 
 **Check:** the findings are yours; Copilot only tightened the wording. Then throw the PR away. The PR's changes
-were never committed, so undo them **before** switching, or they follow you onto `main`:
+were never committed, so undo them **before** switching, or they follow you back onto your own branch:
 
 ```bash
 git restore askops tests          # drop PR #42's changes; your untracked review file stays
-git switch main && git branch -D pr-42
+git switch - && git branch -D pr-42    # back to the branch you were on
 git status                        # only review/my-review.md is new
 ```
 
@@ -76,20 +77,11 @@ Finish by running python score.py.
 **Check, in `git diff askops/api.py`:** `except AskOpsError`, not `except Exception`; `logger.exception(...)`;
 `status.HTTP_503_SERVICE_UNAVAILABLE`; `raise ... from exc`. `python score.py` shows **56/56**.
 
-## 5. Close the gap the tests left
-
-```text
-Add a test to tests/test_m3_api.py: GET /api/ask with limit=21 must return 422. Only the test, no other change.
-Run pytest tests/test_m3_api.py.
-```
-
-It passes on your code. Optional: `git stash`, apply PR #42 again on a branch, and watch it fail there.
-
-## 6. Ship it
+## 5. Ship it
 
 ```bash
 git switch -c fix/ask-failure-contract
-git add askops/api.py tests/test_m3_api.py review/my-review.md
+git add askops/api.py review/my-review.md
 ```
 
 ```text
@@ -105,5 +97,14 @@ a pull request, and request a review from Copilot.
 
 ## Done
 
-`python score.py` shows **Score: 57/57** (the 56 checks plus your step 5 test), and your branch has a commit whose
-message explains the why.
+`python score.py` shows **Score: 56/56**, and your branch has a commit whose message explains the why.
+
+## Stretch &mdash; close the gap the tests left
+
+```text
+Add a test to tests/test_m3_api.py: GET /api/ask with limit=21 must return 422. Only the test, no other change.
+Run pytest tests/test_m3_api.py.
+```
+
+It passes on your code. Optional: `git stash`, apply PR #42 again on a branch, and watch it fail there. The
+scoreboard then shows 57/57, the 56 checks plus your test.

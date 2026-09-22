@@ -1,6 +1,6 @@
 # Lab 5 &mdash; Review, reject, ship
 
-**Tier 5 &middot; Review and ship** &nbsp;|&nbsp; ~15 minutes &nbsp;|&nbsp; Mission 5 &nbsp;|&nbsp; Copilot: **reviewer, not author**
+**Mission 5 &middot; Review and ship** &nbsp;|&nbsp; ~15 minutes &nbsp;|&nbsp; Copilot: **reviewer, not author**
 
 ## The situation
 
@@ -30,11 +30,11 @@ colleague has already written *"LGTM"*.
    they not?**
 3. **Reject it.** Write a one-paragraph review in `review/my-review.md`: what is wrong, the test that proves it,
    and what to do instead. The findings must be yours; you may ask Copilot to tighten the wording. Then throw the
-   change away. It was never committed, so undo it **before** switching, or it follows you onto `main`:
+   change away. It was never committed, so undo it **before** switching, or it follows you back onto your own branch:
 
    ```bash
    git restore askops tests          # your untracked review file stays
-   git switch main && git branch -D pr-42
+   git switch - && git branch -D pr-42    # back to the branch you were on
    ```
 
 4. **Do it properly.** Read *Mission 5 &mdash; the failure contract* at the bottom of `docs/api-spec.md`. Then, in

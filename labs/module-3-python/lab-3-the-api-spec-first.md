@@ -1,6 +1,6 @@
 # Lab 3 &mdash; The API, spec-first
 
-**Tier 3 &middot; Service** &nbsp;|&nbsp; ~35 minutes &nbsp;|&nbsp; Mission 3 &nbsp;|&nbsp; Copilot: **agent mode (builder)**
+**Mission 3 &middot; API** &nbsp;|&nbsp; ~35 minutes &nbsp;|&nbsp; Copilot: **agent mode (builder)**
 
 ## The situation
 

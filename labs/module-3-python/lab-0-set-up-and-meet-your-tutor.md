@@ -1,6 +1,6 @@
 # Lab 0 &mdash; Set up, and meet your tutor
 
-**Tier 0 &middot; You already know this** &nbsp;|&nbsp; ~5 minutes
+**Before the missions &middot; You already know this** &nbsp;|&nbsp; ~5 minutes
 
 ## Do
 

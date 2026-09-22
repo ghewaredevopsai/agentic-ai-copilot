@@ -65,7 +65,7 @@ for both non-numbers and out-of-range values. `port_or_default` calls `parse_por
 
 ## 4. Dataclasses
 
-Before prompting, open `askops/models.py` and find the two bugs in `Ticket`'s fields yourself.
+Before prompting, open `katas/drills.py` and find the two bugs in `Ticket`'s fields yourself.
 
 ```text
 /tutor Money.add. Explain what frozen=True gives me compared with a Java record.

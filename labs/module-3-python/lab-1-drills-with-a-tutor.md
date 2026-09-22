@@ -1,11 +1,11 @@
 # Lab 1 &mdash; Drills with a tutor
 
-**Tier 1 &middot; Data** &nbsp;|&nbsp; ~30 minutes &nbsp;|&nbsp; Mission 1 &nbsp;|&nbsp; Copilot: **`/tutor`**
+**Mission 1 &middot; Drills** &nbsp;|&nbsp; ~30 minutes &nbsp;|&nbsp; Copilot: **`/tutor`**
 
 ## The situation
 
 Before you let an agent build a Python service for you, you need to read Python fast enough to catch it
-when it is wrong. Fifteen drills, each a real task you meet in every service: counting, grouping, parsing,
+when it is wrong. Thirteen drills, each a real task you meet in every service: counting, grouping, parsing,
 value objects, reading a file. Copilot writes every one. Each drill also has a Python-specific way to go
 wrong, and you have to spot it.
 
@@ -31,7 +31,7 @@ slow down on the ones marked below.
    `tags=[]` would do on the second call.
 3. **Errors (2 drills).** `parse_port` raises; `port_or_default` must *reuse* it. Ask the tutor what *EAFP* means.
 4. **Dataclasses (2 drills).** `Money` is frozen; `Ticket` has two bugs in its field declarations. Before you run
-   `/tutor Ticket`, find both bugs yourself by reading `askops/models.py`.
+   `/tutor Ticket`, find both bugs yourself by reading `katas/drills.py`.
 5. **Files (1 drill).** `read_nonblank_lines`, with `with`.
 
 ## Notice

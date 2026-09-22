@@ -44,7 +44,7 @@ Do not modify tests. Finish by running python score.py 3 and fix anything red.
 - `await asyncio.gather(...)`, not two awaits in a row
 - `HTTPException` appears only in `api.py`
 - no `except Exception`, no `print`, no module-level `Store`
-- `status_code=201` on the POST, `response_model=` on each route
+- `status_code=201` on the POST, `response_model=` on each route that returns a model
 
 ## 3. Use it
 

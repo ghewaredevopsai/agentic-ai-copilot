@@ -6,11 +6,11 @@ What you will be able to do at the end of the module, how the module checks it, 
 
 | # | You can... | Evidence in the module |
 |---|---|---|
-| 1 | **Read idiomatic Python** at working speed: comprehensions, unpacking, truthiness, dataclasses, decorators, `with` | Lab 1 drills (19 checks); tiers 0&ndash;2 "Read the PR" votes |
-| 2 | **Spot the Python-specific bugs** that experienced engineers from other languages write once: mutable defaults, `is` for values, truthiness hiding zero, unenforced type hints | Lab 1 checks `add_tag`, `display_name`, `Ticket`; tier 0/1 PR slides |
+| 1 | **Read idiomatic Python** at working speed: comprehensions, unpacking, truthiness, dataclasses, decorators, `with` | Lab 1 drills (19 checks); "Read the PR" votes in sections 0&ndash;2 |
+| 2 | **Spot the Python-specific bugs** that experienced engineers from other languages write once: mutable defaults, `is` for values, truthiness hiding zero, unenforced type hints | Lab 1 checks `add_tag`, `display_name`, `Ticket`; section 0 and 1 PR slides |
 | 3 | **Structure a small package** with a domain exception hierarchy, per-module logging, and errors translated at the edge | Lab 2 (14 checks) |
 | 4 | **Build a typed JSON API** with FastAPI and pydantic v2, including validation, 404/422 semantics and dependency injection | Lab 3 (11 checks), `/docs` used by hand |
-| 5 | **Use async correctly**: concurrent awaits with `gather`, and never blocking I/O inside `async def` | Lab 3 timing check; tier 3 PR slide |
+| 5 | **Use async correctly**: concurrent awaits with `gather`, and never blocking I/O inside `async def` | Lab 3 timing check; section 3 PR slide |
 | 6 | **Build a server-rendered web page** on the same app, with htmx, safe templating and one shared validation contract | Lab 4 (8 checks, including XSS escaping); used in a browser |
 | 7 | **Test a Python service** with pytest fixtures, `TestClient` and dependency overrides | Read and run the 56 checks; the Lab 3 and Lab 5 stretch goals write new ones |
 | 8 | **Direct Copilot deliberately**: a tutor that explains before it writes, spec-first agent mode to build, tests as the finish line &mdash; with no code written by hand | Labs 1&ndash;5 |

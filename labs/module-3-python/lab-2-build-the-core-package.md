@@ -1,6 +1,6 @@
 # Lab 2 &mdash; Build the core package
 
-**Tier 2 &middot; Structure** &nbsp;|&nbsp; ~25 minutes &nbsp;|&nbsp; Mission 2 &nbsp;|&nbsp; Copilot: **your choice**
+**Mission 2 &middot; Core** &nbsp;|&nbsp; ~25 minutes &nbsp;|&nbsp; Copilot: **your choice**
 
 ## The situation
 
@@ -13,7 +13,7 @@ add later in the course, is built on.
 Open these and read them top to bottom. Ask Copilot Chat about anything you would not approve in a review.
 
 - `askops/models.py` &mdash; `@dataclass(frozen=True, slots=True)`, `StrEnum`, a `classmethod` constructor
-- `askops/store.py` &mdash; what is done, and the four TODOs
+- `askops/store.py` &mdash; what is done, and the five TODOs
 - `askops/search.py` &mdash; the docstring *is* the spec
 - `tests/test_m2_core.py` &mdash; especially `caplog` and `tmp_path`, two pytest fixtures you get for free
 

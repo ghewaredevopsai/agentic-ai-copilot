@@ -1,6 +1,6 @@
 # Lab 4 &mdash; Put a web page on it
 
-**Tier 4 &middot; Web app** &nbsp;|&nbsp; ~20 minutes &nbsp;|&nbsp; Mission 4 &nbsp;|&nbsp; Copilot: **agent mode (builder)**
+**Mission 4 &middot; Web page** &nbsp;|&nbsp; ~20 minutes &nbsp;|&nbsp; Copilot: **agent mode (builder)**
 
 ## The situation
 

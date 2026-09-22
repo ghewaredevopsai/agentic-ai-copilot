@@ -2,7 +2,7 @@
 
 Hands-on labs for Module 3. Every lab builds the same application,
 **AskOps**, from a pile of failing tests to a running web app, in about
-two and a half hours of hands-on time.
+2 hours 10 minutes of hands-on time.
 
 ## How these labs work
 
@@ -25,18 +25,18 @@ two and a half hours of hands-on time.
 
 ## The labs
 
-| Lab | Tier | Time | Mission | You leave with |
+| Lab | Section | Time | Mission | You leave with |
 |---|---|---|---|---|
-| [0 &mdash; Set up and meet your tutor](lab-0-set-up-and-meet-your-tutor.md) | T0 | 5 min | &mdash; | A venv, a red scoreboard and a working `/tutor` |
-| [1 &mdash; Drills with a tutor](lab-1-drills-with-a-tutor.md) | T1 | 30 min | 1 | Collections, comprehensions, errors, dataclasses in your fingers |
-| [2 &mdash; Build the core package](lab-2-build-the-core-package.md) | T2 | 25 min | 2 | A package with errors, logging and search, tested |
-| [3 &mdash; The API, spec-first](lab-3-the-api-spec-first.md) | T3 | 35 min | 3 | A FastAPI service with pydantic contracts and concurrent async I/O |
-| [4 &mdash; Put a web page on it](lab-4-put-a-web-page-on-it.md) | T4 | 20 min | 4 | A web app that updates without page reloads |
-| [5 &mdash; Review, reject, ship](lab-5-review-reject-ship.md) | T5 | 15 min | 5 | A rejected PR, a failure contract, and a PR of your own |
+| [0 &mdash; Set up and meet your tutor](lab-0-set-up-and-meet-your-tutor.md) | 0 | 5 min | &mdash; | A venv, a red scoreboard and a working `/tutor` |
+| [1 &mdash; Drills with a tutor](lab-1-drills-with-a-tutor.md) | 1 | 30 min | 1 | Collections, comprehensions, errors, dataclasses in your fingers |
+| [2 &mdash; Build the core package](lab-2-build-the-core-package.md) | 2 | 25 min | 2 | A package with errors, logging and search, tested |
+| [3 &mdash; The API, spec-first](lab-3-the-api-spec-first.md) | 3 | 35 min | 3 | A FastAPI service with pydantic contracts and concurrent async I/O |
+| [4 &mdash; Put a web page on it](lab-4-put-a-web-page-on-it.md) | 4 | 20 min | 4 | A web app that updates without page reloads |
+| [5 &mdash; Review, reject, ship](lab-5-review-reject-ship.md) | 5 | 15 min | 5 | A rejected PR, a failure contract, and a PR of your own |
 
 ## Set up
 
-**You need:** Python 3.14 (the version the course pins, so every lab repo runs identically), git, VS Code with GitHub Copilot signed in (a seat
+**You need:** Python 3.12 or newer (the trainer uses 3.14), git, VS Code with GitHub Copilot signed in (a seat
 that includes agent mode), and access to PyPI for `pip install`. A GitHub account for Lab 5's pull
 request is useful but not required.
 

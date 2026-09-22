@@ -19,6 +19,10 @@
    Score: 1/56
    ```
 
+   If you get `No module named 'pytest'` instead, the venv is not active in this terminal.
+   Run `source .venv/bin/activate` and try again. **You do this in every terminal you open**,
+   not once. Check which Python you are on with `which python`.
+
 3. Open Copilot Chat, type `/tutor` and press Enter. When it asks for the task, answer `word_counts`, and
    tell it the language you know best.
 4. Watch the order it works in: an explanation against your language, the code, the test run, the one line

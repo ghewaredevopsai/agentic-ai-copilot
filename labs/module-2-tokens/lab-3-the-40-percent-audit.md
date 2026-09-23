@@ -86,8 +86,11 @@ For every check below:
 - Type `#file:` and pick the `pack-….txt` file for that cut, then paste the question.
 - After the answer, open the **references** list above it. Write down any file Copilot added **by
   itself**. The meter cannot see those files.
-- If that list shows a `pack-` file for a different cut, or anything from the course's `solutions/`
-  folder, the check is not fair. Delete that chat and ask again in a new one.
+- If that list shows a `pack-` file for a different cut, or **any file from the course folder**
+  (`agentic-ai-copilot`), the check is not fair. The lab guides and tickets there, this page
+  included, state the right answer. Delete that chat and ask again in a new one. If it keeps
+  happening, remove the course folder from the VS Code workspace until the lab ends
+  (right-click it, **Remove Folder from Workspace**).
 
 ## Step 2 — Baseline
 
@@ -140,7 +143,12 @@ python $M2/tools/ctxmeter.py diff $M2/bundles/naive.txt $M2/bundles/minimal.txt
 **It will not print a headline percentage.** Read the message. The naive bundle is mostly Java. In
 the minimal one, more than half is prose and instructions. `ctxmeter` is less accurate on one kind of file
 than another, so its error does not cancel across a change like this. Decide whether to run it again
-with `--allow-mixed`, and be ready to say why that is, or is not, honest here.
+with `--allow-mixed`, and be ready to say why that is, or is not, honest here. It goes **after**
+`diff`, unlike `--rate`:
+
+```bash
+python $M2/tools/ctxmeter.py diff --allow-mixed $M2/bundles/naive.txt $M2/bundles/minimal.txt
+```
 
 ## Step 8 — Record
 

@@ -16,8 +16,8 @@ By the end you can:
 
 - **Which files are most of the bundle.** Check whether they have anything to do with the posting
   API.
-- **Turn 10 sends much more than turn 1**, although you typed less. Every agent chat grows this way.
-  It is not a fault.
+- **What ten turns cost in total.** Each turn sends the whole chat so far again, so ten turns cost
+  about eleven times one turn. Every agent chat grows this way. It is not a fault.
 - **Which of three things happens** when you look for your credit figure. All three are results.
 
 ---
@@ -56,8 +56,9 @@ it with every request in this repository.
 python $M2/tools/ctxmeter.py turns $M2/bundles/naive.txt --turns 10
 ```
 
-Compare what **turn 1** sends with what **turn 10** sends. The last column is the running total:
-what a ten-turn chat costs to send. Each turn sends the whole chat so far again.
+Compare what **turn 1** sends with what **turn 10** sends: turn 10 is only a quarter bigger. Now
+read the last column, the running total. That is what the whole ten-turn chat cost to send, and it
+is about eleven times turn 1. Each turn sends the whole chat so far again.
 
 ## Step 4 — Now look at the other tool
 
@@ -107,8 +108,8 @@ Fill in the blanks in any editor and save.
 
 - **The build scripts and the older account code are most of what gets sent**, and none of it
   decides how a posting works. Every "just use my codebase" request sends it anyway.
-- **Turn 10 sends much more than turn 1, although you typed less.** This is why "start a new chat"
-  is one of the cheapest savings you have.
+- **Ten turns cost about eleven times one turn**, because each turn sends the whole chat again.
+  This is why "start a new chat" is one of the cheapest savings you have.
 - **`ctxmeter` gives a minimum.** It counts what you listed. It cannot see Copilot's hidden system
   prompt, Copilot's own search, or files the agent opens by itself. Every number from this module
   means "at least this much".

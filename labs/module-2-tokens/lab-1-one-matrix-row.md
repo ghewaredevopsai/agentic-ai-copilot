@@ -96,8 +96,9 @@ How many of your three held? Most people get one.
 
 ## Step 4 — One real run
 
-Pick **one** task type and run it once, for real, on whatever model your seat gives you. This one is
-an `explain-code` task on `global-bank-account`. Use **Ask** mode and a **new chat**:
+Run **one** task for real, once, on whatever model your seat gives you. Everyone runs the same
+one, an `explain-code` task on `global-bank-account`, so the room can compare. Use **Ask** mode and a
+**new chat**:
 
 > Explain what `BalanceService.balanceMinorFor` does, and why this service works out a balance from
 > ledger entries instead of storing it. Name the files you relied on.

@@ -61,7 +61,7 @@ Open `tools/cascade.py` in this folder and find `decide()`. Replace its last lin
 with:
 
 ```python
-return confidence < 0.6
+return confidence < 0.5
 ```
 
 Run it again:
@@ -69,6 +69,12 @@ Run it again:
 ```bash
 python $M2/tools/cascade.py
 ```
+
+It sends one ticket to the strong model, and five wrong answers still get through. Change `0.5` to a
+higher number of your choice and run it again. Stop when you reach 100% accuracy. Write down the
+threshold and the cost.
+
+Step 4 shows you whether you found the cheapest one.
 
 ## Step 4 — See every threshold at once
 
@@ -78,8 +84,10 @@ python $M2/tools/cascade_report.py
 
 It prints one row per threshold: accuracy, cost and how many tickets went to the strong model.
 
-**Find the cheapest threshold that still reaches 100%.** Then look for a range of thresholds with
-the same cost. A threshold in the middle of that range still works if the data shifts a little.
+**Find the cheapest threshold that still reaches 100%.** Was it the one you found in Step 3? Then
+look for a range of thresholds with the same cost. The report names both: the cheapest one, and the
+middle of the flat range. The cheapest one sits at the edge of a jump in accuracy, so it only fits
+this sample. The middle one still works if the data shifts a little. That is the one to use.
 
 This report does not change `cascade.py`. Your gate from Step 3 stays as you wrote it.
 
@@ -116,8 +124,16 @@ If those two numbers were equal, your gate would be a coin toss that costs money
 python $M2/tools/cascade_report.py --record
 ```
 
-That writes `labs/my-work/lab-2-record.md`, with your threshold, the saving and the two confidence
-figures already filled in. **You fill in the four threshold rows and the last question.**
+That writes `labs/my-work/lab-2-record.md`, with every number from the report already filled in.
+**You answer the three questions at the end**: the threshold you would use and why, what equal
+confidence would mean, and the price ratio.
+
+Then put `cascade.py` back as it was. Your edit is in the course clone, and a later `git pull` of the
+course would stop on it:
+
+```bash
+git -C ~/agentic-ai-copilot checkout labs/module-2-tokens/tools/cascade.py
+```
 
 ## Key points
 
@@ -136,6 +152,7 @@ figures already filled in. **You fill in the four threshold rows and the last qu
 ## Stretch
 
 In `cascade.py`, change `COST_STRONG_MINOR` from 48 to 12, so the strong model costs three times as
-much instead of twelve. Run the report again. Does your threshold still make sense? At what price
+much instead of twelve. Run the report again, then put the file back with the same
+`git -C ~/agentic-ai-copilot checkout …` command as in Step 7. Does your threshold still make sense? At what price
 ratio does the cascade stop being worth the extra code? Take that ratio back to work, not the
 threshold.

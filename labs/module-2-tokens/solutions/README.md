@@ -87,8 +87,10 @@ gate < 0.90       100%      800         75%   full accuracy, 2.2x the cost of 0.
 gate < 1.01       100%     1040        100%   costs MORE than always-strong
 ```
 
-- **0.60 is the answer:** the strong model's accuracy for 38% of its price, a 62% saving.
-- **0.60 to 0.70 is flat.** Pick the middle of it, so small changes in the data do not break it.
+- **0.60 is the cheapest:** the strong model's accuracy for 38% of its price, a 62% saving.
+- **0.65 is the one to use.** 0.60 to 0.70 all cost the same. 0.60 sits at the edge, next to 0.50's
+  drop to 75%, so it only fits these twenty tickets. 0.65, in the middle, still works if the data
+  shifts a little, and it costs nothing extra.
 - **1.01 is the row to write down:** 1040 against always-strong's 960, with 100% accuracy.
 - **0.80 and 0.90 are waste that looks careful:** still 100%, at 1.5 and 2.2 times the cost of 0.60.
 - **Confidence:** 0.85 when right (14 tickets) against 0.53 when wrong (6 tickets). They are well
@@ -144,11 +146,11 @@ which makes it stronger.
 | Version | est. tokens |
 |---|--:|
 | The morning prompt with the data | 2,850 |
-| The short prompt, counts supplied | 499 |
+| The short prompt, counts and amounts supplied | 539 |
 | Python | 0 |
 
 Both token figures include the 389-token always-on instruction file. Without it, the drop is from
-2,461 to 110 tokens.
+2,461 to 150 tokens.
 
 The code version, every time:
 

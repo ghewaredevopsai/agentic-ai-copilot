@@ -51,6 +51,8 @@ def main() -> int:
 
     strong = base["always_strong"]["cost_minor"]
     best = best_cost = None
+    rows = {}
+    plateau = []
     for t in THRESHOLDS:
         casc.decide = (lambda th: (lambda a, c, case: c < th))(t)
         r = casc.run(cases)
@@ -60,13 +62,24 @@ def main() -> int:
         elif r["accuracy"] >= base["always_strong"]["accuracy"]:
             if best is None:
                 best, best_cost, note = t, r["cost_minor"], "cheapest at full accuracy"
+                plateau.append(t)
             elif r["cost_minor"] == best_cost:
                 note = "same cost - the plateau"
+                plateau.append(t)
             else:
                 note = "full accuracy, %.1fx the cost of %.2f" % (r["cost_minor"] / best_cost, best)
+        rows[t] = r
         print("%-12s %8.0f%% %8d %10.0f%%   %s"
               % ("gate < %.2f" % t, 100 * r["accuracy"], r["cost_minor"],
                  100 * r["escalation_rate"], note))
+
+    safe = plateau[len(plateau) // 2] if plateau else None
+    if len(plateau) > 1:
+        print()
+        print("  %.2f is the cheapest, but it sits at the edge of a jump in accuracy."
+              % plateau[0])
+        print("  %.2f to %.2f cost the same. %.2f, in the middle, still works if the data shifts."
+              % (plateau[0], plateau[-1], safe))
 
     right = [c["cheap_confidence"] for c in cases if c["cheap_answer"] == c["true_answer"]]
     wrong = [c["cheap_confidence"] for c in cases if c["cheap_answer"] != c["true_answer"]]
@@ -78,33 +91,37 @@ def main() -> int:
     print()
 
     if "--record" in sys.argv:
-        casc.decide = (lambda a, c, case: c < best) if best else casc.decide
-        chosen = casc.run(cases) if best else None
-        saving = ("%.0f%%" % (100 * (strong - chosen["cost_minor"]) / strong)) if chosen else "____"
+        def row(t):
+            r = rows[t]
+            return "%.2f        %3.0f%%       %4d   %3.0f%%" % (
+                t, 100 * r["accuracy"], r["cost_minor"], 100 * r["escalation_rate"])
+        saving = ("%.0f%%" % (100 * (strong - best_cost) / strong)) if best else "____"
         MY_WORK.mkdir(exist_ok=True)
         (MY_WORK / "lab-2-record.md").write_text(f"""# Lab 2
 
 threshold   accuracy   cost   escalated
-0.40        ____       ____   ____
-0.60        ____       ____   ____
-0.80        ____       ____   ____
-1.01        ____       ____   ____
+{row(0.40)}
+{row(0.60)}
+{row(0.80)}
+{row(1.01)}
 
-Cheapest threshold at 100% accuracy: {best if best else '____'}
-Cost there vs always-strong: {saving} saving
-
-Escalate-everything cost ______ against always-strong's {strong}.
-
+Cheapest threshold at 100% accuracy: {best if best else '____'} ({saving} saving against always-strong)
+Middle of the flat range: {safe if safe else '____'}
+Escalate-everything cost {rows[1.01]["cost_minor"]} against always-strong's {strong}.
 Confidence when right {sum(right)/len(right):.2f} vs when wrong {sum(wrong)/len(wrong):.2f}.
-Would this cascade work if those two numbers were equal?  ______
 
 --- fill this in yourself ---
+
+The threshold I would use, and why:
+____________________________________________________________
+
+Would this cascade work if the two confidence numbers were equal?  ______
 
 At what price ratio between the two models does the cascade stop being worth
 its complexity?
 ____________________________________________________________
 """, encoding="utf-8")
-        print("  wrote labs/my-work/lab-2-record.md - fill in the four sweep rows and the last question")
+        print("  wrote labs/my-work/lab-2-record.md - the numbers are filled in; answer the three questions")
         print()
     return 0
 

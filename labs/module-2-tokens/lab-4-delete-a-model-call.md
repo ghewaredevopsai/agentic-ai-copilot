@@ -1,6 +1,6 @@
 # Lab 4 — Delete a model call
 
-**About 12 minutes** · Copilot optional · Measured, not scored
+**About 12 minutes** · Copilot for Step 2 only · Measured, not scored
 
 ## What you will find out
 
@@ -60,8 +60,12 @@ Save the three replies in `$M2/../my-work/`, then answer two questions:
   `invalid-amount` into its three messages?)
 - Are the three **counts and totals** the same? Check them against Step 3.
 
-Open the **references** list above each reply. If it shows anything from the course's `solutions/`
-folder, Copilot read the answer by itself. Delete that chat and run it again.
+Open the **references** list above each reply. If it shows any file from the course folder
+(`agentic-ai-copilot`) other than the one you attached, Copilot may have read the answer by itself:
+this page shows the counts in Step 3. Delete that chat and run it again.
+
+**No Copilot on your seat?** Skip this step. Write "not run" in the first row of your sheet, and
+carry on from Step 3.
 
 ## Step 3 — Run the code version
 
@@ -89,14 +93,19 @@ Same command, three times. Compare the three outputs.
 The counting is settled. What is left is **what to work on first, and why**. That depends on the
 day, on who is on shift and on which clients are affected. That is a real judgement.
 
-Write a much shorter prompt that asks only for the judgement, with the counts supplied. Save it as
+Write a much shorter prompt that asks only for the judgement, with the counts and amounts
+supplied. The amounts matter: without them, the model cannot see where the money is. Save it as
 `$M2/../my-work/prompt-short.txt`:
 
 ```text
-Here are this morning's rejected postings, counted:
-  unknown-account: 11 (ACC-CLIENT-003 x3, ACC-CLIENT-01 x3, ACC-PAYROL x3, ACC-SUSPENCE x2)
-  invalid-amount: 7 (3 zero or negative, 2 over the posting limit, 2 same account)
-  currency-mismatch: 5 (all from the USD client pool to an INR account)
+Here are this morning's rejected postings, counted. Amounts are in minor units.
+  unknown-account: 11, total 26929300
+    ACC-CLIENT-003 x3, ACC-CLIENT-01 x3, ACC-PAYROL x3, ACC-SUSPENCE x2
+  invalid-amount: 7, total 20050725802
+    2 over the posting limit, together 20050000002
+    3 zero or negative, 2 with the same debit and credit account
+  currency-mismatch: 5, total 3361400
+    all from ACC-USD-001 (USD) to INR accounts: 4 to ACC-FEES, 1 to ACC-CLIENT-001
 
 Suggest what the duty operations analyst should work on first, and why, in under
 80 words. If the counts alone do not justify a recommendation, say so.
@@ -116,10 +125,10 @@ Compare the total with Step 1. Both totals include the same always-on instructio
 cat > $M2/../my-work/lab-4-record.md <<'EOF'
 # Lab 4
 
-                          est. tokens   time taken   3 runs the same?
-prompt as it stands       ______        ______       ___
-Python                    0             ______       ___
-short prompt, counts fed  ______        ______       ___
+                          est. tokens   3 runs the same?
+prompt as it stands       ______        ___   (groupings ___  counts and totals ___)
+Python                    0             ___
+short prompt, counts fed  ______        (not run three times: it asks only for a judgement)
 
 Tokens saved per morning: ______   Per year, at one run a working day: ______
 
@@ -146,7 +155,7 @@ Fill in the blanks and save.
 
 ## Stretch
 
-Look at the older account code: `service/AccountServiceImpl.java` and `model/Account.java`. They
-hold a balance as a `double`. Ask Copilot what is wrong with that, then check its answer against
+Look at the older account code: `model/Account.java` holds a balance as a `double`, and
+`service/AccountServiceImpl.java` adds to it and subtracts from it. Ask Copilot what is wrong with that, then check its answer against
 `docs/adr/ADR-003-amounts-as-minor-units.md` yourself. Which problems are about money, and which are
 about Copilot learning a bad pattern from your own codebase?

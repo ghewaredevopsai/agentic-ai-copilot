@@ -51,7 +51,19 @@ When Copilot asks to run a command or use a tool, **read the request before you 
 
 `./mvnw` does not work in this repository. Use `mvn`.
 
-### 2. Clone the repository
+### 2. Clone this course
+
+The lab tools, bundles and Module 4's agent live in this course repository. Clone it into your home
+folder, because the lab commands expect it at `~/agentic-ai-copilot`:
+
+```bash
+cd ~
+git clone https://github.com/ghewaredevopsai/agentic-ai-copilot.git
+ls ~/agentic-ai-copilot/labs
+# must include: module-2-tokens, module-3-python, module-4-agent, tickets
+```
+
+### 3. Clone the practice repository
 
 ```bash
 mkdir -p ~/gb-labs && cd ~/gb-labs
@@ -71,7 +83,7 @@ git tag --list 'm[134]-start*'
 
 **Nothing is pushed.** You work on local branches in your own clone, all day.
 
-### 3. Build it once
+### 4. Build it once
 
 ```bash
 git switch -c setup-check m3-start && mvn test
@@ -81,9 +93,10 @@ git switch -c setup-check m3-start && mvn test
 The first build downloads Maven packages, so it takes a few minutes. Do this before the session, not
 during it.
 
-### 4. Open both folders in one VS Code window
+### 5. Open both folders in one VS Code window
 
-Open `global-bank-account`, then **File**, **Add Folder to Workspace**, and add this course folder.
+Open `global-bank-account`, then **File**, **Add Folder to Workspace**, and add this course folder,
+`~/agentic-ai-copilot`.
 Copilot then sees the code and the lab tickets at the same time. Every lab depends on this.
 
 ## Where each lab starts

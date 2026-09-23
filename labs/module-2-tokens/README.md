@@ -26,14 +26,15 @@ Each lab follows the part of the deck that it practises.
 
 ## Setup (2 minutes)
 
-You need the `global-bank-account` clone from Module 1, and **Python 3.14**. Nothing is installed,
+You need the course clone at `~/agentic-ai-copilot` and the `global-bank-account` clone, both from
+the [one-time setup](../README.md#one-time-setup), and **Python 3.14**. Nothing is installed,
 and no lab tool reaches the network.
 
 In a Git Bash or terminal window, point `M2` at this folder, then go to your clone at the Module 1
 tag that has the team's docs:
 
 ```bash
-export M2=~/agentic-ai-copilot/labs/module-2-tokens     # change this to where your course folder is
+export M2=~/agentic-ai-copilot/labs/module-2-tokens     # the course clone from labs/README.md setup step 2
 cd ~/gb-labs/global-bank-account
 git fetch --tags --force
 git switch --detach m3-start

@@ -41,7 +41,7 @@ You need **Python 3.14** (3.11 or newer works), a bash terminal and VS Code with
 Open **two terminals**, both in the lab folder:
 
 ```bash
-cd <this course folder>/labs/module-4-agent
+cd ~/agentic-ai-copilot/labs/module-4-agent
 ls
 # must list: agent.py  agent_sdk.py  askops_data.json  fake_llm.py  solutions
 ```
@@ -273,7 +273,7 @@ the trainer's screen, and still fill in the table.
 2. Install the SDK in a virtual environment:
 
    ```bash
-   cd <this course folder>/labs/module-4-agent
+   cd ~/agentic-ai-copilot/labs/module-4-agent
    python -m venv .venv
    source .venv/bin/activate          # Git Bash on Windows: source .venv/Scripts/activate
    pip install github-copilot-sdk

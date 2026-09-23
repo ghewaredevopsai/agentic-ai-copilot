@@ -46,6 +46,11 @@ The lab guides are in `labs/`. Start with `labs/README.md`, which covers setup.
 - **Python 3.14**, with `pip` or `uv`, for the later modules. Module 3's labs need access to PyPI for
   `pip install`, so check it works on the corporate network before the course
 - **git**, a terminal and a modern browser
+- A clone of this course repository in your home folder, so the lab commands find it at
+  `~/agentic-ai-copilot`:
+  ```bash
+  cd ~ && git clone https://github.com/ghewaredevopsai/agentic-ai-copilot.git
+  ```
 - A clone of the practice repository, **with its tags**:
   ```bash
   git clone https://github.com/brainupgrade-in/global-bank-account

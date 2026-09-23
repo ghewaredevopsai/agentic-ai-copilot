@@ -159,7 +159,7 @@ have. Sort each one into one of two kinds:
 |---|---|
 | "No, do not delete the posting" | A fact. GB-151 and `docs/glossary.md` both say it. Rule: "A reversal never deletes a posting." |
 | "Use a slice test, not @SpringBootTest" | A fact. Rule: "Slice tests only. Never `@SpringBootTest`." |
-| "Don't add a reason-code field, we never agreed one" | A stop condition: "If you need a field, code or status value that no file in this repository defines, stop and ask." |
+| "Don't copy the `Authorization` token check from `AccountController`" | A stop condition. Nothing in the repository says who may reverse a posting. "If the change needs an access check and no file says how the posting API is secured, stop and ask." |
 | (yours) | (yours) |
 
 "Ask if you are unsure" changes nothing. The model does not feel unsure the way a person does. A
@@ -525,10 +525,11 @@ Markdown, so change that. Open `.github/prompts/gb-change.prompt.md` and replace
 that starts `Find the GitHub issue` with this one line:
 
 ```text
-Read the ticket file labs/tickets/${input:ticket}.md in the course folder of this workspace.
+Read the ticket file labs/tickets/${input:ticket}.md in the course folder of this workspace. Never read the .env file.
 ```
 
-Leave the rest of the file alone. Then check and commit:
+The second sentence was in the paragraph you replaced, so it goes back in. Leave the rest of the
+file alone. Then check and commit:
 
 ```bash
 grep -n "GitHub issue\|MCP tools" .github/prompts/gb-change.prompt.md
@@ -711,8 +712,10 @@ ticket this module is about.
 **Goal:** put one of your Lab 1 fix-up prompts into the skill file, and see whether it changes the
 run. Do this if you finish Lab 4 early.
 
-Open `labs/my-work/lab-1-teardown.md` and pick one stop condition from your Step 4 table. On the
-Column B branch, add it to the "Stop and ask" section of the skill file:
+Open `labs/my-work/lab-1-teardown.md` and pick one stop condition from your Step 4 table. Read the
+"Stop and ask" section of `.github/skills/account-change/SKILL.md` first, and pick one that is not
+already there. A line the file already has cannot change the run. On the Column B branch, add it to
+that section:
 
 ```bash
 git switch eval-B

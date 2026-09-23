@@ -143,8 +143,11 @@ Each lab writes notes to `labs/my-work/` in this course folder. That folder is y
 committed, and nobody reads it but you.
 
 ```bash
-mkdir -p labs/my-work
+mkdir -p ~/agentic-ai-copilot/labs/my-work
 ```
+
+Use the full path. If you run it from inside `global-bank-account`, the folder lands in the
+practice repository, and every "must print nothing" check in the labs then fails.
 
 ## Running a lab again
 

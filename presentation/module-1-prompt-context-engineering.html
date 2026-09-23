@@ -293,40 +293,53 @@ Add POST /api/v1/postings/{id}/reversal.
 </section>
 
 <!-- 7 -->
-<section class="slide" data-sec="1 &middot; Anatomy of an instruction" data-title="Four patterns, in their agentic form" data-notes="You may know these four patterns from chat tools. With an agent, which edits files and runs tests, each one looks a little different. Few-shot means showing an example. In a repo, name one real file such as PostingController.java. Made-up examples teach made-up conventions. Chain of thought means reasoning before acting. Modern models already reason, so asking them to 'think step by step' adds little. What still helps is asking for a plan you can read before any file changes. Decomposition means splitting the ticket into steps. Each step ends with passing tests, so you know where a failure is. Self-critique means the agent checks its own work. It does find missing items, such as a missing test. It cannot find its own misreading of the ticket, because the check uses the same understanding. Section 4 returns to this." data-tier="K">
-  <h2>Four prompting patterns &mdash; and how to use them with an agent<span class="tag k">1</span></h2>
+<section class="slide" data-sec="1 &middot; Anatomy of an instruction" data-title="Four patterns, in their agentic form" data-notes="You may know these four patterns from chat tools. The easiest way to tell them apart is to ask which part of the task each one controls, and when. Few-shot controls what the result looks like. It is an input, given before the work starts. With an agent, name one real file such as PostingController.java instead of pasting examples. Made-up examples teach made-up conventions. Chain of thought controls what the agent plans to do. Modern models already reason, so 'think step by step' adds little. What still helps is asking for a plan you can read before any file changes. This is what Plan mode does. Decomposition controls how the work is split. The agent works in small steps, and the tests must pass after each one. People often mix up these two. Chain of thought gives you one approval gate: you read one plan and catch a wrong plan. Decomposition gives you several checkpoints: when something breaks, you know which step broke it. Self-critique controls whether the work is finished. It is the weakest of the four. The same agent checks its own work with the same understanding it used to write it. So it finds missing items, such as a missing test, but it cannot find its own misreading of the ticket. That is why an independent reviewer is needed: you in Module 3, and a second agent on Day 2. Use a pattern when it gives you something to check." data-tier="K">
+  <h2>Four prompting patterns &mdash; each controls a different part of the task<span class="tag k">1</span></h2>
   <div class="body g1">
     <div>
-      <svg viewBox="0 0 1180 452" role="img" aria-label="Few-shot, chain of thought, decomposition and self-critique: what to write and what each gives you">
+      <svg viewBox="0 0 1180 452" role="img" aria-label="Few-shot, chain of thought, decomposition and self-critique: what each controls, when it applies, what to write and what you check">
         <rect class="bx d" x="4" y="4" width="1172" height="30" rx="6"/>
         <text class="lb w" x="24" y="24">PATTERN</text>
-        <text class="lb w" x="250" y="24">WHAT TO WRITE &mdash; GB-151</text>
-        <text class="lb w" x="800" y="24">WHAT YOU GET</text>
-        <rect class="bx grow" x="4" y="42" width="1172" height="72" rx="6"/>
-        <text class="tt" x="24" y="72">Few-shot</text>
-        <text class="ss" x="24" y="94">show an example</text>
-        <text class="ss" x="250" y="84" style="font-size:14px;fill:#e0b34d">&ldquo;Copy the style of PostingController.java.&rdquo;</text>
-        <text class="ss" x="800" y="84" style="font-size:14px">One real file beats made-up examples.</text>
-        <rect class="bx grow w2" x="4" y="120" width="1172" height="72" rx="6"/>
+        <text class="lb w" x="220" y="24">CONTROLS</text>
+        <text class="lb w" x="440" y="24">WHEN</text>
+        <text class="lb w" x="590" y="24">YOU WRITE &mdash; GB-151</text>
+        <text class="lb w" x="900" y="24">YOU CHECK</text>
+        <rect class="bx grow" x="4" y="42" width="1172" height="64" rx="6"/>
+        <text class="tt" x="24" y="80">Few-shot</text>
+        <text class="ss" x="220" y="79" style="font-size:14px">What the result looks like</text>
+        <text class="ss" x="440" y="79" style="font-size:14px;fill:#6ea8fe;font-weight:600">Before: input</text>
+        <text class="ss" x="590" y="69" style="font-size:14px;fill:#e0b34d">&ldquo;Copy the style of</text>
+        <text class="ss" x="590" y="89" style="font-size:14px;fill:#e0b34d">PostingController.java.&rdquo;</text>
+        <text class="ss" x="900" y="79" style="font-size:14px">New code matches that file.</text>
+        <rect class="bx grow w2" x="4" y="112" width="1172" height="64" rx="6"/>
         <text class="tt" x="24" y="150">Chain of thought</text>
-        <text class="ss" x="24" y="172">plan before acting</text>
-        <text class="ss" x="250" y="162" style="font-size:14px;fill:#e0b34d">&ldquo;List the files you will change. Wait for my OK.&rdquo;</text>
-        <text class="ss" x="800" y="162" style="font-size:14px">You check the plan before any code changes.</text>
-        <text class="ss" x="800" y="182" style="font-size:13px;fill:#6ea8fe">This is what Plan mode does.</text>
-        <rect class="bx grow w3" x="4" y="198" width="1172" height="72" rx="6"/>
-        <text class="tt" x="24" y="228">Decomposition</text>
-        <text class="ss" x="24" y="250">small steps</text>
-        <text class="ss" x="250" y="240" style="font-size:14px;fill:#e0b34d">&ldquo;Domain, then service, then controller. Tests pass after each.&rdquo;</text>
-        <text class="ss" x="800" y="240" style="font-size:14px">If something breaks, you know which step.</text>
-        <rect class="bx r grow w4" x="4" y="276" width="1172" height="84" rx="6"/>
-        <text class="tt" x="24" y="308">Self-critique</text>
-        <text class="ss" x="24" y="330">check your own work</text>
-        <text class="ss" x="250" y="320" style="font-size:14px;fill:#e0b34d">&ldquo;Check your change against each done criterion.&rdquo;</text>
-        <text class="ss" x="800" y="308" style="font-size:14px">Finds <tspan font-weight="600" fill="#5fbf8f">missing items</tspan>.</text>
-        <text class="ss" x="800" y="332" style="font-size:14px;fill:#e2726e;font-weight:600">Cannot find its own misunderstanding.</text>
+        <text class="ss" x="220" y="149" style="font-size:14px">What it plans to do</text>
+        <text class="ss" x="440" y="149" style="font-size:14px;fill:#6ea8fe;font-weight:600">Before any edit</text>
+        <text class="ss" x="590" y="139" style="font-size:14px;fill:#e0b34d">&ldquo;List the files you will change.</text>
+        <text class="ss" x="590" y="159" style="font-size:14px;fill:#e0b34d">Wait for my OK.&rdquo;</text>
+        <text class="ss" x="900" y="139" style="font-size:14px">One plan, approved once.</text>
+        <text class="ss" x="900" y="159" style="font-size:14px;fill:#6ea8fe;font-size:13px">This is what Plan mode does.</text>
+        <rect class="bx grow w3" x="4" y="182" width="1172" height="64" rx="6"/>
+        <text class="tt" x="24" y="220">Decomposition</text>
+        <text class="ss" x="220" y="219" style="font-size:14px">How the work is split</text>
+        <text class="ss" x="440" y="219" style="font-size:14px;fill:#6ea8fe;font-weight:600">During the work</text>
+        <text class="ss" x="590" y="209" style="font-size:14px;fill:#e0b34d">&ldquo;Domain, then service, then</text>
+        <text class="ss" x="590" y="229" style="font-size:14px;fill:#e0b34d">controller. Tests pass after each.&rdquo;</text>
+        <text class="ss" x="900" y="219" style="font-size:14px">A checkpoint after each step.</text>
+        <rect class="bx r grow w4" x="4" y="252" width="1172" height="64" rx="6"/>
+        <text class="tt" x="24" y="290">Self-critique</text>
+        <text class="ss" x="220" y="289" style="font-size:14px">Whether it is finished</text>
+        <text class="ss" x="440" y="289" style="font-size:14px;fill:#6ea8fe;font-weight:600">After the work</text>
+        <text class="ss" x="590" y="279" style="font-size:14px;fill:#e0b34d">&ldquo;Check your change against</text>
+        <text class="ss" x="590" y="299" style="font-size:14px;fill:#e0b34d">each done criterion.&rdquo;</text>
+        <text class="ss" x="900" y="279" style="font-size:14px">Finds <tspan font-weight="600" fill="#5fbf8f">missing items</tspan>.</text>
+        <text class="ss" x="900" y="299" style="font-size:14px;fill:#e2726e;font-weight:600">Cannot find its own misreading.</text>
 
-        <rect class="bx d" x="4" y="372" width="1172" height="52" rx="8"/>
-        <text class="ss w" x="24" y="404" style="font-size:15px">Use a pattern when it gives you <tspan font-weight="700" fill="#e0b34d">something to check</tspan>: a plan, a passing step, a list.</text>
+        <rect class="bx d" x="4" y="326" width="1172" height="118" rx="8"/>
+        <text class="ss w" x="24" y="356" style="font-size:15px"><tspan font-weight="700" fill="#6ea8fe">Chain of thought:</tspan> one plan, checked once, catches a <tspan font-weight="700">wrong plan</tspan>.</text>
+        <text class="ss w" x="24" y="380" style="font-size:15px"><tspan font-weight="700" fill="#6ea8fe">Decomposition:</tspan> a checkpoint after each step shows <tspan font-weight="700">which step broke</tspan>.</text>
+        <text class="ss w" x="24" y="408" style="font-size:15px"><tspan font-weight="700" fill="#e2726e">Self-critique is the weakest:</tspan> the same agent checks with the same understanding.</text>
+        <text class="ss w" x="24" y="432" style="font-size:15px">A reviewer who did not write the code catches misreadings: you in Module 3, a second agent on Day 2.</text>
       </svg>
     </div>
   </div>

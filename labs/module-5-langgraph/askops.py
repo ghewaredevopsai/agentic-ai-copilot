@@ -47,10 +47,12 @@ def open_incident(title, severity, service, runbook_id=None):
 # ---------------------------------------------------------------- the same tools, for LangChain
 def langchain_tools():
     """The four tools as LangChain tools, the way you write them in Lab 5.1."""
+    from typing import Literal
     from langchain.tools import tool
 
     @tool("search_runbooks")
-    def _search(query: str, service: str | None = None) -> str:
+    def _search(query: str,
+                service: Literal["payments", "auth", "reporting"] | None = None) -> str:
         """Find runbooks that match a symptom, such as '502 after deploy'.
         Use for how-to-fix questions. Not for open incidents."""
         return search_runbooks(query, service)

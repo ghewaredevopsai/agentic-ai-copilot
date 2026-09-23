@@ -72,12 +72,13 @@ in this table in your notes:
 | Where is the step budget? | | |
 | Which tools may write? Who decides? | | |
 
-The tokens should be close, because the same messages go to the model. The last row is the same in
-both columns: your code decides.
+The tokens should be a little lower in Lab 5.1, because Day 1 sent four tool descriptions with every
+call and Lab 5.1 sends three. The last row is the same in both columns: your code decides.
 
 ## Lab 5.2 — LangGraph: the AskOps triage graph
 
-You first see, in a few lines, why a **reducer** matters: without one, a second node's write silently
+You first print the graph that `create_agent` built for you in Lab 5.1. Then you see, in a few lines,
+why a **reducer** matters: without one, a second node's write silently
 replaces the first. Then you write five nodes, each a plain function that returns only what it
 changed. Two of them ask the model. You join the nodes with a router and a **cycle**, and stream three
 questions through the graph with `stream_mode="updates"`.
@@ -94,7 +95,8 @@ yourself whether it may open the incident.
 
 Answer two questions in your notes:
 
-1. Why must `interrupt()` come **before** `open_incident` in the node, never after it?
+1. A node calls `open_incident`, and then the kernel dies before the node returns. What happens when
+   you resume? What does that tell you about where `interrupt()` must go?
 2. On Day 1 you approved `open_incident` with an `if` statement while the program waited. What does
    the checkpointer let the approval do that the `if` could not?
 
@@ -117,12 +119,12 @@ Answer two questions in your notes:
 - LangChain replaces the code you wrote on Day 1: prompts, the model call, tool schemas and the loop.
   It sends the same messages, so the Module 4 rules still apply.
 - A tool's docstring and type hints are what the model reads.
-- `recursion_limit` is your step budget: 2 steps for each tool call, plus 2.
+- `recursion_limit` is your step budget: 2 steps for each round of tool calls, plus 2.
 - A node returns only what it changed. The reducer decides how the change joins the state.
 - Every cycle needs a stop rule in the state, with a step limit behind it.
 - A checkpointer and a `thread_id` give you memory, an audit trail and resume after a crash.
-- Put a person's approval in front of any tool that writes. The pause is a saved state, so the answer
-  can come a minute later or the next morning.
+- Put a person's approval in front of any tool that writes. The pause is a saved state. With a
+  checkpointer that writes to a database, the answer can come a minute later or the next morning.
 
 ---
 *Gheware DevOps & Agentic AI · [devops.gheware.com](https://devops.gheware.com)*

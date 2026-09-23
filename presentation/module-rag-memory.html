@@ -354,7 +354,7 @@ hits = col.query(
 </section>
 
 <!-- 9 -->
-<section class="slide" data-sec="Labs" data-title="Lab R.1 &mdash; Hybrid retrieval" data-notes="In Lab R.1 you build the first half of AskOps's new search. You split a set of runbooks into chunks, one per section, and give each chunk its metadata. You load them into a Chroma collection and search by vector. Then you search the same chunks by keyword with BM25, and compare the two result lists on questions of both kinds: ones with an exact code, and ones written in other words. Finally you write the RRF merge yourself and check that hybrid search finds what each half missed. The notebook checks your work as you go: each check prints PASS, FAIL or TODO. The lab runs in the sandbox JupyterLab, and the embedding model is already there." data-tier="K">
+<section class="slide" data-sec="Labs" data-title="Lab R.1 &mdash; Hybrid retrieval" data-notes="In Lab R.1 you build the first half of AskOps's new search. You split a set of runbooks into chunks, one per section, and give each chunk its metadata. You load them into a Chroma collection and search by vector. Then you search the same chunks by keyword with BM25, and compare the two result lists on questions of both kinds: ones with an exact code, and ones written in other words. Then you merge them with RRF, and measure that hybrid search finds what each half missed. Last, the sandbox model answers a question from the chunks hybrid search found. The lab runs in the sandbox JupyterLab, and the embedding model is already there." data-tier="K">
   <h2>Lab R.1 &mdash; <em>hybrid retrieval</em><span class="tag">LAB</span></h2>
   <div class="body g1">
     <div>
@@ -364,8 +364,8 @@ hits = col.query(
         <text class="tt" x="24" y="64">Hybrid retrieval</text>
         <text class="ss" x="24" y="104" style="font-size:16px">Split the runbooks into chunks, with metadata, and load them into Chroma.</text>
         <text class="ss" x="24" y="136" style="font-size:16px">Search the same chunks by keyword (BM25) and by vector.</text>
-        <text class="ss" x="24" y="168" style="font-size:16px">Write the RRF merge yourself, and compare all three result lists.</text>
-        <text class="ss" x="24" y="200" style="font-size:16px"><tspan style="fill:#6ea8fe">Each check prints PASS, FAIL or TODO.</tspan></text>
+        <text class="ss" x="24" y="168" style="font-size:16px">Merge them with RRF, and compare all three on 14 questions.</text>
+        <text class="ss" x="24" y="200" style="font-size:16px"><tspan style="fill:#6ea8fe">The model answers a question from the hybrid top 3.</tspan></text>
 
         <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
         <text class="lb w" x="24" y="268">WHERE</text>
@@ -417,7 +417,7 @@ hits = col.query(
 </section>
 
 <!-- 11 -->
-<section class="slide" data-sec="Labs" data-title="Lab R.2 &mdash; Rerankers" data-notes="In Lab R.2 you add the second stage to the search you built in Lab R.1. You take the top 20 hybrid results for each question and rerank them in two ways. First, a small cross-encoder model scores each question and chunk pair. Second, the sandbox model reads all 20 chunks in one prompt and names the best 3. You use the 14 questions from Lab R.1, where you know which chunk holds the answer. You count how often that chunk is in the top 3 and in first place, before and after each reranker. You also time each run and count the LLM's tokens, so you can weigh each gain against its cost. The first run downloads the small reranker model, so start that cell early." data-tier="K">
+<section class="slide" data-sec="Labs" data-title="Lab R.2 &mdash; Rerankers" data-notes="In Lab R.2 you add the second stage to the search you built in Lab R.1. You take the top 20 hybrid results for each question and rerank them in two ways. First, a small cross-encoder model scores each question and chunk pair. Second, the sandbox model reads all 20 chunks in one prompt and names the best 3. You use the 14 questions from Lab R.1, where you know which chunk holds the answer. You count how often that chunk is in the top 3 and in first place, before and after each reranker. You also time each run and count the LLM's tokens, so you can weigh each gain against its cost. Both rerankers are already in the sandbox, so nothing is downloaded." data-tier="K">
   <h2>Lab R.2 &mdash; <em>rerankers</em><span class="tag">LAB</span></h2>
   <div class="body g1">
     <div>
@@ -543,7 +543,7 @@ hits = col.query(
 </section>
 
 <!-- 14 -->
-<section class="slide" data-sec="Labs" data-title="Lab R.3 &mdash; Long-term memory policies" data-notes="In Lab R.3 you give AskOps a long-term memory store in Chroma and write the rules that keep it useful. First you write the write policy: a function that decides whether a candidate memory may be saved at all. Then you make sure one fact has one entry, so a newer fact replaces the older one instead of sitting next to it. Last you add eviction: entries expire after their time to live, and when the store is over its size limit, the least recently used entry is removed. The lab uses a pretend clock, so you can move time forward without waiting. The checks run a short script of conversations against your store and tell you which rule let something through." data-tier="K">
+<section class="slide" data-sec="Labs" data-title="Lab R.3 &mdash; Long-term memory policies" data-notes="In Lab R.3 you give AskOps a long-term memory store in Chroma and read the rules that keep it useful. First, the write policy: a function that decides whether a candidate memory may be saved at all. Then one fact keeps one entry, so a newer fact replaces the older one instead of sitting next to it. Then eviction: entries expire after their time to live, and when the store is over its size limit, the least recently used entry is removed. The lab uses a pretend clock, so you can move time forward without waiting. You run a month of sessions against the store, and on day 60 the model answers from what the store still remembers." data-tier="K">
   <h2>Lab R.3 &mdash; <em>long-term memory policies</em><span class="tag">LAB</span></h2>
   <div class="body g1">
     <div>
@@ -551,9 +551,9 @@ hits = col.query(
         <rect class="bx grow" x="4" y="4" width="1172" height="220" rx="8"/>
         <text class="lb" x="24" y="32">LAB R.3</text>
         <text class="tt" x="24" y="64">Long-term memory policies</text>
-        <text class="ss" x="24" y="104" style="font-size:16px">Write the write policy: which memories may be saved at all.</text>
+        <text class="ss" x="24" y="104" style="font-size:16px">The write policy: which memories may be saved at all.</text>
         <text class="ss" x="24" y="136" style="font-size:16px">Keep one entry per fact: a newer fact replaces the older one.</text>
-        <text class="ss" x="24" y="168" style="font-size:16px">Add eviction: a time to live, and a size limit that drops the least recently used.</text>
+        <text class="ss" x="24" y="168" style="font-size:16px">Eviction: a time to live, and a size limit that drops the least recently used.</text>
         <text class="ss" x="24" y="200" style="font-size:16px"><tspan style="fill:#6ea8fe">A pretend clock moves time forward, so nothing waits.</tspan></text>
 
         <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>

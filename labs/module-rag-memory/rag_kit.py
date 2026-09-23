@@ -1,6 +1,6 @@
 """Shared helpers for the RAG and memory labs (R.1 to R.4).
 
-Everything here is given. You read it; the notebooks ask you to write the parts that matter.
+The notebooks import it, so each lab shows only what is new. You can read it; you do not edit it.
 
     load_runbooks()      read data/runbooks/*.md into dicts
     split_runbook()      one chunk per "## " section, each with metadata

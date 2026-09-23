@@ -7,7 +7,7 @@
 | 1 | [Module 3 — Python Accelerated with Copilot](module-3-python/README.md) | 0 · 1 · 2 · 3 · 4 · 5 |
 | 1 | [Module 4 — Agent foundations and tool use](module-4-labs.md) | 4.1 · 4.2 · 4.3 |
 | 2 | [Module 4, continued — the same agent on a real model](module-4-labs.md#lab-44--on-day-2-the-same-agent-on-a-real-model) | 4.4 |
-| 2 | [Module 5 — LangChain and LangGraph](module-5-labs.md) | 5.1 · 5.2 · 5.3 |
+| 2 | [Module 5 — LangChain and LangGraph](module-5-langgraph/README.md) | 5.1 · 5.2 · 5.3 |
 | 2 | [RAG, vector stores and agent memory](module-rag-memory/README.md) | R.1 · R.2 · R.3 · R.4 |
 | 2 | [Module 2 — CrewAI & Google ADK](CrewAI-GoogleADK/README.md) | 1 · 2 · 3 · 4 |
 

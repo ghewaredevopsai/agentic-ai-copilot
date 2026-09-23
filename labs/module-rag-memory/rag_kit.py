@@ -1,4 +1,4 @@
-"""Shared helpers for the RAG and memory labs (R.1 to R.4).
+"""Shared helpers for the RAG and memory labs (R.1 to R.3).
 
 The notebooks import it, so each lab shows only what is new. You can read it; you do not edit it.
 

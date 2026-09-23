@@ -615,28 +615,6 @@ hits = col.query(
 </section>
 
 <!-- 16 -->
-<section class="slide" data-sec="Labs" data-title="Lab R.4 &mdash; Evaluation with Ragas" data-notes="In Lab R.4 you measure the RAG pipeline you built today. You start from a small set of questions about the runbooks, each with a known correct answer. You run the pipeline on every question and collect what Ragas needs: the question, the chunks that were retrieved, the answer and the reference answer. Then you score it with the four metrics from the last slide. Next you change one thing, such as adding the reranker from Lab R.2, and score again. Write down which metric moved and why you think it moved. The sandbox model is the judge, so small differences between runs are normal. Look for changes that are bigger than that noise." data-tier="K">
-  <h2>Lab R.4 &mdash; <em>evaluation with Ragas</em><span class="tag">LAB</span></h2>
-  <div class="body g1">
-    <div>
-      <svg viewBox="0 0 1180 320" role="img" aria-label="Lab R.4: score the pipeline with the four Ragas metrics, change one thing and score again">
-        <rect class="bx grow" x="4" y="4" width="1172" height="220" rx="8"/>
-        <text class="lb" x="24" y="32">LAB R.4</text>
-        <text class="tt" x="24" y="64">Evaluation with Ragas</text>
-        <text class="ss" x="24" y="104" style="font-size:16px">Run your pipeline on a small set of questions with known answers.</text>
-        <text class="ss" x="24" y="136" style="font-size:16px">Score it with the four metrics: two for retrieval, two for the answer.</text>
-        <text class="ss" x="24" y="168" style="font-size:16px">Change one thing, such as adding the reranker, and score again.</text>
-        <text class="ss" x="24" y="200" style="font-size:16px"><tspan style="fill:#6ea8fe">Write down which metric moved, and why.</tspan></text>
-
-        <rect class="bx d" x="4" y="240" width="1172" height="74" rx="8"/>
-        <text class="lb w" x="24" y="268">WHERE</text>
-        <text class="ss w" x="24" y="296" style="font-size:15px">Guide: <tspan font-weight="700" fill="#e0b34d">labs/module-rag-memory/README.md</tspan> &middot; notebook: lab-r4-ragas-evaluation.ipynb &middot; sandbox JupyterLab</text>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- 17 -->
 <section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - B: retrieval picks up new facts when you re-index a file. A is tempting, but fine-tuning teaches style, not changing facts. Q2 - C: each model makes its own kind of vector. D is tempting, but Chroma accepts any vectors, and the search still returns wrong results. Q3 - A: one big chunk covers many topics and matches none well. D sounds right, but size does not stop filters. Q4 - D: metadata is not embedded, so it does not change the vectors. It filters, cites and controls access. Q5 - A: BM25 matches the exact code. B is tempting, but a bigger embedding model still treats codes as odd strings. Q6 - A: a cross-encoder reads the pair as one text. C is the chunker's job. Q7 - C: the old fact is replaced by the new one. A would keep the wrong lead until it expires. Q8 - B: recall says the right chunks arrived, so the answer did not use them. A is the reverse case." data-tier="K">
   <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
   <div class="body qgrid">

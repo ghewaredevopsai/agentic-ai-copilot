@@ -7,7 +7,7 @@
 | 1 | [Module 3 — Python Accelerated with Copilot](module-3-python/README.md) | 0 · 1 · 2 · 3 · 4 · 5 |
 | 2 | [Module 4 — Agent foundations and tool use](module-4-agent/README.md) | 4.1 · 4.2 · 4.3 · 4.4 |
 | 2 | [Module 5 — LangChain and LangGraph](module-5-langgraph/README.md) | 5.1 · 5.2 · 5.3 |
-| 2 | [RAG, vector stores and agent memory](module-rag-memory/README.md) | R.1 · R.2 · R.3 · R.4 |
+| 2 | [RAG, vector stores and agent memory](module-rag-memory/README.md) | R.1 · R.2 · R.3 |
 | 2 | [Module 2 — CrewAI & Google ADK](CrewAI-GoogleADK/README.md) | 1 · 2 · 3 · 4 |
 
 Module 2 uses the same `global-bank-account` clone at `m3-start`, plus a small setup of its own: see

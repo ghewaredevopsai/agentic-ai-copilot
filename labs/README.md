@@ -7,6 +7,7 @@
 | 1 | [Module 3 — Python Accelerated with Copilot](module-3-python/README.md) | 0 · 1 · 2 · 3 · 4 · 5 |
 | 1 | [Module 4 — Agent foundations and tool use](module-4-labs.md) | 4.1 · 4.2 · 4.3 |
 | 2 | [Module 4, continued — the same agent on a real model](module-4-labs.md#lab-44--on-day-2-the-same-agent-on-a-real-model) | 4.4 |
+| 2 | [Module 2 — CrewAI & Google ADK](CrewAI-GoogleADK/README.md) | 1 · 2 · 3 · 4 |
 
 Module 2 uses the same `global-bank-account` clone at `m3-start`, plus a small setup of its own: see
 [`module-2-tokens/README.md`](module-2-tokens/README.md). Module 3 has its own practice app, AskOps,

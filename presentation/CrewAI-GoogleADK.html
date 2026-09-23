@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 2 Module 2 — Multi-Agent Systems: CrewAI &amp; Google ADK | Agentic AI &amp; AI-Assisted Development with GitHub Copilot</title>
+<link rel="stylesheet" href="../assets/adlc-deck.css">
+</head>
+<body data-deck="Day 2 &middot; Module 2">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#71809a"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6ea8fe"/></marker>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2726e"/></marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5fbf8f"/></marker>
+</defs></svg>
+
+<div id="viewport"><div id="stage"><!-- 1 -->
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="This module is about systems where several agents share one job. You start with five common ways to arrange agents: sequential, hierarchical, parallel fan-out, critic and router. Then you build the same Global Bank support desk twice. First in CrewAI, where you describe a team of agents and their tasks. Then in Google ADK, where you compose agents and can see every step they take. The running example is a customer ticket, GB-T-4471: a transfer failed twice, but the money left the account once. The agents look up the ticket, decide which team owns it and draft a reply. After this module you can choose a pattern for a job, build it in either framework, measure what it costs and test it. You also learn the common mistakes, so you can spot them in a design review." data-tier="R">
+  <div class="wrap">
+    <span class="tier">Day 2 &middot; Module 2</span>
+    <h1>Multi-Agent Systems: CrewAI &amp; Google ADK</h1>
+    <p class="sub">One support desk, built twice: as a crew, then as ADK agents.</p>
+    <p class="meta">
+      <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
+      <span>Intermediate</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+    <div class="chips">
+    <span class="chip">Five patterns</span>
+    <span class="chip">Crews and tasks</span>
+    <span class="chip">Delegation</span>
+    <span class="chip">ADK agents, sessions, runners</span>
+    <span class="chip">Workflow agents</span>
+    <span class="chip">Evaluation</span>
+    <span class="chip">Anti-patterns</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open during the labs. Module 4 on Day 1 already covered agent, tool, tool call and the ReAct loop, so they are not repeated here. The left column holds words for any system with more than one agent. An orchestrator can be your own code or a model. A hand-off is the moment one agent's output becomes the next agent's input. Most bugs in multi-agent systems happen at a hand-off. The right column holds the words each framework uses. CrewAI calls its team a crew. Google ADK talks about sub-agents, state, sessions, runners and events. You will see all of these in code on the next slides. An eval set is how you test an agent: a fixed list of cases, each with the result you expect." data-tier="K">
+  <h2>Words used in this module<span class="tag">M2</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>Multi-agent words</h3>
+      <ul>
+        <li><b>Multi-agent system</b> &mdash; several agents share one job.</li>
+        <li><b>Orchestrator</b> &mdash; decides which agent runs next.</li>
+        <li><b>Hand-off</b> &mdash; one agent&rsquo;s output, given to the next.</li>
+        <li><b>Delegation</b> &mdash; an agent passes a job to another.</li>
+        <li><b>Manager agent</b> &mdash; a model that plans and hands out tasks.</li>
+        <li><b>Critic</b> &mdash; an agent that checks another&rsquo;s work.</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>Framework words</h3>
+      <ul>
+        <li><b>Crew</b> &mdash; CrewAI&rsquo;s team of agents and tasks.</li>
+        <li><b>Sub-agent</b> &mdash; an agent run by another agent.</li>
+        <li><b>State</b> &mdash; named values the agents share in a run.</li>
+        <li><b>Session</b> &mdash; one conversation: messages and state.</li>
+        <li><b>Runner</b> &mdash; ADK&rsquo;s engine; it runs an agent.</li>
+        <li><b>Event</b> &mdash; one step, reported by the runner.</li>
+        <li><b>Eval set</b> &mdash; test cases with expected results.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-sec="1 &middot; Five patterns" data-title="One agent, or several? Five patterns" data-notes="Start with one agent. Split the job into several agents only when one agent's prompt or tool list has grown too large to follow. When you do split, most designs use one of these five shapes. Sequential is a fixed order, like an assembly line. Hierarchical puts a manager agent on top, which decides the order at run time. Parallel fan-out runs independent parts at the same time and merges the results, which saves waiting time. A critic checks another agent's work and sends it back, always with a limit on the number of rounds. A router reads the request and sends it to one specialist. The two rows at the bottom name the feature that builds each shape in CrewAI and in Google ADK. Every later slide in this module builds one of these shapes." data-tier="K">
+  <h2>One agent, or several? <em>Five patterns</em><span class="tag k">1</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Five multi-agent patterns with when to use each and the CrewAI and ADK feature for each">
+        <!-- 1 sequential -->
+        <rect class="bx grow" x="4" y="4" width="228" height="392" rx="8"/>
+        <text class="tt" x="18" y="32">Sequential</text>
+        <rect class="bx w" x="18" y="88" width="52" height="30" rx="5"/><text class="ss" x="44" y="108" text-anchor="middle">A</text>
+        <rect class="bx w" x="92" y="88" width="52" height="30" rx="5"/><text class="ss" x="118" y="108" text-anchor="middle">B</text>
+        <rect class="bx w" x="166" y="88" width="52" height="30" rx="5"/><text class="ss" x="192" y="108" text-anchor="middle">C</text>
+        <path class="ar" d="M71 103 L89 103" marker-end="url(#arw)"/>
+        <path class="ar" d="M145 103 L163 103" marker-end="url(#arw)"/>
+        <text class="lb a" x="18" y="212">USE WHEN</text>
+        <text class="ss" x="18" y="234">Steps are fixed</text>
+        <text class="ss" x="18" y="254">and always in order.</text>
+        <text class="lb" x="18" y="306">CREWAI</text>
+        <text class="ss" x="18" y="326" style="font-family:var(--mono)">Process.sequential</text>
+        <text class="lb" x="18" y="356">ADK</text>
+        <text class="ss" x="18" y="376" style="font-family:var(--mono)">SequentialAgent</text>
+
+        <!-- 2 hierarchical -->
+        <rect class="bx grow w2" x="241" y="4" width="228" height="392" rx="8"/>
+        <text class="tt" x="255" y="32">Hierarchical</text>
+        <rect class="bx a" x="305" y="52" width="100" height="30" rx="5"/><text class="ss" x="355" y="72" text-anchor="middle">manager</text>
+        <rect class="bx w" x="255" y="140" width="52" height="30" rx="5"/><text class="ss" x="281" y="160" text-anchor="middle">A</text>
+        <rect class="bx w" x="329" y="140" width="52" height="30" rx="5"/><text class="ss" x="355" y="160" text-anchor="middle">B</text>
+        <rect class="bx w" x="403" y="140" width="52" height="30" rx="5"/><text class="ss" x="429" y="160" text-anchor="middle">C</text>
+        <path class="fl" d="M330 83 L285 137" marker-end="url(#arb)"/>
+        <path class="fl" d="M355 83 L355 137" marker-end="url(#arb)"/>
+        <path class="fl" d="M380 83 L425 137" marker-end="url(#arb)"/>
+        <text class="lb a" x="255" y="212">USE WHEN</text>
+        <text class="ss" x="255" y="234">The order depends</text>
+        <text class="ss" x="255" y="254">on the request.</text>
+        <text class="lb" x="255" y="306">CREWAI</text>
+        <text class="ss" x="255" y="326" style="font-family:var(--mono)">Process.hierarchical</text>
+        <text class="lb" x="255" y="356">ADK</text>
+        <text class="ss" x="255" y="376" style="font-family:var(--mono)">AgentTool workers</text>
+
+        <!-- 3 parallel -->
+        <rect class="bx grow w3" x="478" y="4" width="228" height="392" rx="8"/>
+        <text class="tt" x="492" y="32">Parallel fan-out</text>
+        <rect class="bx w" x="492" y="100" width="46" height="30" rx="5"/><text class="ss" x="515" y="120" text-anchor="middle">split</text>
+        <rect class="bx w" x="566" y="52" width="52" height="30" rx="5"/><text class="ss" x="592" y="72" text-anchor="middle">A</text>
+        <rect class="bx w" x="566" y="100" width="52" height="30" rx="5"/><text class="ss" x="592" y="120" text-anchor="middle">B</text>
+        <rect class="bx w" x="566" y="148" width="52" height="30" rx="5"/><text class="ss" x="592" y="168" text-anchor="middle">C</text>
+        <rect class="bx g" x="644" y="100" width="52" height="30" rx="5"/><text class="ss" x="670" y="120" text-anchor="middle">merge</text>
+        <path class="ar" d="M539 110 L563 70" marker-end="url(#arw)"/>
+        <path class="ar" d="M539 115 L563 115" marker-end="url(#arw)"/>
+        <path class="ar" d="M539 120 L563 160" marker-end="url(#arw)"/>
+        <path class="ar" d="M619 70 L641 108" marker-end="url(#arw)"/>
+        <path class="ar" d="M619 115 L641 115" marker-end="url(#arw)"/>
+        <path class="ar" d="M619 160 L641 122" marker-end="url(#arw)"/>
+        <text class="lb a" x="492" y="212">USE WHEN</text>
+        <text class="ss" x="492" y="234">Parts do not need</text>
+        <text class="ss" x="492" y="254">each other. Saves time.</text>
+        <text class="lb" x="492" y="306">CREWAI</text>
+        <text class="ss" x="492" y="326" style="font-family:var(--mono)">async_execution=True</text>
+        <text class="lb" x="492" y="356">ADK</text>
+        <text class="ss" x="492" y="376" style="font-family:var(--mono)">ParallelAgent</text>
+
+        <!-- 4 critic -->
+        <rect class="bx grow w4" x="715" y="4" width="228" height="392" rx="8"/>
+        <text class="tt" x="729" y="32">Critic</text>
+        <rect class="bx w" x="729" y="92" width="80" height="34" rx="5"/><text class="ss" x="769" y="114" text-anchor="middle">writer</text>
+        <rect class="bx a" x="849" y="92" width="80" height="34" rx="5"/><text class="ss" x="889" y="114" text-anchor="middle">reviewer</text>
+        <path class="ar" d="M810 100 L846 100" marker-end="url(#arw)"/>
+        <path class="ar" d="M848 120 L812 120" style="stroke:#e2726e" marker-end="url(#arr)"/>
+        <text class="ss" x="829" y="160" text-anchor="middle" style="fill:#e2726e">fix it</text>
+        <text class="ss" x="829" y="182" text-anchor="middle">at most 3 rounds</text>
+        <text class="lb a" x="729" y="212">USE WHEN</text>
+        <text class="ss" x="729" y="234">Quality matters more</text>
+        <text class="ss" x="729" y="254">than speed or cost.</text>
+        <text class="lb" x="729" y="306">CREWAI</text>
+        <text class="ss" x="729" y="326" style="font-family:var(--mono)">Task guardrail</text>
+        <text class="lb" x="729" y="356">ADK</text>
+        <text class="ss" x="729" y="376" style="font-family:var(--mono)">LoopAgent</text>
+
+        <!-- 5 router -->
+        <rect class="bx grow w5" x="952" y="4" width="224" height="392" rx="8"/>
+        <text class="tt" x="966" y="32">Router</text>
+        <rect class="bx a" x="966" y="100" width="64" height="30" rx="5"/><text class="ss" x="998" y="120" text-anchor="middle">router</text>
+        <rect class="bx w" x="1100" y="52" width="52" height="30" rx="5"/><text class="ss" x="1126" y="72" text-anchor="middle">A</text>
+        <rect class="bx g" x="1100" y="100" width="52" height="30" rx="5"/><text class="ss" x="1126" y="120" text-anchor="middle">B</text>
+        <rect class="bx w" x="1100" y="148" width="52" height="30" rx="5"/><text class="ss" x="1126" y="168" text-anchor="middle">C</text>
+        <path class="fl" d="M1031 108 L1097 70" style="opacity:.35"/>
+        <path class="ar" d="M1031 115 L1097 115" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <path class="fl" d="M1031 122 L1097 160" style="opacity:.35"/>
+        <text class="lb a" x="966" y="212">USE WHEN</text>
+        <text class="ss" x="966" y="234">Requests are clearly</text>
+        <text class="ss" x="966" y="254">different types.</text>
+        <text class="lb" x="966" y="306">CREWAI</text>
+        <text class="ss" x="966" y="326" style="font-family:var(--mono)">Flow + @router</text>
+        <text class="lb" x="966" y="356">ADK</text>
+        <text class="ss" x="966" y="376" style="font-family:var(--mono)">sub_agents transfer</text>
+      </svg>
+      <div class="take"><b>Start with one agent.</b> Split only when its prompt or tool list grows too large.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-sec="2 &middot; CrewAI" data-title="A crew in one picture: Agent, Tool, Task, Crew" data-notes="CrewAI asks you to describe a team, not a flowchart. Each agent has a role, a goal and a backstory. CrewAI joins these three strings into the agent's system prompt, so write them as instructions. Each task is one job for one agent. The crew holds the agents and the tasks, and in a sequential crew the order of the task list is the order they run. In the LangGraph graph from Module 1 today, you wrote every node and edge. Here you write none of them. The cost is that the framework now makes some of those decisions. A tool works the same way as in Module 4 on Day 1: the model reads only its name and docstring, so a vague docstring means the tool is never called. In Lab 1 you build this exact crew for ticket GB-T-4471." data-tier="K">
+  <h2>A crew in one picture: <em>Agent, Tool, Task, Crew</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="A crew holds three agents, each with a role, and three tasks, each done by one agent">
+        <text class="lb a" x="4" y="14">CREW &mdash; process=Process.sequential</text>
+        <rect class="bx a grow" x="4" y="24" width="692" height="362" rx="8"/>
+        <text class="lb" x="22" y="50">AGENTS &mdash; WHO</text>
+        <rect class="bx w" x="22" y="60" width="300" height="94" rx="6"/>
+        <text class="tt" x="36" y="86">Researcher</text>
+        <text class="ss" x="36" y="110">role &middot; goal &middot; backstory</text>
+        <text class="ss" x="36" y="134" style="fill:#6ea8fe;font-family:var(--mono)">tools=[ticket_lookup]</text>
+        <rect class="bx w" x="22" y="168" width="300" height="94" rx="6"/>
+        <text class="tt" x="36" y="194">Classifier</text>
+        <text class="ss" x="36" y="218">role &middot; goal &middot; backstory</text>
+        <text class="ss" x="36" y="242">picks the owning team</text>
+        <rect class="bx w" x="22" y="276" width="300" height="94" rx="6"/>
+        <text class="tt" x="36" y="302">Writer</text>
+        <text class="ss" x="36" y="326">role &middot; goal &middot; backstory</text>
+        <text class="ss" x="36" y="350">writes to the customer</text>
+
+        <text class="lb" x="400" y="50">TASKS &mdash; WHAT, IN ORDER</text>
+        <rect class="bx p grow w2" x="400" y="80" width="280" height="54" rx="6"/>
+        <text class="ss" x="416" y="112">T1 &middot; list the ticket&rsquo;s facts</text>
+        <rect class="bx p grow w3" x="400" y="188" width="280" height="54" rx="6"/>
+        <text class="ss" x="416" y="220">T2 &middot; name the owning team</text>
+        <rect class="bx p grow w4" x="400" y="296" width="280" height="54" rx="6"/>
+        <text class="ss" x="416" y="328">T3 &middot; draft the reply</text>
+        <path class="ar" d="M540 136 L540 184" marker-end="url(#arw)"/>
+        <path class="ar" d="M540 244 L540 292" marker-end="url(#arw)"/>
+        <path class="fl" d="M398 107 L326 107" marker-end="url(#arb)"/>
+        <path class="fl" d="M398 215 L326 215" marker-end="url(#arb)"/>
+        <path class="fl" d="M398 323 L326 323" marker-end="url(#arb)"/>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Four objects</h3>
+      <ul>
+        <li><b>Agent</b> &mdash; role, goal and backstory become its prompt.</li>
+        <li><b>Tool</b> &mdash; a function. The model reads its docstring.</li>
+        <li><b>Task</b> &mdash; one job, done by one agent.</li>
+        <li><b>Crew</b> &mdash; the agents, the tasks and the order.</li>
+      </ul>
+      <div class="take"><b>A graph</b> says what happens next. <b>A crew</b> says who is on the team.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-sec="2 &middot; CrewAI" data-title="The task is the contract" data-notes="In a crew, each task's output is passed to the next task as context. The next agent sees only that text. So expected_output decides what the next agent can rely on. On the left, the classifier is asked for 'the category'. It returns a paragraph, and the writer has to guess the team from it. Sometimes it guesses right. On the right, the output has a fixed shape: one of four team names and a one-line reason. The writer now gets the same two lines every time. By default a task reads the output of the task just before it. Use context=[...] to name exactly which earlier tasks it should read. This is the same idea as the output contracts in Module 1 on Day 1. When a crew works once but not twice, check the expected_output fields first." data-tier="K">
+  <h2>The task is the <em>contract</em><span class="tag k">2</span></h2>
+  <div class="body g55">
+    <div>
+      <div class="callout bad" style="margin-top:0"><b>The writer has to guess</b></div>
+<div class="file"><span class="fn">LOOSE</span>classify = Task(
+  description="Classify the ticket.",
+  expected_output="<span class="s">The category</span>",
+  agent=classifier)
+</div>
+      <div class="pts" style="margin-top:12px">
+        <ul>
+          <li>The classifier returns a paragraph.</li>
+          <li>The writer <b>guesses</b> the team from it.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="callout good" style="margin-top:0"><b>The writer gets two fixed lines</b></div>
+<div class="file"><span class="fn">CONTRACT</span>classify = Task(
+  description="Classify the ticket.",
+  expected_output=<span class="s">"Team: one of Accounts,
+    Transactions, Authentication,
+    Customer. Reason: one line."</span>,
+  agent=classifier)
+reply = Task(..., <span class="k">context=[classify]</span>)
+</div>
+      <div class="take"><b>expected_output</b> is what the next task receives. Write it like a contract.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-sec="2 &middot; CrewAI" data-title="Sequential and parallel fan-out" data-notes="Process.sequential runs the tasks in the order you list them. It is the default, and it should be your first choice. You decide the order, every run takes the same path, and there is no extra model call to plan the work. Parallel fan-out is useful when two tasks do not need each other's output. For ticket GB-T-4471, checking the customer's account and checking their recent transactions are independent. Mark those two tasks async_execution=True and they run at the same time. Give each one its own agent: one agent cannot run two tasks at once, and CrewAI stops with an error if you try. The reply task then lists both in context=[...], so it waits until both are finished. Fan-out saves waiting time. It does not save tokens, because both checks still call the model." data-tier="K">
+  <h2>Sequential, and <em>parallel fan-out</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="A sequential crew runs three tasks in order; a fan-out crew runs two checks at the same time before the reply">
+        <text class="lb" x="4" y="14">SEQUENTIAL &mdash; Process.sequential</text>
+        <rect class="bx grow" x="4" y="24" width="692" height="136" rx="8"/>
+        <rect class="bx w" x="22" y="56" width="190" height="50" rx="6"/><text class="ss" x="117" y="86" text-anchor="middle">look up ticket</text>
+        <rect class="bx w" x="256" y="56" width="190" height="50" rx="6"/><text class="ss" x="351" y="86" text-anchor="middle">name the team</text>
+        <rect class="bx w" x="490" y="56" width="190" height="50" rx="6"/><text class="ss" x="585" y="86" text-anchor="middle">draft the reply</text>
+        <path class="ar" d="M214 81 L252 81" marker-end="url(#arw)"/>
+        <path class="ar" d="M448 81 L486 81" marker-end="url(#arw)"/>
+        <text class="ss" x="22" y="140" style="fill:#5fbf8f">Same path every run. You chose the order.</text>
+
+        <text class="lb a" x="4" y="194">PARALLEL FAN-OUT &mdash; async_execution=True</text>
+        <rect class="bx a grow w2" x="4" y="204" width="692" height="182" rx="8"/>
+        <rect class="bx w" x="22" y="270" width="150" height="50" rx="6"/><text class="ss" x="97" y="300" text-anchor="middle">look up ticket</text>
+        <rect class="bx p" x="226" y="222" width="210" height="50" rx="6"/><text class="ss" x="331" y="252" text-anchor="middle">check account</text>
+        <rect class="bx p" x="226" y="318" width="210" height="50" rx="6"/><text class="ss" x="331" y="348" text-anchor="middle">check transactions</text>
+        <rect class="bx g" x="490" y="270" width="190" height="50" rx="6"/><text class="ss" x="585" y="300" text-anchor="middle">draft the reply</text>
+        <path class="ar" d="M174 288 L222 252" marker-end="url(#arw)"/>
+        <path class="ar" d="M174 302 L222 338" marker-end="url(#arw)"/>
+        <path class="ar" d="M438 252 L486 288" marker-end="url(#arw)"/>
+        <path class="ar" d="M438 338 L486 302" marker-end="url(#arw)"/>
+        <text class="ss" x="585" y="346" text-anchor="middle" style="font-family:var(--mono)">context=[a, b]</text>
+        <text class="ss" x="585" y="366" text-anchor="middle">waits for both</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Sequential &mdash; the default</h3>
+      <ul>
+        <li>You choose the order.</li>
+        <li>No extra calls. Easy to debug.</li>
+      </ul>
+      <h3>Parallel fan-out</h3>
+      <ul>
+        <li>Mark independent tasks <code>async_execution=True</code>, each with its own agent.</li>
+        <li>The next task lists them in <code>context</code>.</li>
+        <li>Saves time, not tokens.</li>
+      </ul>
+      <div class="take"><b>Fan out</b> only when neither task needs the other&rsquo;s result.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-sec="2 &middot; CrewAI" data-title="Hierarchical process and delegation" data-notes="In Process.hierarchical you give the crew a manager_llm. The manager reads the tasks, decides which agent does what and in which order, and checks the results. You no longer choose the order. This helps when requests really differ and you cannot write the order in advance. It has a price. The manager's planning and checking are extra model calls on every ticket, and the path can change from run to run. Delegation is a separate switch. With allow_delegation=True, an agent may pass part of its job to another agent. That is useful, but two agents can pass work back and forth, and every pass is a paid call. Start with delegation off on every agent. Turn it on for one agent that really needs help, then measure the difference. Lab 1 compares a sequential and a hierarchical crew on the same ticket." data-tier="K">
+  <h2>Hierarchical process, and <em>delegation</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="A manager model hands tasks to three agents; each hand-off and each delegation is another model call">
+        <rect class="bx a grow" x="230" y="6" width="240" height="70" rx="8"/>
+        <text class="tt" x="350" y="36" text-anchor="middle">manager_llm</text>
+        <text class="ss" x="350" y="60" text-anchor="middle">plans, hands out, checks</text>
+        <rect class="bx w grow w2" x="14" y="176" width="200" height="60" rx="6"/><text class="ss" x="114" y="211" text-anchor="middle">Researcher</text>
+        <rect class="bx w grow w2" x="250" y="176" width="200" height="60" rx="6"/><text class="ss" x="350" y="211" text-anchor="middle">Classifier</text>
+        <rect class="bx w grow w2" x="486" y="176" width="200" height="60" rx="6"/><text class="ss" x="586" y="211" text-anchor="middle">Writer</text>
+        <path class="fl" d="M280 78 L130 172" marker-end="url(#arb)"/>
+        <path class="fl" d="M350 78 L350 172" marker-end="url(#arb)"/>
+        <path class="fl" d="M420 78 L570 172" marker-end="url(#arb)"/>
+        <text class="ss" x="176" y="120" text-anchor="middle" style="fill:#e0b34d">+1 call</text>
+        <text class="ss" x="392" y="130" style="fill:#e0b34d">+1 call</text>
+        <text class="ss" x="524" y="120" text-anchor="middle" style="fill:#e0b34d">+1 call</text>
+        <path class="ar" d="M452 198 L482 198" style="stroke:#e2726e" marker-end="url(#arr)"/>
+        <path class="ar" d="M484 216 L454 216" style="stroke:#e2726e" marker-end="url(#arr)"/>
+        <text class="ss" x="468" y="262" text-anchor="middle" style="fill:#e2726e">delegate, and back?</text>
+        <rect class="bx d" x="4" y="296" width="692" height="86" rx="8"/>
+        <text class="lb w" x="22" y="324">RULE</text>
+        <text class="ss w" x="22" y="350" style="font-size:15px">Every arrow is a model call you pay for.</text>
+        <text class="ss w" x="22" y="372" style="font-size:15px">Start with <tspan font-weight="700" fill="#e0b34d">allow_delegation=False</tspan> on every agent.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>What you get</h3>
+      <ul>
+        <li>It handles requests you did not plan for.</li>
+      </ul>
+      <h3>What you pay</h3>
+      <ul>
+        <li>More model calls per ticket.</li>
+        <li>A different path on each run.</li>
+        <li>Agents may pass work back and forth.</li>
+      </ul>
+      <div class="take"><b>A manager</b> is an upgrade you prove with numbers. Start sequential.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-sec="2 &middot; CrewAI" data-title="Critic and router in CrewAI" data-notes="CrewAI has its own way to build the last two patterns. For a critic, add a guardrail to a task. A guardrail is a check that runs on the task's output. If the check fails, CrewAI sends the reason back to the agent and asks it to try again, up to guardrail_max_retries times. If every retry fails, the task fails. Write the rules in the task description too: the prompt states the rules, and the guardrail checks them. The check can be a Python function, which is cheap and gives the same answer every time, or a sentence that a model judges. For a router, use a Flow. A Flow is ordinary Python code with steps. The step marked @router returns a label, such as 'Transactions', and only the step that listens for that label runs next. Each agent takes its own llm, so fixed jobs can use a small model." data-tier="D">
+  <h2>Critic and router, <em>in CrewAI</em><span class="tag k">2</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="A task guardrail retries a draft until a check passes; a Flow router sends each ticket to one crew">
+        <text class="lb a" x="4" y="14">CRITIC &mdash; a task guardrail</text>
+        <rect class="bx a grow" x="4" y="24" width="580" height="270" rx="8"/>
+        <rect class="bx w" x="24" y="96" width="150" height="54" rx="6"/><text class="ss" x="99" y="128" text-anchor="middle">draft the reply</text>
+        <rect class="bx p" x="220" y="80" width="200" height="86" rx="6"/>
+        <text class="tt" x="320" y="108" text-anchor="middle">guardrail check</text>
+        <text class="ss" x="320" y="132" text-anchor="middle">names the team?</text>
+        <text class="ss" x="320" y="152" text-anchor="middle">under 120 words?</text>
+        <rect class="bx g" x="464" y="96" width="100" height="54" rx="6"/><text class="ss" x="514" y="128" text-anchor="middle">done</text>
+        <path class="ar" d="M176 123 L216 123" marker-end="url(#arw)"/>
+        <path class="ar" d="M422 123 L460 123" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <text class="ss" x="441" y="112" text-anchor="middle" style="fill:#5fbf8f">pass</text>
+        <path class="ar" d="M320 168 L320 214 L99 214 L99 154" style="stroke:#e2726e;fill:none" marker-end="url(#arr)"/>
+        <text class="ss" x="210" y="238" text-anchor="middle" style="fill:#e2726e">fail: try again, with the reason</text>
+        <text class="ss" x="24" y="276">A limit on retries stops the loop.</text>
+
+        <text class="lb" x="600" y="14">ROUTER &mdash; a Flow with @router</text>
+        <rect class="bx grow w2" x="600" y="24" width="576" height="270" rx="8"/>
+        <rect class="bx w" x="618" y="112" width="130" height="54" rx="6"/><text class="ss" x="683" y="144" text-anchor="middle">read ticket</text>
+        <rect class="bx a" x="788" y="112" width="110" height="54" rx="6"/><text class="ss" x="843" y="144" text-anchor="middle">@router</text>
+        <rect class="bx w" x="946" y="46" width="210" height="46" rx="6"/><text class="ss" x="1051" y="74" text-anchor="middle">Accounts crew</text>
+        <rect class="bx g" x="946" y="116" width="210" height="46" rx="6"/><text class="ss" x="1051" y="144" text-anchor="middle">Transactions crew</text>
+        <rect class="bx w" x="946" y="186" width="210" height="46" rx="6"/><text class="ss" x="1051" y="214" text-anchor="middle">Authentication crew</text>
+        <path class="ar" d="M750 139 L784 139" marker-end="url(#arw)"/>
+        <path class="fl" d="M900 128 L942 72" style="opacity:.35"/>
+        <path class="ar" d="M900 139 L942 139" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <path class="fl" d="M900 150 L942 206" style="opacity:.35"/>
+        <text class="ss" x="618" y="276">You write the routing rule in Python.</text>
+
+        <rect class="bx d" x="4" y="312" width="1172" height="82" rx="8"/>
+        <text class="lb w" x="24" y="340">COST</text>
+        <text class="ss w" x="24" y="368" style="font-size:15px">Each agent takes its own <tspan font-weight="700" fill="#e0b34d">llm=</tspan>. Use a small model for fixed jobs and a stronger one for judgement.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-sec="3 &middot; Google ADK" data-title="ADK in one picture: Agent, Tool, Runner, Session" data-notes="Google ADK is the Agent Development Kit. It works with many models, not only Gemini. In our labs it reaches the same model as CrewAI. An ADK agent has a name, a model and one instruction. There is no role, goal or backstory: if you want a behaviour, say it in the instruction. A tool is a plain Python function with type hints and a docstring. ADK builds the tool description from them. You do not call the agent directly. A runner runs it and gives you a stream of events: each tool call, each tool result and the final answer. The session holds the conversation and the shared state. In the labs it lives in memory, and a database-backed session service keeps it across restarts. This is more setup than a crew. The benefit is that every step is an event you can read, count and test." data-tier="K">
+  <h2>ADK in one picture: <em>Agent, Tool, Runner, Session</em><span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="A runner sends the user message to the agent and returns a stream of events; the session holds history and state">
+        <rect class="bx w" x="4" y="40" width="140" height="64" rx="6"/>
+        <text class="ss" x="74" y="68" text-anchor="middle">customer</text>
+        <text class="ss" x="74" y="88" text-anchor="middle">message</text>
+        <path class="ar" d="M146 72 L186 72" marker-end="url(#arw)"/>
+        <rect class="bx a grow" x="190" y="30" width="150" height="84" rx="8"/>
+        <text class="tt" x="265" y="68" text-anchor="middle">Runner</text>
+        <text class="ss" x="265" y="92" text-anchor="middle">runs the agent</text>
+        <path class="ar" d="M342 72 L382 72" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="386" y="10" width="310" height="124" rx="8"/>
+        <text class="tt" x="402" y="40">Agent</text>
+        <text class="ss" x="402" y="66">name &middot; model &middot; instruction</text>
+        <text class="ss" x="402" y="92" style="fill:#6ea8fe;font-family:var(--mono)">tools=[ticket_lookup]</text>
+        <text class="ss" x="402" y="116">No role, goal or backstory.</text>
+
+        <text class="lb" x="290" y="160">EVENTS &mdash; ONE PER STEP</text>
+        <rect class="bx w grow w3" x="190" y="170" width="160" height="36" rx="6"/><text class="ss" x="270" y="193" text-anchor="middle">tool call</text>
+        <rect class="bx w grow w3" x="362" y="170" width="160" height="36" rx="6"/><text class="ss" x="442" y="193" text-anchor="middle">tool result</text>
+        <rect class="bx g grow w3" x="534" y="170" width="160" height="36" rx="6"/><text class="ss" x="614" y="193" text-anchor="middle">final answer</text>
+        <path class="fl" d="M265 116 L265 166" marker-end="url(#arb)"/>
+
+        <rect class="bx grow w4" x="4" y="240" width="692" height="140" rx="8"/>
+        <text class="lb a" x="22" y="266">SESSION</text>
+        <rect class="bx w" x="22" y="280" width="320" height="84" rx="6"/>
+        <text class="tt" x="38" y="308">Message history</text>
+        <text class="ss" x="38" y="334">every turn so far</text>
+        <rect class="bx w" x="358" y="280" width="320" height="84" rx="6"/>
+        <text class="tt" x="374" y="308">State</text>
+        <text class="ss" x="374" y="334" style="font-family:var(--mono)">facts &middot; team</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Four pieces</h3>
+      <ul>
+        <li><b>Agent</b> &mdash; a name, a model, one instruction.</li>
+        <li><b>Tool</b> &mdash; a plain function. Type hints become its schema.</li>
+        <li><b>Runner</b> &mdash; runs the agent and returns events.</li>
+        <li><b>Session</b> &mdash; the history and the state.</li>
+      </ul>
+      <div class="take"><b>More setup</b> than a crew. In return, you can see every step.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-sec="3 &middot; Google ADK" data-title="Hand-offs with names: output_key and state" data-notes="This is the most useful idea in ADK, and you can use it in any framework. An agent with output_key='facts' saves its answer in session state under the name facts. The next agent's instruction contains {facts}, and ADK puts the saved value there before the model sees it. So every hand-off has a name. When the writer produces a wrong reply, you can look at the exact facts and team it received and see which agent made the mistake. In a crew, the previous task's output arrives as context, and you mostly trust it. There is also a cost detail. By default an ADK sub-agent also receives the whole session so far: the customer message, every tool call and every earlier answer. Setting include_contents='none' sends only the instruction with its named values. Lab 4 measures that difference." data-tier="K">
+  <h2>Hand-offs with <em>names</em>: output_key and state<span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="Researcher writes facts to state, classifier reads facts and writes team, writer reads both">
+        <rect class="bx w grow" x="4" y="20" width="220" height="70" rx="6"/>
+        <text class="tt" x="20" y="48">Researcher</text>
+        <text class="ss" x="20" y="72" style="font-family:var(--mono)">output_key="facts"</text>
+        <rect class="bx w grow w2" x="4" y="160" width="220" height="70" rx="6"/>
+        <text class="tt" x="20" y="188">Classifier</text>
+        <text class="ss" x="20" y="212" style="font-family:var(--mono)">output_key="team"</text>
+        <rect class="bx w grow w3" x="4" y="300" width="220" height="70" rx="6"/>
+        <text class="tt" x="20" y="328">Writer</text>
+        <text class="ss" x="20" y="352">reads {facts} and {team}</text>
+
+        <rect class="bx a grow" x="420" y="40" width="276" height="300" rx="8"/>
+        <text class="lb a" x="438" y="66">SESSION STATE</text>
+        <rect class="bx w" x="438" y="84" width="240" height="90" rx="6"/>
+        <text class="ss" x="452" y="110" style="font-family:var(--mono)">facts</text>
+        <text class="ss" x="452" y="134">transfer failed twice,</text>
+        <text class="ss" x="452" y="154">debited once</text>
+        <rect class="bx w" x="438" y="206" width="240" height="90" rx="6"/>
+        <text class="ss" x="452" y="232" style="font-family:var(--mono)">team</text>
+        <text class="ss" x="452" y="256">Transactions</text>
+
+        <path class="ar" d="M226 55 L434 120" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <text class="ss" x="300" y="70" style="fill:#5fbf8f">writes</text>
+        <path class="fl" d="M434 140 L228 186" marker-end="url(#arb)"/>
+        <text class="ss" x="292" y="150" style="fill:#6ea8fe">{facts}</text>
+        <path class="ar" d="M226 206 L434 246" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <text class="ss" x="300" y="248" style="fill:#5fbf8f">writes</text>
+        <path class="fl" d="M418 320 L228 336" marker-end="url(#arb)"/>
+        <text class="ss" x="270" y="318" style="fill:#6ea8fe">{facts} {team}</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Why it helps</h3>
+      <ul>
+        <li>You see exactly what each agent received.</li>
+        <li>A wrong reply points to one named value.</li>
+      </ul>
+      <h3>What travels</h3>
+      <ul>
+        <li>By default, a sub-agent re-reads the whole session.</li>
+        <li><code>include_contents="none"</code> sends only its instruction and state.</li>
+      </ul>
+      <div class="take"><b>Name your hand-offs</b>, in any framework.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-sec="3 &middot; Google ADK" data-title="Workflow agents: sequential, parallel, loop" data-notes="ADK has three workflow agents. They run other agents in a fixed shape, and they never call a model to decide the order. SequentialAgent runs its sub-agents one after another, like a sequential crew. In our ADK version all three print a deprecation warning. They still work, and their replacement is not ready to use yet. ParallelAgent runs its sub-agents at the same time. Give each one its own output_key, so they do not overwrite each other's result in state. Put the ParallelAgent inside a SequentialAgent, and the next agent can read both results. LoopAgent repeats its sub-agents. With a writer and a reviewer inside it, you get the critic pattern. The reviewer ends the loop by calling the built-in exit_loop tool when the reply is good enough. Tell it to make a real tool call, or some models just write the word. max_iterations is the limit that stops it if the reviewer is never satisfied." data-tier="K">
+  <h2>Workflow agents: <em>sequential, parallel, loop</em><span class="tag k">3</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="SequentialAgent runs agents in order, ParallelAgent runs them at the same time, LoopAgent repeats writer and reviewer with a limit">
+        <rect class="bx grow" x="4" y="4" width="380" height="300" rx="8"/>
+        <text class="tt" x="22" y="34" style="font-family:var(--mono)">SequentialAgent</text>
+        <rect class="bx w" x="22" y="70" width="344" height="44" rx="6"/><text class="ss" x="194" y="97" text-anchor="middle">researcher</text>
+        <rect class="bx w" x="22" y="140" width="344" height="44" rx="6"/><text class="ss" x="194" y="167" text-anchor="middle">classifier</text>
+        <rect class="bx w" x="22" y="210" width="344" height="44" rx="6"/><text class="ss" x="194" y="237" text-anchor="middle">writer</text>
+        <path class="ar" d="M194 115 L194 136" marker-end="url(#arw)"/>
+        <path class="ar" d="M194 185 L194 206" marker-end="url(#arw)"/>
+        <text class="ss" x="22" y="286">One after another.</text>
+
+        <rect class="bx p grow w2" x="400" y="4" width="380" height="300" rx="8"/>
+        <text class="tt" x="418" y="34" style="font-family:var(--mono)">ParallelAgent</text>
+        <rect class="bx w" x="418" y="80" width="165" height="66" rx="6"/>
+        <text class="ss" x="500" y="106" text-anchor="middle">account check</text>
+        <text class="ss" x="500" y="128" text-anchor="middle" style="fill:#6ea8fe">key: account</text>
+        <rect class="bx w" x="597" y="80" width="165" height="66" rx="6"/>
+        <text class="ss" x="679" y="106" text-anchor="middle">transaction check</text>
+        <text class="ss" x="679" y="128" text-anchor="middle" style="fill:#6ea8fe">key: txns</text>
+        <rect class="bx g" x="418" y="200" width="344" height="44" rx="6"/><text class="ss" x="590" y="227" text-anchor="middle">writer reads {account} and {txns}</text>
+        <path class="ar" d="M500 148 L560 196" marker-end="url(#arw)"/>
+        <path class="ar" d="M679 148 L620 196" marker-end="url(#arw)"/>
+        <text class="ss" x="418" y="286">At the same time. One key each.</text>
+
+        <rect class="bx a grow w3" x="796" y="4" width="380" height="300" rx="8"/>
+        <text class="tt" x="814" y="34" style="font-family:var(--mono)">LoopAgent</text>
+        <rect class="bx w" x="814" y="96" width="140" height="50" rx="6"/><text class="ss" x="884" y="126" text-anchor="middle">writer</text>
+        <rect class="bx w" x="1018" y="96" width="140" height="50" rx="6"/><text class="ss" x="1088" y="126" text-anchor="middle">reviewer</text>
+        <path class="ar" d="M956 110 L1014 110" marker-end="url(#arw)"/>
+        <path class="ar" d="M1016 134 L958 134" style="stroke:#e2726e" marker-end="url(#arr)"/>
+        <path class="ar" d="M1088 148 L1088 196" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <rect class="bx g" x="1018" y="200" width="140" height="44" rx="6"/><text class="ss" x="1088" y="227" text-anchor="middle">exit_loop</text>
+        <text class="ss" x="814" y="227" style="font-family:var(--mono)">max_iterations=3</text>
+        <text class="ss" x="814" y="286">The critic pattern, with a limit.</text>
+
+        <rect class="bx d" x="4" y="320" width="1172" height="74" rx="8"/>
+        <text class="lb w" x="24" y="346">NO MODEL DECIDES THE ORDER</text>
+        <text class="ss w" x="24" y="374" style="font-size:15px">Workflow agents follow the shape you wrote. They nest. Expect a deprecation warning: they still work.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-sec="3 &middot; Google ADK" data-title="Router: hand over, or call as a tool" data-notes="In ADK, an agent that decides who does the work can do it in two ways. With transfer, you list the specialists in sub_agents. The coordinator reads the ticket and transfers the conversation to one of them, for example the Transactions agent. From then on, that agent talks to the customer. With agent as a tool, you wrap the specialist in AgentTool and give it to the coordinator as a tool. The coordinator calls it, gets the answer back, and writes the final reply itself. It can call more than one specialist and combine their answers. Use transfer when the specialist should own the rest of the chat. Use agent as a tool when you need one combined answer. In both cases the coordinator chooses using each specialist's description, so write descriptions as carefully as the tool docstrings in Module 4." data-tier="D">
+  <h2>Router: <em>hand over</em>, or call as a tool<span class="tag k">3</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Transfer passes the conversation to a specialist; agent as a tool returns the answer to the coordinator">
+        <text class="lb a" x="4" y="14">TRANSFER &mdash; sub_agents=[...]</text>
+        <rect class="bx a grow" x="4" y="24" width="580" height="280" rx="8"/>
+        <rect class="bx w" x="24" y="120" width="150" height="60" rx="6"/><text class="ss" x="99" y="155" text-anchor="middle">coordinator</text>
+        <rect class="bx g" x="274" y="120" width="160" height="60" rx="6"/><text class="ss" x="354" y="147" text-anchor="middle">Transactions</text><text class="ss" x="354" y="167" text-anchor="middle">agent</text>
+        <rect class="bx w" x="474" y="120" width="94" height="60" rx="6"/><text class="ss" x="521" y="155" text-anchor="middle">customer</text>
+        <path class="ar" d="M176 150 L270 150" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <text class="ss" x="224" y="138" text-anchor="middle" style="fill:#5fbf8f">hands over</text>
+        <path class="ar" d="M436 150 L470 150" marker-end="url(#arw)"/>
+        <text class="ss" x="24" y="250">The specialist owns the rest of the chat.</text>
+        <text class="ss" x="24" y="276">The coordinator is out of the loop.</text>
+
+        <text class="lb" x="600" y="14">AGENT AS A TOOL &mdash; AgentTool(...)</text>
+        <rect class="bx p grow w2" x="600" y="24" width="576" height="280" rx="8"/>
+        <rect class="bx w" x="620" y="120" width="150" height="60" rx="6"/><text class="ss" x="695" y="155" text-anchor="middle">coordinator</text>
+        <rect class="bx w" x="870" y="56" width="180" height="50" rx="6"/><text class="ss" x="960" y="86" text-anchor="middle">Transactions agent</text>
+        <rect class="bx w" x="870" y="194" width="180" height="50" rx="6"/><text class="ss" x="960" y="224" text-anchor="middle">Accounts agent</text>
+        <path class="fl" d="M772 128 L866 72" marker-end="url(#arb)"/>
+        <path class="ar" d="M866 100 L772 144" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <path class="fl" d="M772 158 L866 202" marker-end="url(#arb)"/>
+        <path class="ar" d="M866 232 L772 172" style="stroke:#5fbf8f" marker-end="url(#arg)"/>
+        <text class="ss" x="800" y="92" style="fill:#6ea8fe">call</text>
+        <text class="ss" x="836" y="138" style="fill:#5fbf8f">answer</text>
+        <rect class="bx g" x="1070" y="120" width="90" height="60" rx="6"/><text class="ss" x="1115" y="147" text-anchor="middle">one</text><text class="ss" x="1115" y="167" text-anchor="middle">reply</text>
+        <path class="ar" d="M695 182 L695 270 L1115 270 L1115 184" style="stroke:#5fbf8f;fill:none" marker-end="url(#arg)"/>
+        <text class="ss" x="620" y="292">Answers come back. The coordinator writes the reply.</text>
+
+        <rect class="bx d" x="4" y="320" width="1172" height="74" rx="8"/>
+        <text class="lb w" x="24" y="346">HOW IT CHOOSES</text>
+        <text class="ss w" x="24" y="374" style="font-size:15px">The coordinator reads each specialist&rsquo;s <tspan font-weight="700" fill="#e0b34d">description</tspan>. Write it like a tool docstring.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-sec="3 &middot; Google ADK" data-title="Evaluate the agent, not just the answer" data-notes="A reply can look right even when the agent took the wrong path. For example, it might answer from the ticket number alone without calling ticket_lookup. ADK evaluation checks both. You write an eval set: a few ticket cases, each with the tool calls you expect and a reference reply. ADK runs the agent on every case and gives two scores. Tool trajectory checks that the agent called the expected tools, in the expected order. Response match compares the words of the final reply with the reference and gives a score from 0 to 1. The default pass marks are 1.0 and 0.8. Run the eval set with the adk eval command, or from a pytest test so it runs with your other tests. Run it again after every change to an instruction or a model, and keep the change only if the scores hold. When a case fails, adk web shows every event of that run." data-tier="D">
+  <h2>Evaluate the <em>agent</em>, not just the answer<span class="tag k">3</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="An eval set runs through the agent and produces a tool trajectory score and a response match score">
+        <rect class="bx p grow" x="4" y="10" width="200" height="220" rx="8"/>
+        <text class="lb" x="20" y="36">EVAL SET</text>
+        <rect class="bx w" x="20" y="50" width="168" height="34" rx="5"/><text class="ss" x="32" y="72">GB-T-4471</text>
+        <rect class="bx w" x="20" y="92" width="168" height="34" rx="5"/><text class="ss" x="32" y="114">GB-T-4472</text>
+        <rect class="bx w" x="20" y="134" width="168" height="34" rx="5"/><text class="ss" x="32" y="156">GB-T-4473</text>
+        <text class="ss" x="20" y="198">expected tools</text>
+        <text class="ss" x="20" y="218">+ reference reply</text>
+        <path class="ar" d="M206 120 L256 120" marker-end="url(#arw)"/>
+        <rect class="bx a grow w2" x="260" y="80" width="130" height="80" rx="8"/>
+        <text class="tt" x="325" y="116" text-anchor="middle">run the</text>
+        <text class="tt" x="325" y="138" text-anchor="middle">agent</text>
+        <path class="ar" d="M392 104 L436 60" marker-end="url(#arw)"/>
+        <path class="ar" d="M392 136 L436 180" marker-end="url(#arw)"/>
+        <rect class="bx g grow w3" x="440" y="10" width="256" height="100" rx="8"/>
+        <text class="tt" x="456" y="38">Tool trajectory</text>
+        <text class="ss" x="456" y="62">right tools, right order?</text>
+        <text class="ss" x="456" y="86" style="font-family:var(--mono)">ticket_lookup &#10003;</text>
+        <rect class="bx g grow w4" x="440" y="130" width="256" height="100" rx="8"/>
+        <text class="tt" x="456" y="158">Response match</text>
+        <text class="ss" x="456" y="182">how close to the reference?</text>
+        <text class="ss" x="456" y="206">a score from 0 to 1</text>
+        <rect class="bx d" x="4" y="262" width="692" height="118" rx="8"/>
+        <text class="lb w" x="22" y="290">RUN IT</text>
+        <text class="ss w" x="22" y="318" style="font-size:15px;font-family:var(--mono)">adk eval &lt;agent folder&gt; &lt;eval set file&gt;</text>
+        <text class="ss w" x="22" y="344" style="font-size:15px">or from a pytest test.</text>
+        <text class="ss w" x="22" y="368" style="font-size:15px">Each score has a pass mark.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Two checks</h3>
+      <ul>
+        <li><b>What it did</b>: the tool calls.</li>
+        <li><b>What it said</b>: the final reply.</li>
+      </ul>
+      <h3>When to run</h3>
+      <ul>
+        <li>After every instruction or model change.</li>
+        <li>Keep a change only if the scores hold.</li>
+        <li><code>adk web</code> shows each event of a failed case.</li>
+      </ul>
+      <div class="take"><b>Check</b> what the agent did, not only what it said.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-sec="4 &middot; Choosing" data-title="CrewAI or ADK? Side by side" data-notes="Neither framework is the advanced one. Each has a default for what it hides and what it shows, and you choose the costs you are willing to pay. CrewAI is quick to write and reads like an org chart, which suits teams who think in roles. Its hand-offs are text passed as context, and a manager can decide the order for you. ADK takes more setup, but hand-offs have names, and every step is an event you can count and test. Two practical points catch people. The model setup is different: CrewAI takes the bare model name and base_url, while ADK needs the openai/ prefix and api_base. And in a notebook, CrewAI needs kickoff_async(). ADK is async already. Lab 4 runs both desks on the same ticket and compares requests, tokens and replies." data-tier="K">
+  <h2>CrewAI or ADK? <em>Side by side</em><span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="A table comparing CrewAI and ADK on six points">
+        <rect class="bx" x="4" y="4" width="1172" height="44" rx="6"/>
+        <text class="lb" x="22" y="31">&#160;</text>
+        <text class="tt" x="330" y="32">CrewAI</text>
+        <text class="tt" x="760" y="32">Google ADK</text>
+        <g class="ss">
+          <text class="lb a" x="22" y="84">YOU DESCRIBE</text>
+          <text class="ss" x="330" y="84">a team: roles and tasks</text>
+          <text class="ss" x="760" y="84">agents, each with one instruction</text>
+          <text class="lb a" x="22" y="130">HAND-OFFS</text>
+          <text class="ss" x="330" y="130">earlier task output, as context</text>
+          <text class="ss" x="760" y="130">named state: output_key and {name}</text>
+          <text class="lb a" x="22" y="176">WHO PICKS THE ORDER</text>
+          <text class="ss" x="330" y="176">you, or a manager model</text>
+          <text class="ss" x="760" y="176">you: workflow agents, or a coordinator</text>
+          <text class="lb a" x="22" y="222">WHAT YOU CAN SEE</text>
+          <text class="ss" x="330" y="222">the final output, plus verbose logs</text>
+          <text class="ss" x="760" y="222">an event for every step</text>
+          <text class="lb a" x="22" y="268">MODEL SETUP</text>
+          <text class="ss" x="330" y="268" style="font-family:var(--mono)">model=name, base_url=...</text>
+          <text class="ss" x="760" y="268" style="font-family:var(--mono)">model="openai/"+name, api_base=...</text>
+          <text class="lb a" x="22" y="314">IN A NOTEBOOK</text>
+          <text class="ss" x="330" y="314" style="font-family:var(--mono)">await crew.kickoff_async()</text>
+          <text class="ss" x="760" y="314" style="font-family:var(--mono)">async for ev in runner.run_async()</text>
+        </g>
+        <path d="M4 104 H1176 M4 150 H1176 M4 196 H1176 M4 242 H1176 M4 288 H1176" style="stroke:var(--line-2);stroke-width:1"/>
+        <rect class="bx d" x="4" y="336" width="1172" height="58" rx="8"/>
+        <text class="ss w" x="24" y="371" style="font-size:15px">Neither is the advanced one. Pick the one whose <tspan font-weight="700" fill="#e0b34d">costs</tspan> you accept, and say why.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-sec="4 &middot; Choosing" data-title="Six multi-agent anti-patterns" data-notes="An anti-pattern is a design that looks reasonable but causes trouble. Most multi-agent problems come from adding agents, loops or freedom that the job did not need. Five agents for a job one agent could do means five prompts to maintain and five times the calls. A manager for steps that never change adds cost and makes each run different. A loop without a limit can run until the budget is gone, and this applies to critic loops and to delegation. A loose hand-off, such as 'the category', makes the next agent guess. Sending every agent the whole history makes later calls bigger and bigger, as you saw with include_contents. And if you only measure the whole run, you cannot tell which agent is expensive. Use this list when you review a multi-agent design, including your own capstone on Day 3." data-tier="K">
+  <h2>Six multi-agent <em>anti-patterns</em><span class="tag k">4</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 400" role="img" aria-label="Six anti-patterns, each with its fix">
+        <text class="lb r" x="22" y="18">WHAT GOES WRONG</text>
+        <text class="lb g" x="620" y="18">THE FIX</text>
+        <rect class="bx r grow" x="4" y="30" width="572" height="54" rx="6"/><text class="ss" x="22" y="62">Five agents where one agent with two tools would do</text>
+        <rect class="bx g grow" x="604" y="30" width="572" height="54" rx="6"/><text class="ss" x="622" y="62">Start with one agent. Split only when it grows too large.</text>
+        <rect class="bx r grow w2" x="4" y="92" width="572" height="54" rx="6"/><text class="ss" x="22" y="124">A manager for steps whose order never changes</text>
+        <rect class="bx g grow w2" x="604" y="92" width="572" height="54" rx="6"/><text class="ss" x="622" y="124">Use a sequential crew or a SequentialAgent.</text>
+        <rect class="bx r grow w3" x="4" y="154" width="572" height="54" rx="6"/><text class="ss" x="22" y="186">A critic or delegation loop with no limit</text>
+        <rect class="bx g grow w3" x="604" y="154" width="572" height="54" rx="6"/><text class="ss" x="622" y="186">Set max_iterations or a retry limit.</text>
+        <rect class="bx r grow w4" x="4" y="216" width="572" height="54" rx="6"/><text class="ss" x="22" y="248">Loose hand-offs, such as &ldquo;the category&rdquo;</text>
+        <rect class="bx g grow w4" x="604" y="216" width="572" height="54" rx="6"/><text class="ss" x="622" y="248">A strict expected_output, or a named state key.</text>
+        <rect class="bx r grow w5" x="4" y="278" width="572" height="54" rx="6"/><text class="ss" x="22" y="310">Every agent re-reads the whole history</text>
+        <rect class="bx g grow w5" x="604" y="278" width="572" height="54" rx="6"/><text class="ss" x="622" y="310">Pass only the named values it needs.</text>
+        <rect class="bx r grow w6" x="4" y="340" width="572" height="54" rx="6"/><text class="ss" x="22" y="372">Cost measured only for the whole run</text>
+        <rect class="bx g grow w6" x="604" y="340" width="572" height="54" rx="6"/><text class="ss" x="622" y="372">Log tokens per agent, so you can see which one costs.</text>
+        <path class="ar" d="M578 57 L600 57" marker-end="url(#arw)"/>
+        <path class="ar" d="M578 119 L600 119" marker-end="url(#arw)"/>
+        <path class="ar" d="M578 181 L600 181" marker-end="url(#arw)"/>
+        <path class="ar" d="M578 243 L600 243" marker-end="url(#arw)"/>
+        <path class="ar" d="M578 305 L600 305" marker-end="url(#arw)"/>
+        <path class="ar" d="M578 367 L600 367" marker-end="url(#arw)"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - C: the steps never change, so a fixed order is enough. B is tempting, but a manager adds calls and a different path each run. Q2 - B: the next task reads this output. C is set by the agent field, not by expected_output. Q3 - D: every hand-off is another model call. A is wrong: tools work either way. Q4 - A: the two checks are independent, so run them at the same time. C adds a planning call and saves no time. Q5 - C: output_key saves it in state, and {facts} reads it back. B describes CrewAI, not ADK. Q6 - A: a loop needs a limit. B may help quality, but it does not stop the loop. Q7 - D: AgentTool returns each answer to the coordinator, which writes one reply. A hands the whole chat to one specialist. Q8 - B: tool trajectory checks the calls. A only compares the final reply, which was fine." data-tier="K">
+  <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
+  <div class="body qgrid">
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>1</b><span>The steps never change: look up, classify, reply. Which pattern?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>A router to specialists</span><span><i>B</i>Hierarchical, with a manager</span><span class="c" data-why="The steps never change, so a fixed order is enough. A manager adds calls and a different path on each run."><i>C</i>Sequential, in a fixed order</span><span><i>D</i>A critic loop with a reviewer</span></div></div>
+      <div class="qc"><div class="qh"><b>2</b><span>What does a CrewAI task&rsquo;s <code>expected_output</code> decide?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Which model the task uses</span><span class="c" data-why="The next task reads this output as its context. The agent field, not expected_output, decides who runs the task."><i>B</i>What the next task receives</span><span><i>C</i>Which agent runs the task</span><span><i>D</i>How many retries are allowed</span></div></div>
+      <div class="qc"><div class="qh"><b>3</b><span>Why start every agent with <code>allow_delegation=False</code>?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Tools stop working with it on</span><span><i>B</i>Jupyter requires it to be off</span><span><i>C</i>A manager ignores it anyway</span><span class="c" data-why="Every hand-off is another paid model call, and agents can pass work back and forth. Tools work either way."><i>D</i>Each hand-off is a paid call</span></div></div>
+      <div class="qc"><div class="qh"><b>4</b><span>The account check and transaction check are independent. What saves time?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="Independent parts can run at the same time. A manager adds a planning call and saves no time."><i>A</i>Parallel fan-out</span><span><i>B</i>A critic loop</span><span><i>C</i>A manager agent</span><span><i>D</i>A router agent</span></div></div>
+    </div>
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>5</b><span>In ADK, how does the classifier read the researcher&rsquo;s facts?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>From a global Python variable</span><span><i>B</i>From the crew&rsquo;s task context</span><span class="c" data-why="output_key saves the answer in state, and {facts} in the instruction reads it back. Task context is how CrewAI does it."><i>C</i>From state, as {facts}</span><span><i>D</i>From the tool&rsquo;s docstring</span></div></div>
+      <div class="qc"><div class="qh"><b>6</b><span>A critic loop runs until the budget is gone. What was missing?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="Every loop needs a limit. A stronger reviewer may improve quality, but nothing makes it stop."><i>A</i>A limit, such as max_iterations</span><span><i>B</i>A stronger reviewer model</span><span><i>C</i>A more detailed instruction</span><span><i>D</i>A second reviewer agent</span></div></div>
+      <div class="qc"><div class="qh"><b>7</b><span>You need one reply that combines two specialists&rsquo; answers. Which ADK option?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Transfer to one sub-agent</span><span><i>B</i>A LoopAgent around both</span><span><i>C</i>Two runners, answers merged</span><span class="c" data-why="AgentTool returns each answer to the coordinator, which writes one reply. A transfer hands the whole chat to one specialist."><i>D</i>Each specialist as an AgentTool</span></div></div>
+      <div class="qc"><div class="qh"><b>8</b><span>The reply looks fine, but <code>ticket_lookup</code> was never called. Which score catches it?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Response match</span><span class="c" data-why="Tool trajectory checks which tools were called, in order. Response match compares only the final reply, which looked fine."><i>B</i>Tool trajectory</span><span><i>C</i>Total token count</span><span><i>D</i>Reply length</span></div></div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script src="../assets/adlc-deck.js"></script>
+</body>
+</html>

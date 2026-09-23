@@ -1,0 +1,86 @@
+[
+ {
+  "question": "Balances do not load and the log says a connection is not available after 30000ms. What do I do?",
+  "runbook": "RB-102",
+  "reference": "Restart one pod at a time to free the stuck connections. Raise the pool size only if the database can accept more sessions, and fix the leak in code before the next release.",
+  "chunk": "RB-102#fix"
+ },
+ {
+  "question": "The payments API started giving 502 errors right after today's release. Should we hot-fix?",
+  "runbook": "RB-101",
+  "reference": "No. If the error rate doubled after the release, roll back with the release tool instead of hot-fixing in production, and confirm the error rate is normal within 10 minutes.",
+  "chunk": "RB-101#fix"
+ },
+ {
+  "question": "Sign-in takes more than 2 seconds since this morning's restart. Why, and what is the fix?",
+  "runbook": "RB-103",
+  "reference": "A cold profile cache after a restart makes every login read from the directory. Warm the profile cache with the warm-up job, and move traffic to the second directory replica if the directory is slow.",
+  "chunk": "RB-103#checks"
+ },
+ {
+  "question": "A TLS certificate expires in 5 days. How do I renew it?",
+  "runbook": "RB-104",
+  "reference": "Renew it through the certificate request portal, load the new certificate into the secret, and restart the ingress controller pods one at a time.",
+  "chunk": "RB-104#fix"
+ },
+ {
+  "question": "The end-of-day statement job failed halfway. Can I just run it again from the start?",
+  "runbook": "RB-105",
+  "reference": "No. Restart the job from the failed step, because running it from the beginning creates duplicate statement lines.",
+  "chunk": "RB-105#fix"
+ },
+ {
+  "question": "Report exports fail with No space left on device. What can I delete?",
+  "runbook": "RB-106",
+  "reference": "Delete export files older than 14 days and compress rotated logs, but not the current day's exports. If usage stays above 85 percent, ask the platform team to grow the volume.",
+  "chunk": "RB-106#fix"
+ },
+ {
+  "question": "Ledger postings are queuing with ORA-12541. What is wrong?",
+  "runbook": "RB-107",
+  "reference": "The ledger cannot reach the database listener. Ask the database team to start the listener, or point the ledger at the standby host during a failover, then restart the ledger service.",
+  "chunk": "RB-107#checks"
+ },
+ {
+  "question": "Small transfers are declined with LIMIT_EXCEEDED after a rules deploy. What now?",
+  "runbook": "RB-108",
+  "reference": "Roll the rules back to the last approved version, and re-deploy the fixed rule set only after a second person checks the limit table. Tell the fraud and limits team.",
+  "chunk": "RB-108#fix"
+ },
+ {
+  "question": "Customer transactions show up in their history many minutes late. Where do I look?",
+  "runbook": "RB-109",
+  "reference": "Check consumer lag on the postings topic and whether a consumer is stuck on one failing message. Move that message to the dead-letter topic and restart the stuck consumer.",
+  "chunk": "RB-109#checks"
+ },
+ {
+  "question": "Customers get HTTP 413 when they upload a passport photo.",
+  "runbook": "RB-110",
+  "reference": "The photo is larger than the ingress body size limit. Raise the ingress limit to match the service limit of 10 MB.",
+  "chunk": "RB-110#fix"
+ },
+ {
+  "question": "During a high-severity incident I need to run SQL directly on the production database. How?",
+  "runbook": "RB-111",
+  "reference": "Request the break-glass role in the access portal with the incident number, with a second engineer watching. The role expires after 2 hours and every command is recorded.",
+  "chunk": "RB-111#fix"
+ },
+ {
+  "question": "The pod went into CrashLoopBackOff after we edited its ConfigMap.",
+  "runbook": "RB-112",
+  "reference": "Revert the config change and restart the deployment, then fix the value and test it in staging first.",
+  "chunk": "RB-112#fix"
+ },
+ {
+  "question": "The app is killed because it uses too much RAM at month end.",
+  "runbook": "RB-113",
+  "reference": "The transaction service pods are OOMKilled. Raise the memory limit for the month-end period and page large report requests instead of loading everything at once.",
+  "chunk": "RB-113#fix"
+ },
+ {
+  "question": "Users wait a long time and then the payment fails, and the pool shows many pending requests.",
+  "runbook": "RB-102",
+  "reference": "The database connection pool is exhausted. Restart one pod at a time, raise the pool size only if the database allows it, and fix the connection leak.",
+  "chunk": "RB-102#fix"
+ }
+]

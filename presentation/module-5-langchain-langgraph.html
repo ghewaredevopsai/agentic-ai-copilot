@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 5 — LangChain &amp; LangGraph | Agentic AI &amp; AI-Assisted Development with GitHub Copilot</title>
+<link rel="stylesheet" href="../assets/adlc-deck.css">
+</head>
+<body data-deck="Module 5">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#71809a"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6ea8fe"/></marker>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2726e"/></marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5fbf8f"/></marker>
+</defs></svg>
+
+<div id="viewport"><div id="stage"><!-- 1 -->
+<section class="slide title" data-sec="Opening" data-title="Title" data-notes="On Day 1 you wrote the AskOps agent by hand: a ReAct loop in plain Python, where you could see every message. In this module you rebuild the same agent with two open-source libraries. LangChain gives you ready-made parts: a chat model, prompt templates, output parsers and tools. You join them with a pipe, and one call builds a whole agent. LangGraph lets you draw the steps as a graph of Python functions. It adds what your Day 1 loop did not have. It saves the state after every step, so a conversation can continue and a crashed run can resume. It can pause and wait for a person to approve a risky tool. And it can stream progress while the agent works. After this module you can read and write a LangChain chain, a tool, an agent and a small LangGraph graph. You will also know which of the three to choose for a task." data-tier="R">
+  <div class="wrap">
+    <span class="tier">Day 2 &middot; Module 5</span>
+    <h1>LangChain &amp; LangGraph</h1>
+    <p class="sub">The AskOps agent from Day 1, rebuilt with a framework. Then it gets memory, approval and live progress.</p>
+    <p class="meta">
+      <span><b>Agentic AI &amp; AI-Assisted Development with GitHub Copilot</b> &mdash; 3 days</span>
+      <span>Intermediate</span>
+      <span>Trainer: Rajesh Gheware</span>
+    </p>
+    <div class="chips">
+    <span class="chip">LangChain parts</span>
+    <span class="chip">LCEL</span>
+    <span class="chip">Tools</span>
+    <span class="chip">Agents</span>
+    <span class="chip">State and nodes</span>
+    <span class="chip">Routing and cycles</span>
+    <span class="chip">Checkpointers</span>
+    <span class="chip">Human approval</span>
+    <span class="chip">Streaming</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-sec="Opening" data-title="Words used in this module" data-notes="Keep this slide open while you work through the module. The left column holds the LangChain words. A chat model is LangChain's wrapper around one model endpoint, such as the course model on the gateway. A prompt template is a prompt with blanks, such as {text}, that you fill in at run time. An output parser turns the model's reply into plain text or a Python object. LCEL is the pipe syntax that joins these parts. A runnable is any part you can join with the pipe. A chain is several runnables joined together. The right column holds the LangGraph words. State is one shared Python dictionary. Nodes are functions that read the state and return changes. Edges decide which node runs next. The last four words each get their own slide later in this module: reducer, checkpointer, thread and interrupt." data-tier="K">
+  <h2>Words used in this module<span class="tag">M5</span></h2>
+  <div class="body g55">
+    <div class="pts">
+      <h3>LangChain words</h3>
+      <ul>
+        <li><b>Chat model</b> &mdash; one model endpoint, wrapped.</li>
+        <li><b>Prompt template</b> &mdash; a prompt with blanks to fill.</li>
+        <li><b>Output parser</b> &mdash; turns the reply into data.</li>
+        <li><b>LCEL</b> &mdash; join parts with a pipe: <code>a | b</code>.</li>
+        <li><b>Runnable</b> &mdash; any part you can join.</li>
+        <li><b>Chain</b> &mdash; runnables joined in a fixed order.</li>
+      </ul>
+    </div>
+    <div class="pts">
+      <h3>LangGraph words</h3>
+      <ul>
+        <li><b>State</b> &mdash; one shared dictionary.</li>
+        <li><b>Node</b> &mdash; a function that updates the state.</li>
+        <li><b>Edge</b> &mdash; which node runs next.</li>
+        <li><b>Reducer</b> &mdash; how an update joins a key.</li>
+        <li><b>Checkpointer</b> &mdash; saves the state after each node.</li>
+        <li><b>Thread</b> &mdash; one conversation&rsquo;s saved states.</li>
+        <li><b>Interrupt</b> &mdash; pause and wait for a person.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-sec="1 &middot; LangChain" data-title="Your Day 1 loop, in ready-made parts" data-notes="Look at the left column. These are the four jobs your Day 1 file agent.py did by hand. It built the list of messages, sent one HTTP POST to the model, dug the text out of the JSON reply and ran the tool the model asked for. LangChain has a ready-made part for each job. ChatPromptTemplate builds the messages. A chat model sends the request. StrOutputParser reads the reply. The @tool decorator turns a Python function into a tool. Nothing new happens on the wire. LangChain sends the same chat completions messages you saw in Module 4. That matters when something breaks: you debug it at the message level, exactly as before. Changing the model is one line. In the sandbox, init_chat_model points at the course gateway with the openai provider, because the gateway speaks the same format." data-tier="K">
+  <h2>Your Day 1 loop, in <em>ready-made</em> parts<span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 400" role="img" aria-label="Four jobs the Day 1 loop did by hand, each mapped to the LangChain part that does it">
+        <text class="lb" x="4" y="14">DAY 1 &mdash; agent.py, BY HAND</text>
+        <text class="lb a" x="430" y="14">LANGCHAIN PART</text>
+
+        <rect class="bx w grow" x="4" y="26" width="300" height="64" rx="6"/>
+        <text class="tt" x="20" y="52">Build the messages</text>
+        <text class="ss" x="20" y="74">system and user dicts</text>
+        <path class="ar" d="M308 58 L424 58" marker-end="url(#arw)"/>
+        <rect class="bx p grow" x="430" y="26" width="266" height="64" rx="6"/>
+        <text class="tt" x="446" y="52">Prompt template</text>
+        <text class="ss" x="446" y="74" style="font-family:var(--mono);font-size:13px">ChatPromptTemplate</text>
+
+        <rect class="bx w grow w2" x="4" y="106" width="300" height="64" rx="6"/>
+        <text class="tt" x="20" y="132">Call the model</text>
+        <text class="ss" x="20" y="154">chat(): one HTTP POST</text>
+        <path class="ar" d="M308 138 L424 138" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="430" y="106" width="266" height="64" rx="6"/>
+        <text class="tt" x="446" y="132">Chat model</text>
+        <text class="ss" x="446" y="154" style="font-family:var(--mono);font-size:13px">init_chat_model(...)</text>
+
+        <rect class="bx w grow w3" x="4" y="186" width="300" height="64" rx="6"/>
+        <text class="tt" x="20" y="212">Read the reply</text>
+        <text class="ss" x="20" y="234">dig the text out of the JSON</text>
+        <path class="ar" d="M308 218 L424 218" marker-end="url(#arw)"/>
+        <rect class="bx p grow w3" x="430" y="186" width="266" height="64" rx="6"/>
+        <text class="tt" x="446" y="212">Output parser</text>
+        <text class="ss" x="446" y="234" style="font-family:var(--mono);font-size:13px">StrOutputParser()</text>
+
+        <rect class="bx w grow w4" x="4" y="266" width="300" height="64" rx="6"/>
+        <text class="tt" x="20" y="292">Run the tool</text>
+        <text class="ss" x="20" y="314" style="font-family:var(--mono);font-size:13px">TOOLS[name](**args)</text>
+        <path class="ar" d="M308 298 L424 298" marker-end="url(#arw)"/>
+        <rect class="bx p grow w4" x="430" y="266" width="266" height="64" rx="6"/>
+        <text class="tt" x="446" y="292">Tool</text>
+        <text class="ss" x="446" y="314" style="font-family:var(--mono);font-size:13px">@tool</text>
+
+        <rect class="bx d rise r5" x="4" y="350" width="692" height="44" rx="8"/>
+        <text class="tt w" x="350" y="378" text-anchor="middle">Same loop as Day 1. Fewer lines to write and test.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>What LangChain is</h3>
+      <ul>
+        <li>A Python library of parts for LLM apps.</li>
+        <li>Every part fits every other part.</li>
+        <li>Change the model in <b>one line</b>.</li>
+      </ul>
+<div class="file"><span class="fn">THE COURSE MODEL</span>model = init_chat_model(
+    MODEL, model_provider="openai",
+    base_url=GATEWAY_URL)
+</div>
+      <div class="take"><b>Nothing hidden:</b> the same messages as Module 4 go over the wire.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-sec="1 &middot; LangChain" data-title="LCEL: join parts with a pipe" data-notes="LCEL stands for LangChain Expression Language. It is one idea: the pipe symbol passes the output of one part into the next part. Follow the data down the left of the diagram. You pass a dictionary with the incident text. The prompt template fills the blank and returns a list of messages. The model returns an AIMessage. The parser takes out the text and returns a plain Python string. Every part is a runnable, so every part has the same three methods. invoke runs one input. batch runs many inputs in parallel, which is useful for summarising fifty incidents at once. stream returns the answer piece by piece, so a user sees it being written. The whole chain is also a runnable, with the same three methods. A common mistake is passing a string to a template that expects a dictionary. The error names the missing key, such as text." data-tier="K">
+  <h2>LCEL: join parts with a <em>pipe</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="A dictionary flows through prompt, model and parser to plain text; every part has invoke, batch and stream">
+        <rect class="bx w grow" x="20" y="4" width="260" height="44" rx="6"/>
+        <text class="ss" x="150" y="31" text-anchor="middle" style="font-family:var(--mono);font-size:13px">{"text": "502 after deploy"}</text>
+        <path class="ar" d="M150 50 L150 76" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="20" y="80" width="260" height="44" rx="6"/>
+        <text class="tt" x="150" y="107" text-anchor="middle">prompt</text>
+        <path class="ar" d="M150 126 L150 152" marker-end="url(#arw)"/>
+        <text class="ss" x="162" y="144" style="fill:#d98a3d">messages</text>
+        <rect class="bx p grow w3" x="20" y="156" width="260" height="44" rx="6"/>
+        <text class="tt" x="150" y="183" text-anchor="middle">model</text>
+        <path class="ar" d="M150 202 L150 228" marker-end="url(#arw)"/>
+        <text class="ss" x="162" y="220" style="fill:#d98a3d">AIMessage</text>
+        <rect class="bx p grow w4" x="20" y="232" width="260" height="44" rx="6"/>
+        <text class="tt" x="150" y="259" text-anchor="middle">parser</text>
+        <path class="ar" d="M150 278 L150 304" marker-end="url(#arw)"/>
+        <text class="ss" x="162" y="296" style="fill:#d98a3d">str</text>
+        <rect class="bx g grow w5" x="20" y="308" width="260" height="44" rx="6"/>
+        <text class="ss" x="150" y="335" text-anchor="middle">&ldquo;Payments: 502 since the deploy.&rdquo;</text>
+
+        <text class="lb a" x="340" y="14">EVERY PART IS A RUNNABLE</text>
+        <rect class="bx w rise r2" x="340" y="26" width="356" height="76" rx="6"/>
+        <text class="tt" x="356" y="56" style="font-family:var(--mono)">invoke(x)</text>
+        <text class="ss" x="356" y="82">one input, one output</text>
+        <rect class="bx w rise r3" x="340" y="116" width="356" height="76" rx="6"/>
+        <text class="tt" x="356" y="146" style="font-family:var(--mono)">batch([x, y, z])</text>
+        <text class="ss" x="356" y="172">many inputs, run in parallel</text>
+        <rect class="bx w rise r4" x="340" y="206" width="356" height="76" rx="6"/>
+        <text class="tt" x="356" y="236" style="font-family:var(--mono)">stream(x)</text>
+        <text class="ss" x="356" y="262">the output, piece by piece</text>
+        <text class="ss" x="340" y="318" style="fill:#5fbf8f">The whole chain is a runnable too.</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">summarise.py</span>prompt = ChatPromptTemplate.from_messages([
+  ("system", "You are an SRE. One line."),
+  ("user", "Summarise: {text}")])
+
+chain = prompt | model | StrOutputParser()
+chain.invoke({"text": "502 after deploy"})
+</div>
+      <ul>
+        <li><b>The pipe</b> passes each output to the next part.</li>
+        <li>Fixed steps, no tools: this is a <b>chain</b>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-sec="1 &middot; LangChain" data-title="Tools: a function plus a docstring" data-notes="In Module 4 you wrote each tool description by hand, as a JSON schema. The @tool decorator writes it for you. It reads three things from your function. The function name becomes the tool name. The type hints become the parameters, so query: str becomes a required string. The docstring becomes the description. So the docstring is no longer a comment for other developers. It is the instruction the model reads before it chooses a tool. Write it the way Module 4 taught: say when to use the tool, and when not to. The model never sees the body of your function. To give tools to a model, call model.bind_tools with a list of them. The tools are then sent with every call. A common mistake is a missing type hint. The parameter then has no type, and the model guesses what to send." data-tier="K">
+  <h2>Tools: a function plus a <em>docstring</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="The @tool decorator turns a function's name, type hints and docstring into the schema the model reads">
+        <text class="lb" x="4" y="14">1 &middot; YOUR FUNCTION</text>
+        <rect class="bx w grow" x="4" y="24" width="692" height="116" rx="8"/>
+        <text class="ss" x="20" y="52" style="font-family:var(--mono);font-size:13px;fill:#e0b34d">@tool</text>
+        <text class="ss" x="20" y="74" style="font-family:var(--mono);font-size:13px">def search_runbooks(query: str) -&gt; str:</text>
+        <text xml:space="preserve" class="ss" x="20" y="96" style="font-family:var(--mono);font-size:13px">    """Find runbooks for an error or symptom.</text>
+        <text xml:space="preserve" class="ss" x="20" y="118" style="font-family:var(--mono);font-size:13px">    Do not use it to check open incidents."""</text>
+
+        <path class="ar" d="M350 144 L350 184" marker-end="url(#arw)"/>
+        <text class="ss" x="366" y="170" style="fill:#d98a3d">LangChain reads the name, hints and docstring</text>
+
+        <text class="lb a" x="4" y="206">2 &middot; WHAT THE MODEL SEES</text>
+        <rect class="bx a grow w2" x="4" y="216" width="692" height="116" rx="8"/>
+        <text xml:space="preserve" class="ss" x="20" y="244" style="font-family:var(--mono);font-size:13px">name:        search_runbooks</text>
+        <text xml:space="preserve" class="ss" x="20" y="266" style="font-family:var(--mono);font-size:13px">description: Find runbooks for an error or symptom.</text>
+        <text xml:space="preserve" class="ss" x="20" y="288" style="font-family:var(--mono);font-size:13px">             Do not use it to check open incidents.</text>
+        <text xml:space="preserve" class="ss" x="20" y="310" style="font-family:var(--mono);font-size:13px">parameters:  query (string, required)</text>
+
+        <text class="ss" x="4" y="366" style="fill:#e2726e">The model never sees the body of your function.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Three things become the schema</h3>
+      <ul>
+        <li>Function name &rarr; <b>tool name</b>.</li>
+        <li>Type hints &rarr; <b>parameters</b>.</li>
+        <li>Docstring &rarr; <b>description</b>.</li>
+      </ul>
+<div class="file"><span class="fn">GIVE THE TOOLS TO THE MODEL</span>model.bind_tools(
+    [search_runbooks, get_runbook,
+     list_incidents])
+</div>
+      <div class="take"><b>Module 4 still applies:</b> the description is the instruction.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-sec="1 &middot; LangChain" data-title="Agents: the ReAct loop in one call" data-notes="This is your whole Day 1 loop in one function call. create_agent takes a model, a list of tools and a system prompt. It runs the same ReAct loop you wrote in Module 4: the model reasons and asks for a tool, the tool runs, and the result goes back into the messages. The loop ends when the model replies with no tool call. Your for loop and its MAX_STEPS are now a setting called recursion_limit. It counts graph steps, and each model call and each tool run is one step. So a limit of 12 allows about five tool calls. When the limit is reached, the agent raises GraphRecursionError. Catch it and tell the user, as you did with the step budget. Notice that open_incident is not in the tool list. It writes data, so it needs approval first. You add that safely with LangGraph later in this module." data-tier="K">
+  <h2>Agents: the ReAct loop in <em>one call</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="create_agent wraps the reason, act, observe loop; the answer leaves when there is no tool call, and recursion_limit caps the steps">
+        <text class="lb a" x="4" y="14">create_agent(model, tools) RUNS THIS LOOP FOR YOU</text>
+        <rect class="bx grow" x="4" y="24" width="692" height="262" rx="10"/>
+        <rect class="bx p grow w2" x="40" y="60" width="190" height="70" rx="6"/>
+        <text class="tt" x="135" y="90" text-anchor="middle">Reason</text>
+        <text class="ss" x="135" y="113" text-anchor="middle">model picks a tool</text>
+        <path class="ar" d="M234 95 L476 95" marker-end="url(#arw)"/>
+        <text class="ss" x="355" y="86" text-anchor="middle">tool call</text>
+        <rect class="bx w grow w3" x="480" y="60" width="190" height="70" rx="6"/>
+        <text class="tt" x="575" y="90" text-anchor="middle">Act</text>
+        <text class="ss" x="575" y="113" text-anchor="middle">the tool runs</text>
+        <path class="ar" d="M575 134 L470 196" marker-end="url(#arw)"/>
+        <rect class="bx w grow w4" x="260" y="196" width="200" height="70" rx="6"/>
+        <text class="tt" x="360" y="226" text-anchor="middle">Observe</text>
+        <text class="ss" x="360" y="249" text-anchor="middle">result goes back</text>
+        <path class="ar" d="M256 226 L165 134" marker-end="url(#arw)"/>
+        <path class="ar" d="M70 134 L70 306" marker-end="url(#arg)" style="stroke:#5fbf8f"/>
+        <text class="ss" x="80" y="176" style="fill:#5fbf8f">no tool call</text>
+
+        <rect class="bx g rise r5" x="4" y="310" width="220" height="60" rx="6"/>
+        <text class="tt" x="114" y="337" text-anchor="middle">Answer</text>
+        <text class="ss" x="114" y="358" text-anchor="middle">the loop ends</text>
+        <rect class="bx a rise r6" x="456" y="310" width="240" height="60" rx="6"/>
+        <text class="tt" x="576" y="337" text-anchor="middle" style="font-family:var(--mono)">recursion_limit</text>
+        <text class="ss" x="576" y="358" text-anchor="middle">your Day 1 step budget</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">LAB 5.1 &middot; SECTION 3</span>agent = create_agent(
+    model,
+    tools=[search_runbooks,
+           get_runbook, list_incidents],
+    system_prompt=SYSTEM)
+
+out = agent.invoke(
+    {"messages": [("user", QUESTION)]},
+    {"recursion_limit": 12})
+</div>
+      <ul>
+        <li>Too many steps: <code>GraphRecursionError</code>.</li>
+        <li><code>open_incident</code> is left out, for now.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-sec="1 &middot; LangChain" data-title="Chain, agent or graph? Pick the smallest" data-notes="You now have three ways to build with a model, from the simplest to the most flexible. Use the same test as Module 4: can you draw the flowchart before you start? If the steps are the same for every input, build a chain. Summarising one incident in a fixed format is a chain. If the model must choose the next step, such as which runbook to read, build an agent with create_agent. If you need control that an agent does not give you, build a graph with LangGraph. That means branches you decide in code, state saved between turns, resume after a crash, or a pause for a person to approve open_incident. Here is the link to the second half. create_agent is itself a small LangGraph graph, built for you. That is why its step limit is called recursion_limit, and why the error is GraphRecursionError. Start with the smallest option that works, and move up only when you need to." data-tier="K">
+  <h2>Chain, agent or graph? Pick the <em>smallest</em><span class="tag k">1</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 400" role="img" aria-label="Decision flow: fixed steps means a chain; model-chosen steps mean an agent; control, saved state or approval means a graph">
+        <rect class="bx w grow" x="180" y="4" width="340" height="60" rx="8"/>
+        <text class="tt" x="350" y="40" text-anchor="middle">Same steps for every input?</text>
+        <path class="ar" d="M240 66 L130 106" marker-end="url(#arw)"/>
+        <text class="ss" x="160" y="84" style="fill:#5fbf8f">yes</text>
+        <path class="ar" d="M460 66 L510 106" marker-end="url(#arw)"/>
+        <text class="ss" x="498" y="84">no</text>
+
+        <rect class="bx g grow w2" x="4" y="110" width="220" height="104" rx="8"/>
+        <text class="tt" x="20" y="140">Chain</text>
+        <text class="ss" x="20" y="166" style="font-family:var(--mono);font-size:13px">prompt | model | parser</text>
+        <text class="ss" x="20" y="194">Summarise one incident.</text>
+
+        <rect class="bx w grow w2" x="300" y="110" width="396" height="60" rx="8"/>
+        <text class="tt" x="498" y="146" text-anchor="middle">Need control, saved state or approval?</text>
+        <path class="ar" d="M420 172 L370 236" marker-end="url(#arw)"/>
+        <text class="ss" x="370" y="206">no</text>
+        <path class="ar" d="M600 172 L600 236" marker-end="url(#arw)"/>
+        <text class="ss" x="610" y="206" style="fill:#d98a3d">yes</text>
+
+        <rect class="bx p grow w3" x="250" y="240" width="210" height="104" rx="8"/>
+        <text class="tt" x="266" y="270">Agent</text>
+        <text class="ss" x="266" y="296" style="font-family:var(--mono);font-size:13px">create_agent(...)</text>
+        <text class="ss" x="266" y="324">Answer a 502 question.</text>
+
+        <rect class="bx a grow w4" x="486" y="240" width="210" height="104" rx="8"/>
+        <text class="tt" x="502" y="270">Graph</text>
+        <text class="ss" x="502" y="296" style="font-family:var(--mono);font-size:13px">StateGraph(...)</text>
+        <text class="ss" x="502" y="324">Ask before open_incident.</text>
+
+        <text class="ss" x="4" y="386" style="fill:#d98a3d">create_agent is itself a small graph, built for you.</text>
+      </svg>
+    </div>
+    <div class="pts">
+      <h3>Choose in this order</h3>
+      <ul>
+        <li><b>Chain:</b> you know every step.</li>
+        <li><b>Agent:</b> the model picks the steps.</li>
+        <li><b>Graph:</b> you need to control the steps, save them or pause them.</li>
+      </ul>
+      <div class="take"><b>Same test as Module 4:</b> can you draw the flowchart first?</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-sec="2 &middot; LangGraph" data-title="A graph is a flowchart you can run" data-notes="LangGraph turns a flowchart into running code. You draw it with three things. The state is one dictionary that every node can read. You describe its keys with a TypedDict. A node is an ordinary Python function. It receives the state and returns only the keys it wants to change, not the whole dictionary. An edge says which node runs next. START and END mark the entry and the exit. compile checks the graph, for example for a node with no way out, and returns something you can invoke. Look at the messages key. Its reducer, add_messages, adds new messages to the end of the list. Keys with no reducer are replaced, so the last node to write wins. This is a common first bug. If two nodes return messages and you forgot add_messages, you lose the first node's messages without any error." data-tier="K">
+  <h2>A graph is a flowchart you can <em>run</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="Nodes classify, search and answer run in order between START and END, and all read and update one shared state">
+        <rect class="bx d grow" x="4" y="20" width="80" height="50" rx="25"/>
+        <text class="ss w" x="44" y="50" text-anchor="middle">START</text>
+        <path class="ar" d="M86 45 L120 45" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="124" y="20" width="130" height="50" rx="6"/>
+        <text class="tt" x="189" y="50" text-anchor="middle">classify</text>
+        <path class="ar" d="M256 45 L290 45" marker-end="url(#arw)"/>
+        <rect class="bx p grow w3" x="294" y="20" width="130" height="50" rx="6"/>
+        <text class="tt" x="359" y="50" text-anchor="middle">search</text>
+        <path class="ar" d="M426 45 L460 45" marker-end="url(#arw)"/>
+        <rect class="bx p grow w4" x="464" y="20" width="130" height="50" rx="6"/>
+        <text class="tt" x="529" y="50" text-anchor="middle">answer</text>
+        <path class="ar" d="M596 45 L626 45" marker-end="url(#arw)"/>
+        <rect class="bx d grow w5" x="630" y="20" width="66" height="50" rx="25"/>
+        <text class="ss w" x="663" y="50" text-anchor="middle">END</text>
+
+        <path class="fl" d="M189 74 L250 144" marker-start="url(#arb)" marker-end="url(#arb)"/>
+        <path class="fl" d="M359 74 L350 144" marker-start="url(#arb)" marker-end="url(#arb)"/>
+        <path class="fl" d="M529 74 L450 144" marker-start="url(#arb)" marker-end="url(#arb)"/>
+        <text class="ss" x="570" y="104" style="fill:#6ea8fe">reads state,</text>
+        <text class="ss" x="570" y="124" style="fill:#6ea8fe">returns changes</text>
+
+        <text class="lb a" x="150" y="140">STATE</text>
+        <rect class="bx a grow w3" x="150" y="148" width="400" height="140" rx="8"/>
+        <text class="ss" x="170" y="184" style="font-family:var(--mono);font-size:13px">messages: [user, AI, tool, ...]</text>
+        <text class="ss" x="170" y="216" style="font-family:var(--mono);font-size:13px">kind:     "runbook"</text>
+        <text class="ss" x="170" y="248" style="font-family:var(--mono);font-size:13px">tries:    1</text>
+
+        <rect class="bx d rise r5" x="4" y="310" width="692" height="56" rx="8"/>
+        <text class="tt w" x="20" y="334">Reducer: add_messages adds to the list.</text>
+        <text class="ss w" x="20" y="355">Keys without a reducer are replaced. The last write wins.</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">graph.py</span>class State(TypedDict):
+    messages: Annotated[list, add_messages]
+    kind: str
+    tries: int
+
+g = StateGraph(State)
+g.add_node("classify", classify)
+g.add_node("search", search)
+g.add_node("answer", answer)
+
+g.add_edge(START, "classify")
+g.add_edge("classify", "search")
+g.add_edge("search", "answer")
+g.add_edge("answer", END)
+graph = g.compile()
+</div>
+      <ul>
+        <li>A node <b>returns only what it changes</b>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-sec="2 &middot; LangGraph" data-title="Conditional routing and cycles" data-notes="A plain edge always goes to the same node. A conditional edge calls a router function, and the function returns the name of the next node. Here route reads the kind key that classify wrote, and sends a runbook question to search and an outage to list_incidents. The dictionary maps each return value to a node, so a typo fails when you compile the graph, not in the middle of a run. A cycle is an edge back to an earlier node. Here check sends a weak answer back to search to try again. This is the ReAct loop from Module 4, drawn as a graph. Remember the Day 1 stop conditions. Every cycle needs a stop rule you can test: a counter such as tries in the state, checked in the router. recursion_limit is the second line of defence. It stops the run if your own rule has a bug." data-tier="K">
+  <h2>Conditional routing and <em>cycles</em><span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 400" role="img" aria-label="classify routes to search or list_incidents; check loops back to search when the answer is weak, with a limit of three tries">
+        <rect class="bx p grow" x="4" y="160" width="130" height="56" rx="6"/>
+        <text class="tt" x="69" y="193" text-anchor="middle">classify</text>
+        <text class="ss" x="69" y="236" text-anchor="middle" style="fill:#d98a3d">route() picks</text>
+
+        <path class="ar" d="M136 170 L206 94" marker-end="url(#arw)"/>
+        <text class="ss" x="96" y="124">runbook</text>
+        <path class="ar" d="M136 206 L206 290" marker-end="url(#arw)"/>
+        <text class="ss" x="96" y="270">incident</text>
+
+        <rect class="bx p grow w2" x="210" y="50" width="130" height="56" rx="6"/>
+        <text class="tt" x="275" y="83" text-anchor="middle">search</text>
+        <path class="ar" d="M342 78 L396 78" marker-end="url(#arw)"/>
+        <rect class="bx w grow w3" x="400" y="50" width="120" height="56" rx="6"/>
+        <text class="tt" x="460" y="83" text-anchor="middle">check</text>
+        <path class="ar" d="M460 48 C460 6, 275 6, 275 46" marker-end="url(#arr)" style="stroke:#e2726e"/>
+        <text class="ss" x="530" y="34" style="fill:#e2726e">weak and tries &lt; 3</text>
+
+        <rect class="bx p grow w2" x="210" y="286" width="170" height="56" rx="6"/>
+        <text class="tt" x="295" y="319" text-anchor="middle">list_incidents</text>
+
+        <path class="ar" d="M500 108 L614 156" marker-end="url(#arg)" style="stroke:#5fbf8f"/>
+        <text class="ss" x="440" y="146" style="fill:#5fbf8f">good, or 3 tries</text>
+        <path class="ar" d="M382 310 L600 218" marker-end="url(#arw)"/>
+        <rect class="bx g grow w4" x="580" y="160" width="116" height="56" rx="6"/>
+        <text class="tt" x="638" y="193" text-anchor="middle">answer</text>
+
+        <rect class="bx d rise r5" x="4" y="356" width="692" height="40" rx="8"/>
+        <text class="tt w" x="350" y="382" text-anchor="middle">A cycle is safe only with a stop rule in the state.</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">graph.py</span>def route(state):
+    return state["kind"]
+
+g.add_conditional_edges("classify", route,
+    {"runbook": "search",
+     "incident": "list_incidents"})
+</div>
+      <ul>
+        <li>A <b>router</b> returns the next node&rsquo;s name.</li>
+        <li>A <b>cycle</b> is an edge back to an earlier node.</li>
+        <li><code>recursion_limit</code> is the backup stop.</li>
+      </ul>
+      <div class="take"><b>Day 1&rsquo;s stop conditions,</b> now drawn as edges.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-sec="2 &middot; LangGraph" data-title="Checkpointers: save every step, remember each session" data-notes="A checkpointer saves the whole state after every node. You add it when you compile the graph. Each run then needs a thread_id, which works like a conversation id. Every saved state is filed under that id. Look at engineer A on the top line. The second question uses the same thread_id, so the graph starts from the saved state. It already knows about RB-101 from turn one. That is session memory, and you wrote no code to store history. Engineer B uses a different thread_id and gets a separate conversation. When B's run crashes after search, the work so far is not lost. Invoke again with the same thread_id and the run continues from the last checkpoint. get_state shows the latest saved state, and get_state_history lists every one, which is useful for debugging. InMemorySaver keeps everything in memory, which is right for labs. It is lost when the process stops, so production uses a database checkpointer." data-tier="K">
+  <h2>Checkpointers: save every step, <em>remember</em> each session<span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 390" role="img" aria-label="Two threads: engineer A keeps a conversation across two turns; engineer B crashes and resumes from its last saved checkpoint">
+        <text class="lb" x="4" y="14">thread_id = "eng-a" &mdash; ENGINEER A</text>
+        <rect class="bx grow" x="4" y="22" width="692" height="138" rx="8"/>
+        <text class="ss" x="20" y="60">turn 1</text>
+        <rect class="bx p grow w2" x="90" y="38" width="120" height="34" rx="6"/>
+        <text class="ss" x="150" y="60" text-anchor="middle">classify</text>
+        <circle cx="228" cy="55" r="7" fill="#e0b34d"/>
+        <path class="ar" d="M238 55 L262 55" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="266" y="38" width="120" height="34" rx="6"/>
+        <text class="ss" x="326" y="60" text-anchor="middle">search</text>
+        <circle cx="404" cy="55" r="7" fill="#e0b34d"/>
+        <path class="ar" d="M414 55 L438 55" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="442" y="38" width="120" height="34" rx="6"/>
+        <text class="ss" x="502" y="60" text-anchor="middle">answer</text>
+        <circle cx="580" cy="55" r="7" fill="#e0b34d"/>
+        <text class="ss" x="20" y="116">turn 2</text>
+        <rect class="bx g grow w3" x="90" y="96" width="590" height="40" rx="6"/>
+        <text class="ss" x="106" y="121">Same thread: it starts from the saved state. It knows RB-101.</text>
+
+        <text class="lb" x="4" y="192">thread_id = "eng-b" &mdash; ENGINEER B</text>
+        <rect class="bx grow w3" x="4" y="200" width="692" height="138" rx="8"/>
+        <rect class="bx p grow w4" x="90" y="216" width="120" height="34" rx="6"/>
+        <text class="ss" x="150" y="238" text-anchor="middle">classify</text>
+        <circle cx="228" cy="233" r="7" fill="#e0b34d"/>
+        <path class="ar" d="M238 233 L262 233" marker-end="url(#arw)"/>
+        <rect class="bx p grow w4" x="266" y="216" width="120" height="34" rx="6"/>
+        <text class="ss" x="326" y="238" text-anchor="middle">search</text>
+        <circle cx="404" cy="233" r="7" fill="#e0b34d"/>
+        <path class="ar" d="M414 233 L438 233" marker-end="url(#arr)" style="stroke:#e2726e"/>
+        <rect class="bx r grow w4" x="442" y="216" width="120" height="34" rx="6"/>
+        <text class="ss" x="502" y="238" text-anchor="middle">crash</text>
+        <path class="ar" d="M404 244 C404 290, 470 296, 520 296" marker-end="url(#arg)" style="stroke:#5fbf8f"/>
+        <text class="ss" x="528" y="301" style="fill:#5fbf8f">resume here</text>
+        <text class="ss" x="20" y="326">Invoke again with "eng-b": it continues after search.</text>
+
+        <circle cx="12" cy="370" r="7" fill="#e0b34d"/>
+        <text class="ss" x="26" y="375">a saved checkpoint</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">graph.py</span>graph = g.compile(
+    checkpointer=InMemorySaver())
+cfg = {"configurable":
+       {"thread_id": "eng-a"}}
+graph.invoke(inputs, cfg)
+graph.get_state(cfg)
+</div>
+      <ul>
+        <li><b>Same <code>thread_id</code></b>: same conversation.</li>
+        <li>A crash loses nothing that was saved.</li>
+        <li><code>InMemorySaver</code> is for labs. Production uses a database.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-sec="2 &middot; LangGraph" data-title="Human-in-the-loop: pause before a risky step" data-notes="In Module 4, approval for open_incident was an if statement, and the person had to answer while the program waited. interrupt does better. When a node calls interrupt, the run stops and the state is saved by the checkpointer. Nothing is running while it waits, so the person can answer a minute later or the next morning. The value you pass to interrupt, here the draft incident, is shown to the person. To continue, invoke the graph again with Command(resume=...) and the same thread_id. Whatever you pass to resume becomes the return value of interrupt inside the node. The node then opens the incident, or replies without opening one. This is why interrupt needs a checkpointer: the pause is a saved state. Watch for one common mistake. On resume, the node runs again from its first line. So do not put a write before the interrupt, or it happens twice. create_agent offers the same pause as HumanInTheLoopMiddleware." data-tier="K">
+  <h2>Human-in-the-loop: <em>pause</em> before a risky step<span class="tag k">2</span></h2>
+  <div class="body g64">
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="The graph drafts an incident, pauses with interrupt, a person approves or rejects, and the run resumes">
+        <rect class="bx p grow" x="4" y="30" width="190" height="60" rx="6"/>
+        <text class="tt" x="99" y="66" text-anchor="middle">search</text>
+        <path class="ar" d="M99 92 L99 126" marker-end="url(#arw)"/>
+        <rect class="bx p grow w2" x="4" y="130" width="190" height="70" rx="6"/>
+        <text class="tt" x="99" y="160" text-anchor="middle">draft incident</text>
+        <text class="ss" x="99" y="183" text-anchor="middle">P2, payments, RB-101</text>
+        <path class="ar" d="M196 165 L246 165" marker-end="url(#arw)"/>
+
+        <rect class="bx a grow w3" x="250" y="130" width="210" height="70" rx="6"/>
+        <text class="tt" x="355" y="160" text-anchor="middle" style="font-family:var(--mono)">interrupt()</text>
+        <text class="ss" x="355" y="183" text-anchor="middle">state saved, run stops</text>
+        <path class="ar" d="M355 202 L355 256" marker-end="url(#arw)"/>
+        <text class="ss" x="345" y="234" text-anchor="end" style="fill:#d98a3d">waits: minutes or hours</text>
+
+        <rect class="bx w grow w4" x="250" y="260" width="210" height="70" rx="6"/>
+        <text class="tt" x="355" y="290" text-anchor="middle">Engineer</text>
+        <text class="ss" x="355" y="313" text-anchor="middle">approve or reject</text>
+
+        <path class="ar" d="M462 295 L526 295" marker-end="url(#arg)" style="stroke:#5fbf8f"/>
+        <text class="ss" x="470" y="285" style="fill:#5fbf8f">yes</text>
+        <rect class="bx g grow w5" x="530" y="260" width="166" height="70" rx="6"/>
+        <text class="tt" x="613" y="290" text-anchor="middle">open_incident</text>
+        <text class="ss" x="613" y="313" text-anchor="middle">runs</text>
+
+        <path class="ar" d="M462 270 L556 206" marker-end="url(#arr)" style="stroke:#e2726e"/>
+        <text class="ss" x="530" y="244" style="fill:#e2726e">no</text>
+        <rect class="bx w grow w5" x="530" y="130" width="166" height="70" rx="6"/>
+        <text class="tt" x="613" y="160" text-anchor="middle">reply only</text>
+        <text class="ss" x="613" y="183" text-anchor="middle">nothing opened</text>
+
+        <text class="ss" x="4" y="366" style="fill:#d98a3d">The pause is a saved state, so it needs a checkpointer.</text>
+      </svg>
+    </div>
+    <div class="pts">
+<div class="file"><span class="fn">graph.py</span>def approve(state):
+    ok = interrupt(state["draft"])
+    if ok == "yes":
+        open_incident(**state["draft"])
+    ...
+
+<span class="c"># later, same thread_id:</span>
+graph.invoke(Command(resume="yes"), cfg)
+</div>
+      <ul>
+        <li>On resume, the node <b>runs again from the top</b>.</li>
+      </ul>
+      <div class="take"><b>Module 4&rsquo;s approval</b> is now a pause that can wait.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-sec="2 &middot; LangGraph" data-title="Streaming: show progress while the agent works" data-notes="An agent run can take twenty seconds or more. With invoke, the user sees nothing until the end. With stream, you get events while the graph runs, and stream_mode chooses which events. The table uses one AskOps run: the question about a 502, passing through classify, search and answer. updates sends one event when each node finishes, with only the keys that node changed. Use it for a progress line, such as Searching runbooks, and for logs. messages sends the model's reply a few words at a time, as the model writes it. Use it for a chat window, so the answer appears as it is written. values sends the whole state after every step. It is the most data, so use it when you debug and want to see everything the graph knows. The code is the same for all three: a for loop over graph.stream, with a different stream_mode. It also works on create_agent, because an agent is a graph." data-tier="K">
+  <h2>Streaming: show progress <em>while</em> the agent works<span class="tag k">2</span></h2>
+  <div class="body g1">
+    <div>
+      <svg viewBox="0 0 1180 450" role="img" aria-label="invoke waits for the end, stream sends events during the run; a table shows what updates, messages and values send for one AskOps run, and what each is for">
+        <rect class="bx r grow" x="4" y="4" width="578" height="64" rx="8"/>
+        <text class="tt" x="20" y="31" style="font-family:var(--mono)">graph.invoke(...)</text>
+        <text class="ss" x="20" y="54">The user sees nothing until the run ends.</text>
+        <rect class="bx g grow w2" x="598" y="4" width="578" height="64" rx="8"/>
+        <text class="tt" x="614" y="31" style="font-family:var(--mono)">graph.stream(..., stream_mode=...)</text>
+        <text class="ss" x="614" y="54">Events arrive while the agent works.</text>
+
+        <text class="lb" x="20" y="100">STREAM_MODE</text>
+        <text class="lb" x="190" y="100">WHAT YOU GET</text>
+        <text class="lb a" x="520" y="100">EXAMPLE: THE 502 QUESTION</text>
+        <text class="lb g" x="960" y="100">USE IT FOR</text>
+
+        <rect class="bx w rise r2" x="4" y="110" width="1172" height="84" rx="6"/>
+        <text class="tt" x="20" y="146" style="font-family:var(--mono)">"updates"</text>
+        <text class="ss" x="190" y="142">One event per node.</text>
+        <text class="ss" x="190" y="166">Only the keys it changed.</text>
+        <text class="ss" x="520" y="136" style="font-family:var(--mono);font-size:13px">{"classify": {"kind": "runbook"}}</text>
+        <text class="ss" x="520" y="157" style="font-family:var(--mono);font-size:13px">{"search": {"findings": ["RB-101"]}}</text>
+        <text class="ss" x="520" y="178" style="font-family:var(--mono);font-size:13px">{"answer": {"answer": "Follow RB-101."}}</text>
+        <text class="ss" x="960" y="142">A progress line and logs:</text>
+        <text class="ss" x="960" y="166">&ldquo;Searching runbooks&hellip;&rdquo;</text>
+
+        <rect class="bx w rise r3" x="4" y="204" width="1172" height="84" rx="6"/>
+        <text class="tt" x="20" y="252" style="font-family:var(--mono)">"messages"</text>
+        <text class="ss" x="190" y="236">The model&rsquo;s reply,</text>
+        <text class="ss" x="190" y="260">a few words at a time.</text>
+        <text class="ss" x="520" y="252" style="font-family:var(--mono);font-size:13px">"Follow" &middot; " RB-101," &middot; " then" &middot; " roll back."</text>
+        <text class="ss" x="960" y="236">A chat window: the answer</text>
+        <text class="ss" x="960" y="260">appears as it is written.</text>
+
+        <rect class="bx w rise r4" x="4" y="298" width="1172" height="84" rx="6"/>
+        <text class="tt" x="20" y="346" style="font-family:var(--mono)">"values"</text>
+        <text class="ss" x="190" y="330">The whole state,</text>
+        <text class="ss" x="190" y="354">after every step.</text>
+        <text class="ss" x="520" y="330" style="font-family:var(--mono);font-size:13px">{"question": "...", "kind": "runbook",</text>
+        <text class="ss" x="520" y="351" style="font-family:var(--mono);font-size:13px"> "findings": ["RB-101"], "answer": "..."}</text>
+        <text class="ss" x="520" y="372" style="fill:#d98a3d">one full copy after each node</text>
+        <text class="ss" x="960" y="330">Debugging: see everything</text>
+        <text class="ss" x="960" y="354">the graph knows.</text>
+
+        <rect class="bx d rise r5" x="4" y="396" width="1172" height="50" rx="8"/>
+        <text class="ss w" x="20" y="427" style="font-family:var(--mono);font-size:14px">for event in graph.stream(inputs, cfg, stream_mode="updates"):  print(event)</text>
+        <text class="ss w" x="1160" y="427" text-anchor="end">Works on create_agent too.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-sec="Close" data-title="What to take from Module 5" data-notes="Here is what to keep from this module. LangChain gives you parts that replace the code you wrote by hand on Day 1: prompt templates, chat models, parsers and tools. The pipe joins them into a chain. create_agent runs the whole ReAct loop in one call. None of this changes the loop itself, so the Module 4 rules still apply. Tool descriptions are instructions, the model only asks, and every loop needs a step limit. Choose the smallest option that works: a chain, then an agent, then a graph. LangGraph adds the things the plain loop lacked. State is one dictionary. Nodes return only their changes. Routers and cycles are edges, with a stop rule in the state. A checkpointer and a thread_id give you memory and resume. interrupt pauses for a person, and stream shows progress. The rest of Day 2 builds on these graphs." data-tier="K">
+  <h2>What to take from Module 5<span class="tag">M5</span></h2>
+  <div class="body g46">
+    <div class="pts">
+      <h3>Keep these</h3>
+      <ul>
+        <li>LangChain parts replace your <b>Day 1 code</b>, not the loop.</li>
+        <li>Pick the smallest: <b>chain, agent, graph</b>.</li>
+        <li>Nodes return <b>only their changes</b>. Reducers join them.</li>
+        <li>Every cycle needs a <b>stop rule</b> in the state.</li>
+        <li><b>Checkpointer + <code>thread_id</code></b>: memory and resume.</li>
+        <li><b><code>interrupt</code></b> before any tool that writes.</li>
+      </ul>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 380" role="img" aria-label="From the Day 1 hand-written loop, to LangChain, to LangGraph">
+        <text class="lb" x="4" y="14">DAY 1 &mdash; YOUR LOOP</text>
+        <rect class="bx grow" x="4" y="24" width="692" height="92" rx="8"/>
+        <text class="tt" x="20" y="60">A ReAct loop in plain Python</text>
+        <text class="ss" x="20" y="88">Every message visible. You wrote every line.</text>
+
+        <text class="lb a" x="4" y="144">MODULE 5 &mdash; LANGCHAIN</text>
+        <rect class="bx a grow w2" x="4" y="154" width="692" height="92" rx="8"/>
+        <text class="tt" x="20" y="190">The same loop, from ready-made parts</text>
+        <text class="ss" x="20" y="218">A chain with a pipe. An agent in one call.</text>
+
+        <text class="lb g" x="4" y="274">MODULE 5 &mdash; LANGGRAPH</text>
+        <rect class="bx g grow w3" x="4" y="284" width="692" height="92" rx="8"/>
+        <text class="tt" x="20" y="320">Steps you control, save, pause and stream</text>
+        <text class="ss" x="20" y="348">The rest of Day 2 builds on these graphs.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-sec="Review quiz" data-title="Review quiz - eight questions" data-notes="Use this quiz to check your understanding. Answer each question yourself first, then hover over Answer to check. If you get one wrong, go back to the slide on that topic. Q1 - B: the pipe passes each part's output to the next part, in order. A is tempting, but the parts run one after another. Q2 - C: the docstring becomes the description the model reads. A gives only the name, which says too little. Q3 - C: the steps never change, so a chain is enough. A works, but adds cost and surprises for nothing. Q4 - D: recursion_limit stops a run that takes too many steps. A is tempting, but a full context window is an error, not a limit you set. Q5 - A: add_messages appends new messages to the list. Without it, the last write wins. Q6 - C: your router checks a counter in the state. A is wrong: LangGraph never detects a loop for you. Q7 - A: thread_id files the saved states of one conversation. B is tempting, but it has nothing to do with operating-system threads. Q8 - D: the pause is a saved state, so it needs a checkpointer. B sounds likely, but interrupt sends no messages." data-tier="K">
+  <h2>Review quiz &mdash; eight questions<span class="tag q">QUIZ</span></h2>
+  <div class="body qgrid">
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>1</b><span>In <code>prompt | model | parser</code>, what does the pipe do?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>Runs the three parts at once</span><span class="c" data-why="Each part's output becomes the next part's input, in order. A is tempting, but the parts run one after another."><i>B</i>Passes each output to the next</span><span><i>C</i>Picks the best of three replies</span><span><i>D</i>Retries the model when it fails</span></div></div>
+      <div class="qc"><div class="qh"><b>2</b><span>With <code>@tool</code>, where does the tool&rsquo;s description come from?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The function&rsquo;s name only</span><span><i>B</i>A separate YAML file</span><span class="c" data-why="LangChain uses the docstring as the description the model reads. The name alone says too little about when to use the tool."><i>C</i>The function&rsquo;s docstring</span><span><i>D</i>The return type hint</span></div></div>
+      <div class="qc"><div class="qh"><b>3</b><span>Summarise one incident in a fixed format. What do you build?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>An agent with three tools</span><span><i>B</i>A graph with a checkpointer</span><span class="c" data-why="The steps never change, so a chain is enough. An agent would work, but adds cost and surprises for nothing."><i>C</i>A chain: prompt, model, parser</span><span><i>D</i>An agent with a step limit</span></div></div>
+      <div class="qc"><div class="qh"><b>4</b><span>An agent keeps calling <code>search_runbooks</code>. What ends the run?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>The context window filling up</span><span><i>B</i>The tool&rsquo;s docstring</span><span><i>C</i>The output parser</span><span class="c" data-why="recursion_limit is the step budget; the run raises GraphRecursionError. A full context window is an error, not a limit you set."><i>D</i>The <code>recursion_limit</code> setting</span></div></div>
+    </div>
+    <div class="qcol">
+      <div class="qc"><div class="qh"><b>5</b><span>Two nodes both return new messages. Why are both kept?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="The add_messages reducer adds new messages to the list. Without a reducer, the last node to write would win."><i>A</i>Its reducer appends to the list</span><span><i>B</i>Every key keeps all its values</span><span><i>C</i>The checkpointer merges them</span><span><i>D</i>Nodes never share a key</span></div></div>
+      <div class="qc"><div class="qh"><b>6</b><span>A <code>check</code> node loops back to <code>search</code>. What should stop the cycle?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>LangGraph detects the loop</span><span><i>B</i>The model always gives up</span><span class="c" data-why="Your router checks a counter such as tries in the state. LangGraph never detects a loop for you; recursion_limit is only the backup."><i>C</i>A counter in the state</span><span><i>D</i>An edge back to START</span></div></div>
+      <div class="qc"><div class="qh"><b>7</b><span>What does <code>thread_id</code> do when a graph has a checkpointer?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span class="c" data-why="Every saved state is filed under the thread_id, so the same id continues the same conversation. It has nothing to do with operating-system threads."><i>A</i>Keeps one conversation&rsquo;s states</span><span><i>B</i>Runs the graph on its own thread</span><span><i>C</i>Names the model to call</span><span><i>D</i>Sets a step limit per user</span></div></div>
+      <div class="qc"><div class="qh"><b>8</b><span>Why does <code>interrupt()</code> need a checkpointer?</span><a class="ans" tabindex="0">Answer</a></div>
+        <div class="qo"><span><i>A</i>To stream tokens to the user</span><span><i>B</i>To send the approval request</span><span><i>C</i>To time out after an hour</span><span class="c" data-why="The pause is a saved state that a later Command(resume=...) continues. interrupt sends no messages itself; your app shows the request."><i>D</i>To save the state while it waits</span></div></div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script src="../assets/adlc-deck.js"></script>
+</body>
+</html>

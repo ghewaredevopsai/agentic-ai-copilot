@@ -28,7 +28,9 @@ Open the decks in a browser. No install, and they work offline.
 - Module 2: `presentation/module-2-token-optimization.html`
 - Module 3: `presentation/module-3-python-accelerated.html`
 - Module 4: `presentation/module-4-agent-foundations.html`
+- Module 5: `presentation/module-5-langchain-langgraph.html`
 - Day 2 · Module 2 — CrewAI & Google ADK: `presentation/CrewAI-GoogleADK.html`
+- Day 2 · Module 3 — RAG, vector stores & memory: `presentation/module-rag-memory.html`
 
 Keys: arrow keys or space to move · `O` for the slide index · `N` for the notes on the current
 slide · `F` for full screen. The notes are written for you, not for the trainer, so read them after

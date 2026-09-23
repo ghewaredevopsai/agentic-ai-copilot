@@ -6,7 +6,7 @@
 These four labs are about one thing: the request you send to the agent, and what you can check
 afterwards.
 
-- **Lab 1** asks the same ticket twice, once the ordinary way and once in six parts.
+- **Lab 1** asks for the same change twice, once in one line and once in six parts.
 - **Lab 2** asks for the answer in a fixed shape, so a script can check it.
 - **Lab 3** writes the rules down in the file Copilot reads on every request.
 - **Lab 4** measures whether any of it helped, on three real tickets.
@@ -78,8 +78,9 @@ While it works:
 - Stop it after **five minutes**, with the **Stop** button, whether or not it has finished.
 
 **What you should see:** Copilot searches the repository before it writes anything. It opens the
-posting classes, and usually several files it does not need. It then makes decisions the ticket
-already answers, such as whether a reversal deletes the posting.
+posting classes, and usually several files it does not need. It then makes decisions that GB-151
+already answers, such as whether a reversal deletes the posting. It never saw GB-151, because the
+one-line request does not point to it. Naming the ticket is part of INPUTS, one of the six parts.
 
 Write two things in `labs/my-work/lab-1-teardown.md`: the number of different files it opened, and
 every fix-up prompt you typed.
@@ -127,7 +128,7 @@ DONE
 
 STOP
 - If no file in this repository says how a reversal is recorded, stop and ask. Do not choose.
-- Do not change any existing ledger entry.
+- If the change would edit an existing ledger entry, stop and ask.
 ```
 
 Count the different files again, the same way. Stop it after five minutes.
@@ -147,19 +148,26 @@ git status --short
 ### Step 4 — Turn your fix-ups into stop conditions (3 min)
 
 Read your list of fix-up prompts. Each one is a rule you had in your head and the agent did not
-have. Write each one again as a situation the agent can check.
+have. Sort each one into one of two kinds:
 
-| Your fix-up prompt | As a stop condition |
+- **A fact:** the answer is already known, in the ticket or in the repository. Write it down as a
+  rule. It belongs in the instruction file.
+- **A stop condition:** nobody has decided the answer yet. Write it as a situation the agent can
+  check, where it must stop and ask.
+
+| Your fix-up prompt | Fact or stop condition? |
 |---|---|
-| "No, do not delete the posting" | "If the ticket does not say how a record is removed, stop and ask." |
-| "Use a slice test, not @SpringBootTest" | (this is a fact, not a stop condition — it belongs in the instruction file) |
+| "No, do not delete the posting" | A fact. GB-151 and `docs/glossary.md` both say it. Rule: "A reversal never deletes a posting." |
+| "Use a slice test, not @SpringBootTest" | A fact. Rule: "Slice tests only. Never `@SpringBootTest`." |
+| "Don't add a reason-code field, we never agreed one" | A stop condition: "If you need a field, code or status value that no file in this repository defines, stop and ask." |
 | (yours) | (yours) |
 
 "Ask if you are unsure" changes nothing. The model does not feel unsure the way a person does. A
 stop condition must name something the agent can check, such as "if no ADR covers this design
 choice".
 
-Keep this file. Lab 3 and Lab 4 both use it.
+Keep this file. Lab 3 starts from your facts, and the stretch lab after Lab 4 uses your stop
+conditions.
 
 ### If you are behind
 
@@ -205,13 +213,15 @@ If you cannot find a file for a rule, leave the rule out and put it under "unres
 
 **What you should see:** one JSON object, with three or four rules, each naming a real file such as
 `.github/copilot-instructions.md` or `docs/adr/ADR-003-amounts-as-minor-units.md`. `files_changed`
-should hold the service, the controller and a test file, because the contract on slide 5 asks for
-all three.
+usually holds the service, the controller and a test file. GB-151 asks for an endpoint and for tests.
 
-Copy the reply into a new file, `~/gb-labs/lab-2-contract.json`. Save it next to your clone, so the
-checks below can resolve the paths inside it.
+Copy the reply into a new file, `~/gb-labs/lab-2-contract.json`. It sits beside your clone, not
+inside it, so `git status` stays clean. It is not in `labs/my-work/`, because the check below reads
+it from this fixed path.
 
 ### Step 3 — Check it (4 min)
+
+Use `python3` in place of `python` if that is the name that prints 3.14 on your machine.
 
 ```bash
 cd ~/gb-labs/global-bank-account
@@ -219,7 +229,8 @@ python -m json.tool ~/gb-labs/lab-2-contract.json > /dev/null
 # must print nothing. Anything else means the reply was not a JSON object
 ```
 
-Then check the five fields, and that every source is a real file:
+Then check the five fields, and that every source is a real file. Run it from inside the clone, as
+above: each `source` is a path relative to the repository.
 
 ```bash
 python - <<'EOF'
@@ -316,7 +327,7 @@ When it finishes, read the diff and fill in the **Before** column. Copy this tab
 | Did it add a stored total or balance field? | | |
 | Test style: `@DataJpaTest` or `@WebMvcTest`, or `@SpringBootTest`? | | |
 | How is the new dependency wired: constructor, or `@Autowired` on a field? | | |
-| Did it use Lombok? | | |
+| "Today" could mean the value date or the time it was booked. Did it ask, or pick one? | | |
 | Did it run `mvn test` before it said it had finished? | | |
 
 **What to notice.** The code around it is itself a kind of instruction. It may copy the posting
@@ -333,7 +344,7 @@ git status --short
 
 ### Step 4 — Draft with `/init`, then cut (10 min)
 
-In a **new chat**, type:
+**Prompt 3-B** · Agent mode · base model · **new chat**
 
 ```text
 /init
@@ -356,19 +367,20 @@ rules. Cut the draft until every line passes three tests:
 2. Could a reviewer **check this in a diff**?
 3. Is it a **rule**, and not a description of code Copilot can already read?
 
-Aim for **25 lines or fewer**. Make sure these rules are in it, in your own words. Every one of them
-is true in this repository, and you can see each one in the code:
+Aim for **25 lines or fewer**. Three rules are given to you. Put them in, in your own words:
 
 - Money is a `long` of minor units. Never `double`, `float` or `BigDecimal`
 - Every posting writes exactly two ledger entries, one DEBIT and one CREDIT, equal in amount and
   currency
 - Balances are derived from entries, never stored. Do not add a balance column
-- Constructor injection only. No field injection, and no `@Autowired` on a field
-- No Lombok
-- Cross-currency postings are rejected. This service does not convert
-- Slice tests only: `@DataJpaTest` with `@Import`, or `@WebMvcTest`. Never `@SpringBootTest`
-  (a fact. From `m3-start` on, the team keeps it in `.github/instructions/tests.instructions.md`)
-- Do not invent an account id, a currency code, a status value or a limit. Say so and ask
+
+Find the rest yourself. Start with the **facts** in your Lab 1 table, in
+`labs/my-work/lab-1-teardown.md`. Then use your **Before** column: every row the baseline got wrong,
+or got right only by luck, is a rule you are missing. Then read the `posting` package. Look for
+habits it keeps that the older account code beside it does not.
+
+A rule like "do not invent an account id, a currency code or a limit, say so and ask" is fine here.
+It is not the same as "ask if you are unsure". It names things the agent can check for.
 
 **Check that Copilot has found the file now, not in Step 5.** The name has to be exact:
 `.github/copilot-instructions.md`, with hyphens, at the root of your clone. Ask anything in chat,
@@ -407,26 +419,34 @@ test suite's job, or a reviewer's.
 
 ### Step 6 — Compare with the team's file (3 min)
 
-The team wrote their own version. Read it only now:
+The team wrote their own version. Read it only now. Lab 2's reply may have quoted parts of it, and
+that is fine: you wrote yours from the code and your notes.
 
 ```bash
 git show m3-start:.github/copilot-instructions.md
+git show m3-start:.github/instructions/tests.instructions.md
 ```
 
-It points at files under `docs/` that your branch does not have. Those arrive at the `m3-start`
-checkpoint. Ignore the paths. Look at **which rules they wrote down and you did not**, and at how
-short their file is.
+The team keeps its test rules in the second file. It is read only when Copilot works on test files.
+Their instruction file points at files under `docs/` that your branch does not have. Those arrive
+at the `m3-start` checkpoint. Ignore the paths. Look at **which rules they wrote down and you did
+not**, and at how short their file is.
 
 Write that list at the end of `labs/my-work/lab-3-rules.md`, under the heading "Rules I did not
 write down". That list is the real output of this lab.
 
 ### If you are behind
 
-Do Steps 2, 4 and 5, and skip the rest. If you have no time to write the file at all, take the
-team's and measure that instead:
+Keep Steps 2, 3 and 5 and the reset at the end of Step 5, because the before and after runs only
+compare on a clean branch. Cut Step 4 short: skip `/init`, and write only the three given rules
+plus two of your own. Do Step 6 at the debrief if you run out of time.
+
+If you have no time to write the file at all, take the team's and commit it, so the reset in Step 5
+does not remove it:
 
 ```bash
 git checkout m3-start -- .github/copilot-instructions.md
+git commit -m "Use the team's instruction file"
 ```
 
 Then do Step 5. You measured the team's file, not your own. Say so in your notes.
@@ -549,6 +569,10 @@ You are now on the Column A branch. After every run you go back to that column's
 
    Also read the agent's last message. Did it stop and ask a question? Write **P** or **F** in your
    table, with a few words on why.
+
+   While the chat is still open, note three things for Step 5. You cannot easily see them later:
+   did it name the file a rule came from, did it open anything in `docs/adr/`, and did it stop and
+   ask instead of choosing.
 7. **Save the run, then reset.** You compare the runs in Step 5, so save each one under a name you
    can find again:
 
@@ -639,9 +663,10 @@ For each ticket, put the two runs on screen together. They are in your stash:
 git stash list | grep "lab 4 A6"    # prints e.g. stash@{3}: On ...: lab 4 A6
 git stash list | grep "lab 4 B6"
 
-# use the index each line printed
-git stash show -p 'stash@{3}' > /tmp/a6.diff
-git stash show -p 'stash@{0}' > /tmp/b6.diff
+# use the index each line printed. --include-untracked brings in the new files,
+# such as a new test class. Without it they are missing from the diff.
+git stash show -p --include-untracked 'stash@{3}' > /tmp/a6.diff
+git stash show -p --include-untracked 'stash@{0}' > /tmp/b6.diff
 ```
 
 Open both files in the editor, side by side. For each ticket, answer these four questions in
@@ -649,10 +674,10 @@ Open both files in the editor, side by side. For each ticket, answer these four 
 
 | Question | Where to look |
 |---|---|
-| Did either run name the file a rule came from? | the agent's last message |
-| Did either run read `docs/adr/` before writing? | the tool calls in the chat |
+| Did either run name the file a rule came from? | your notes from scoring |
+| Did either run read `docs/adr/` before writing? | your notes from scoring |
 | Do the tests check the same thing, at the same level? | the two diffs |
-| Did either run stop and ask, instead of choosing? | the agent's last message |
+| Did either run stop and ask, instead of choosing? | your notes from scoring |
 
 A pass rate can only move by whole tickets. These four answers move even when the score does not,
 and they are what you take back to your own repository.

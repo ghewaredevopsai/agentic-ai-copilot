@@ -52,19 +52,19 @@ You connect to the model, build a chain with the pipe (`prompt | llm | parser`),
 functions into tools with `@tool`, and build the whole agent with `create_agent`. Then you stop a run
 with `recursion_limit`, and stream an answer as it is written.
 
-**Compare with Day 1.** After the last cell, run your fixed Day 1 agent on the same two questions,
+**Compare with Module 4.** After the last cell, run your fixed Module 4 agent on the same two questions,
 in a terminal:
 
 ```bash
 cd ~/work/agentic-ai-copilot/labs/module-4-agent
-python my_agent.py
-python my_agent.py "Logins are slow this morning. Is there a runbook?"
+python agent.py
+python agent.py "Logins are slow this morning. Is there a runbook?"
 ```
 
-If you do not have `my_agent.py`, Lab 4.4, Step 1 says how to make it from the solution. Then fill
+If you did not finish Lab 4.2, its *If you are behind* says how to copy in the solution. Then fill
 in this table in your notes:
 
-| | Day 1: `my_agent.py` | Lab 5.1: `create_agent` |
+| | Module 4: `agent.py` | Lab 5.1: `create_agent` |
 |---|---|---|
 | Tools called, first question | | |
 | Steps and tokens, first question | | |

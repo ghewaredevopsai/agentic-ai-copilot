@@ -9,6 +9,7 @@
 | 2 | [Module 5 — LangChain and LangGraph](module-5-langgraph/README.md) | 5.1 · 5.2 · 5.3 |
 | 2 | [RAG, vector stores and agent memory](module-rag-memory/README.md) | R.1 · R.2 · R.3 |
 | 2 | [Module 2 — CrewAI & Google ADK](CrewAI-GoogleADK/README.md) | 1 · 2 · 3 · 4 |
+| 3 | [MCP — connect agents to real systems](module-mcp/README.md) | M.1 · M.2 · M.3 · M.4 · M.5 |
 
 Module 2 uses the same `global-bank-account` clone at `m3-start`, plus a small setup of its own: see
 [`module-2-tokens/README.md`](module-2-tokens/README.md). Module 3 has its own practice app, AskOps,
